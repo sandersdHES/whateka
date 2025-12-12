@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import '../main.dart';
+import '../models/activity.dart'; // Import Activity model for mockActivities
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -90,7 +91,7 @@ class _MapScreenState extends State<MapScreen> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: _currentPosition,
-              initialZoom: 13.0,
+              initialZoom: 11.0, // Zoom out slightly to see more context
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               ),
@@ -103,6 +104,7 @@ class _MapScreenState extends State<MapScreen> {
               if (_hasLocation)
                 MarkerLayer(
                   markers: [
+                    // Current User Position
                     Marker(
                       point: _currentPosition,
                       width: 50,
@@ -110,13 +112,27 @@ class _MapScreenState extends State<MapScreen> {
                       child: const Column(
                         children: [
                           Icon(
-                            Icons.location_on,
-                            color: AppColors.orange,
-                            size: 40,
+                            Icons.my_location,
+                            color: AppColors.cyan,
+                            size: 30,
                           ),
                         ],
                       ),
                     ),
+                    // Activity Markers
+                    ...mockActivities.map((activity) => Marker(
+                          point: LatLng(activity.latitude, activity.longitude),
+                          width: 50,
+                          height: 50,
+                          child: GestureDetector(
+                            onTap: () => _showActivityDetail(activity),
+                            child: const Icon(
+                              Icons.location_on,
+                              color: AppColors.orange,
+                              size: 40,
+                            ),
+                          ),
+                        )),
                   ],
                 ),
             ],
@@ -133,6 +149,160 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showActivityDetail(Activity activity) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: 450,
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Image Section
+            Expanded(
+              flex: 3,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(32)),
+                    child: Image.network(
+                      activity.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.broken_image,
+                            size: 50, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: GestureDetector(
+                      onTap: () {
+                        // Close bottom sheet and navigate to full details
+                        Navigator.pop(context);
+                        Navigator.pushNamed(
+                          context,
+                          '/activity_detail',
+                          arguments: activity,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.open_in_full,
+                            size: 20, color: AppColors.black),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Info Section
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.orange.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            activity.category,
+                            style: const TextStyle(
+                              color: AppColors.orange,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.place,
+                                size: 16, color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Text(
+                              activity.location,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      activity.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: AppColors.black,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.black,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context); // Close bottom sheet
+                          Navigator.pushNamed(
+                            context,
+                            '/activity_detail',
+                            arguments: activity,
+                          );
+                        },
+                        child: const Text('Voir les détails'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

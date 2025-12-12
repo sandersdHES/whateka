@@ -115,7 +115,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
-                      'Commencer à explorer avec Whateka !',
+                      'Commence à explorer avec Whateka !',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.concertOne(
                         fontSize: 36,
@@ -128,7 +128,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
 
                   // Bottom Buttons
                   _MenuButton(
-                    label: 'Questionnaire',
+                    label: 'Trouver mon activité du jour !',
                     icon: Icons.assignment,
                     color: AppColors.orange,
                     onTap: () => Navigator.pushNamed(context, '/quiz'),

@@ -56,7 +56,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Découvrez l\'aventure autour de vous',
+                    'L' 'activité te trouvera !',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: AppColors.black.withValues(alpha: 0.7),

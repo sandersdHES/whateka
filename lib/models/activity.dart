@@ -6,6 +6,8 @@ class Activity {
   final String imageUrl;
   final String category;
   final List<String> features;
+  final double latitude;
+  final double longitude;
   bool isFavorite;
 
   Activity({
@@ -16,6 +18,8 @@ class Activity {
     required this.imageUrl,
     required this.category,
     required this.features,
+    required this.latitude,
+    required this.longitude,
     this.isFavorite = false,
   });
 }
@@ -31,6 +35,8 @@ List<Activity> mockActivities = [
         'https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?q=80&w=1200&auto=format&fit=crop',
     category: 'Culture',
     features: ['Adapté aux familles', 'Accès gratuit'],
+    latitude: 46.2304,
+    longitude: 7.3626,
   ),
   Activity(
     title: 'Randonnée du Bisse du Ro',
@@ -42,6 +48,8 @@ List<Activity> mockActivities = [
         'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop',
     category: 'Sport & Nature',
     features: ['Niveau moyen', 'Vue panoramique'],
+    latitude: 46.3117,
+    longitude: 7.4566,
   ),
   Activity(
     title: 'Dégustation de Vins',
@@ -53,5 +61,7 @@ List<Activity> mockActivities = [
         'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=1200&auto=format&fit=crop',
     category: 'Gastronomie',
     features: ['Sur réservation', 'Dès 18 ans'],
+    latitude: 46.3052,
+    longitude: 7.5689,
   ),
 ];

@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import '../models/activity.dart'; // Will import activity model once refactored to support favorites
 
-class FavoritesScreen extends StatelessWidget {
+class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
 
+  @override
+  State<FavoritesScreen> createState() => _FavoritesScreenState();
+}
+
+class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     // Use global list, refresh on build
@@ -43,6 +48,13 @@ class FavoritesScreen extends StatelessWidget {
                     subtitle: Text(activity.location),
                     trailing:
                         const Icon(Icons.favorite, color: AppColors.orange),
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/activity_detail',
+                        arguments: activity,
+                      ).then((_) => setState(() {})); // Refresh on return
+                    },
                   ),
                 );
               },
