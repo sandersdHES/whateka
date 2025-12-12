@@ -11,18 +11,22 @@ class QuestionnaireScreen extends StatefulWidget {
 class _Option {
   final String label;
   final IconData icon;
-  const _Option(this.label, this.icon);
+  final String? value; // For logic checks (like 'outdoor')
+  const _Option(this.label, this.icon, {this.value});
 }
 
 class _QuestionQuestionData {
   final String question;
   final List<_Option> options;
-  const _QuestionQuestionData(this.question, this.options);
+  final int maxSelections;
+  const _QuestionQuestionData(this.question, this.options,
+      {this.maxSelections = 1});
 }
 
 class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   int currentStep = 0;
-  final List<int> selections = [0, 0, 0, 0, 0];
+  // Use Set<int> for multiple selections per step
+  final List<Set<int>> selections = [{}, {}, {}, {}, {}];
 
   final List<_QuestionQuestionData> questions = const [
     _QuestionQuestionData(
@@ -41,15 +45,17 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         _Option('Culture', Icons.museum),
         _Option('Détente', Icons.spa),
         _Option('Sport', Icons.directions_run),
+        _Option('Gourmandise', Icons.restaurant),
+        _Option('Aventure', Icons.explore_off),
       ],
+      maxSelections: 2,
     ),
     _QuestionQuestionData(
-      "Quel type d'ambiance ?",
+      "Envie d'extérieur ou d'intérieur ?",
       [
-        _Option('Calme', Icons.nights_stay),
-        _Option('Animé', Icons.local_activity),
-        _Option('Culturel', Icons.auto_stories),
-        _Option('Aventure', Icons.explore),
+        _Option('Outdoor', Icons.wb_sunny, value: 'outdoor'),
+        _Option('Indoor', Icons.home, value: 'indoor'),
+        _Option('Egal', Icons.thumbs_up_down),
       ],
     ),
     _QuestionQuestionData(
@@ -58,14 +64,14 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         _Option('Gratuit', Icons.money_off),
         _Option('Éco', Icons.attach_money),
         _Option('Modéré', Icons.currency_exchange),
-        _Option('Luxe', Icons.diamond),
+        _Option('Pas important', Icons.all_inclusive),
       ],
     ),
     _QuestionQuestionData(
       "Combien de temps ?",
       [
         _Option('Quelques h.', Icons.timer),
-        _Option('Demi-journée', Icons.wb_sunny),
+        _Option('Demi-journée', Icons.wb_sunny_outlined),
         _Option('Journée', Icons.calendar_today),
         _Option('Week-end', Icons.weekend),
       ],
@@ -73,6 +79,39 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   ];
 
   void _nextStep() {
+    if (selections[currentStep].isEmpty) return; // Prevent empty step if needed
+
+    // Check for weather warning mock logic
+    if (currentStep == 2) {
+      // Q3 Ambiance
+      final selectedIndices = selections[currentStep];
+      final isOutdoor = selectedIndices
+          .any((i) => questions[2].options[i].value == 'outdoor');
+
+      if (isOutdoor) {
+        // Mock random weather check: 50% chance of warning for demo
+        // In real app, check API
+        bool badWeather =
+            true; // Force warning for demo purposes as requested/implied
+
+        if (badWeather) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.white),
+                  SizedBox(width: 8),
+                  Expanded(child: Text("Attention, la météo est incertaine !")),
+                ],
+              ),
+              backgroundColor: Colors.orange[800],
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    }
+
     if (currentStep < questions.length - 1) {
       setState(() {
         currentStep++;
@@ -92,10 +131,36 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     }
   }
 
+  void _toggleSelection(int index, int maxSelections) {
+    setState(() {
+      final selectionsForStep = selections[currentStep];
+      if (selectionsForStep.contains(index)) {
+        selectionsForStep.remove(index);
+      } else {
+        if (maxSelections == 1) {
+          selectionsForStep.clear();
+          selectionsForStep.add(index);
+        } else {
+          if (selectionsForStep.length < maxSelections) {
+            selectionsForStep.add(index);
+          } else {
+            // Optional: simple replace or warn. Here we just don't add.
+            // Or we could remove the first added? Let's just block > max.
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Maximum $maxSelections choix possible(s)')),
+            );
+          }
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final question = questions[currentStep];
     final progress = (currentStep + 1) / questions.length;
+    final canProceed = selections[currentStep].isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -155,14 +220,25 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                 // Question Title
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Text(
-                    question.question,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.black,
-                          height: 1.3,
+                  child: Column(
+                    children: [
+                      Text(
+                        question.question,
+                        textAlign: TextAlign.center,
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.black,
+                                  height: 1.3,
+                                ),
+                      ),
+                      if (question.maxSelections > 1)
+                        Text(
+                          "(Choix multiple: ${question.maxSelections} max)",
+                          style:
+                              TextStyle(color: Colors.grey[600], fontSize: 13),
                         ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -180,12 +256,13 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                       childAspectRatio: 1.1,
                     ),
                     itemBuilder: (context, index) {
-                      final isSelected = selections[currentStep] == index;
+                      final isSelected =
+                          selections[currentStep].contains(index);
                       return _OptionCard(
                         option: question.options[index],
                         selected: isSelected,
                         onTap: () =>
-                            setState(() => selections[currentStep] = index),
+                            _toggleSelection(index, question.maxSelections),
                       );
                     },
                   ),
@@ -207,7 +284,11 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _nextStep,
+                      onPressed: canProceed ? _nextStep : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            canProceed ? AppColors.orange : Colors.grey[300],
+                      ),
                       child: Text(currentStep == questions.length - 1
                           ? 'Terminer'
                           : 'Continuer'),

@@ -83,10 +83,15 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
   }
 }
 
-class _ActivitySummaryCard extends StatelessWidget {
+class _ActivitySummaryCard extends StatefulWidget {
   final Activity activity;
   const _ActivitySummaryCard({required this.activity});
 
+  @override
+  State<_ActivitySummaryCard> createState() => _ActivitySummaryCardState();
+}
+
+class _ActivitySummaryCardState extends State<_ActivitySummaryCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -94,8 +99,8 @@ class _ActivitySummaryCard extends StatelessWidget {
         Navigator.pushNamed(
           context,
           '/activity_detail',
-          arguments: activity,
-        );
+          arguments: widget.activity,
+        ).then((_) => setState(() {})); // Refresh on return
       },
       child: Container(
         height: 500, // Fixed height for carousel items
@@ -116,19 +121,50 @@ class _ActivitySummaryCard extends StatelessWidget {
             // Image
             Expanded(
               flex: 3,
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(32)),
-                child: Image.network(
-                  activity.imageUrl,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.broken_image,
-                        size: 50, color: Colors.grey),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(32)),
+                    child: Image.network(
+                      widget.activity.imageUrl,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.broken_image,
+                            size: 50, color: Colors.grey),
+                      ),
+                    ),
                   ),
-                ),
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          widget.activity.isFavorite =
+                              !widget.activity.isFavorite;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          widget.activity.isFavorite
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: AppColors.orange,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             // Content
@@ -150,7 +186,7 @@ class _ActivitySummaryCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            activity.category,
+                            widget.activity.category,
                             style: const TextStyle(
                               color: AppColors.orange,
                               fontWeight: FontWeight.bold,
@@ -164,7 +200,7 @@ class _ActivitySummaryCard extends StatelessWidget {
                                 size: 16, color: Colors.grey),
                             const SizedBox(width: 4),
                             Text(
-                              activity.location,
+                              widget.activity.location,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 14,
@@ -176,7 +212,7 @@ class _ActivitySummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      activity.title,
+                      widget.activity.title,
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -191,7 +227,7 @@ class _ActivitySummaryCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Durée: ${activity.duration}',
+                          'Durée: ${widget.activity.duration}',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontWeight: FontWeight.w500,

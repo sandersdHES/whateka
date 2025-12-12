@@ -6,8 +6,9 @@ class Activity {
   final String imageUrl;
   final String category;
   final List<String> features;
+  bool isFavorite;
 
-  const Activity({
+  Activity({
     required this.title,
     required this.location,
     required this.duration,
@@ -15,10 +16,11 @@ class Activity {
     required this.imageUrl,
     required this.category,
     required this.features,
+    this.isFavorite = false,
   });
 }
 
-const List<Activity> mockActivities = [
+List<Activity> mockActivities = [
   Activity(
     title: 'Visite du Château de Tourbillon',
     location: 'Sion',

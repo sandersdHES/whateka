@@ -4,7 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/login_screen.dart';
 import 'screens/verification_screen.dart';
 import 'screens/forgot_password_screen.dart';
-import 'screens/dashboard_screen.dart';
+import 'screens/home_menu_screen.dart';
+import 'screens/map_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/favorites_screen.dart';
 
 import 'screens/home_screen.dart';
 import 'screens/signup_screen.dart';
@@ -183,7 +186,10 @@ class MyApp extends StatelessWidget {
         '/login': (_) => const LoginScreen(),
         '/verification': (_) => const EmailVerificationScreen(),
         '/forgot_password': (_) => const ForgotPasswordScreen(),
-        '/dashboard': (_) => const DashboardScreen(),
+        '/dashboard': (_) => const HomeMenuScreen(),
+        '/map': (_) => const MapScreen(),
+        '/profile': (_) => const ProfileScreen(),
+        '/favorites': (_) => const FavoritesScreen(),
         '/quiz': (_) => const QuestionnaireScreen(),
         '/activity': (_) => const ActivityListScreen(),
         '/activity_detail': (_) => const SingleActivityScreen(),

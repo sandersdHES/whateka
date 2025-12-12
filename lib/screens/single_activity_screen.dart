@@ -2,13 +2,34 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import '../models/activity.dart';
 
-class SingleActivityScreen extends StatelessWidget {
+class SingleActivityScreen extends StatefulWidget {
   const SingleActivityScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final activity = ModalRoute.of(context)!.settings.arguments as Activity;
+  State<SingleActivityScreen> createState() => _SingleActivityScreenState();
+}
 
+class _SingleActivityScreenState extends State<SingleActivityScreen> {
+  late Activity activity;
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      activity = ModalRoute.of(context)!.settings.arguments as Activity;
+      _initialized = true;
+    }
+  }
+
+  void _toggleFavorite() {
+    setState(() {
+      activity.isFavorite = !activity.isFavorite;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -26,6 +47,23 @@ class SingleActivityScreen extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
           ),
         ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Icon(
+                activity.isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: activity.isFavorite ? AppColors.orange : Colors.white,
+                size: 24,
+              ),
+              onPressed: _toggleFavorite,
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -125,6 +163,7 @@ class SingleActivityScreen extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
+                              fontSize: 18,
                             ),
                       ),
                       const SizedBox(height: 8),
