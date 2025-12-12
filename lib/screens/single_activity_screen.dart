@@ -1,0 +1,185 @@
+import 'package:flutter/material.dart';
+import '../main.dart';
+import '../models/activity.dart';
+
+class SingleActivityScreen extends StatelessWidget {
+  const SingleActivityScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final activity = ModalRoute.of(context)!.settings.arguments as Activity;
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Container(
+          margin: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.2),
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new,
+                size: 20, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.network(
+              activity.imageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: Colors.grey[200],
+                child: const Icon(Icons.broken_image,
+                    size: 50, color: Colors.grey),
+              ),
+            ),
+          ),
+          // Content Overlay
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black
+                        .withValues(alpha: 0.3), // Top darkness for AppBar
+                    Colors.black.withValues(alpha: 0.0),
+                    Colors.black.withValues(alpha: 0.8),
+                    Colors.black.withValues(alpha: 0.95),
+                  ],
+                  stops: const [0.0, 0.5, 0.8, 1.0],
+                ),
+              ),
+            ),
+          ),
+          // Content
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.orange,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Text(
+                          activity.category.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        activity.title,
+                        style:
+                            Theme.of(context).textTheme.displaySmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          const Icon(Icons.place,
+                              color: Colors.white70, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            activity.location,
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 16),
+                          ),
+                          const SizedBox(width: 24),
+                          const Icon(Icons.schedule,
+                              color: Colors.white70, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            activity.duration,
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Description',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        activity.description,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: activity.features
+                            .map((feature) => Container(
+                                  margin: const EdgeInsets.only(right: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.white
+                                            .withValues(alpha: 0.3)),
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                  ),
+                                  child: Text(
+                                    feature,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                      const SizedBox(height: 48),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppColors.black,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                          ),
+                          onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                              context, '/dashboard', (route) => false),
+                          child: const Text('Choisir cette expérience'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
