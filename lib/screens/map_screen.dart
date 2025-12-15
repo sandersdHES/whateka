@@ -3,7 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import '../main.dart';
-import '../models/activity.dart'; // Import Activity model for mockActivities
+import '../models/activity.dart';
+import '../services/activity_service.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -14,14 +15,31 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   final MapController _mapController = MapController();
+  final ActivityService _activityService = ActivityService();
+
   // Default location: Sion, Switzerland
   LatLng _currentPosition = const LatLng(46.22935, 7.36204);
   bool _hasLocation = false;
+  List<Activity> _activities = [];
 
   @override
   void initState() {
     super.initState();
     _determinePosition();
+    _fetchActivities();
+  }
+
+  Future<void> _fetchActivities() async {
+    try {
+      final activities = await _activityService.getActivities();
+      if (mounted) {
+        setState(() {
+          _activities = activities;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching activities: $e');
+    }
   }
 
   Future<void> _determinePosition() async {
@@ -41,8 +59,10 @@ class _MapScreenState extends State<MapScreen> {
 
     try {
       final position = await Geolocator.getCurrentPosition(
-        timeLimit: const Duration(seconds: 10),
-      );
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      ).timeout(const Duration(seconds: 10));
 
       if (mounted) {
         setState(() {
@@ -101,10 +121,10 @@ class _MapScreenState extends State<MapScreen> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.whateka',
               ),
-              if (_hasLocation)
-                MarkerLayer(
-                  markers: [
-                    // Current User Position
+              MarkerLayer(
+                markers: [
+                  // Current User Position
+                  if (_hasLocation)
                     Marker(
                       point: _currentPosition,
                       width: 50,
@@ -119,22 +139,22 @@ class _MapScreenState extends State<MapScreen> {
                         ],
                       ),
                     ),
-                    // Activity Markers
-                    ...mockActivities.map((activity) => Marker(
-                          point: LatLng(activity.latitude, activity.longitude),
-                          width: 50,
-                          height: 50,
-                          child: GestureDetector(
-                            onTap: () => _showActivityDetail(activity),
-                            child: const Icon(
-                              Icons.location_on,
-                              color: AppColors.orange,
-                              size: 40,
-                            ),
+                  // Activity Markers
+                  ..._activities.map((activity) => Marker(
+                        point: LatLng(activity.latitude, activity.longitude),
+                        width: 50,
+                        height: 50,
+                        child: GestureDetector(
+                          onTap: () => _showActivityDetail(activity),
+                          child: const Icon(
+                            Icons.location_on,
+                            color: AppColors.orange,
+                            size: 40,
                           ),
-                        )),
-                  ],
-                ),
+                        ),
+                      )),
+                ],
+              ),
             ],
           ),
 
@@ -183,15 +203,34 @@ class _MapScreenState extends State<MapScreen> {
                   ClipRRect(
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(32)),
-                    child: Image.network(
-                      activity.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.broken_image,
-                            size: 50, color: Colors.grey),
-                      ),
-                    ),
+                    child: activity.imageUrl != null
+                        ? Image.network(
+                            activity.imageUrl!,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.broken_image,
+                                  size: 50, color: Colors.grey),
+                            ),
+                          )
+                        : Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.image_not_supported,
+                                size: 50, color: Colors.grey),
+                          ),
                   ),
                   Positioned(
                     top: 12,
@@ -231,22 +270,23 @@ class _MapScreenState extends State<MapScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: AppColors.orange.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            activity.category,
-                            style: const TextStyle(
-                              color: AppColors.orange,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                        if (activity.category != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.orange.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              activity.category!,
+                              style: const TextStyle(
+                                color: AppColors.orange,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                        ),
                         Row(
                           children: [
                             const Icon(Icons.place,
@@ -275,7 +315,7 @@ class _MapScreenState extends State<MapScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const Spacer(),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(

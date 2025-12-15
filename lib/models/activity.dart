@@ -1,67 +1,56 @@
 class Activity {
+  final int id;
   final String title;
-  final String location;
-  final String duration;
-  final String description;
-  final String imageUrl;
-  final String category;
+  final String location; // mapped from location_name
+  final String duration; // mapped from duration_minutes
+  final String? description;
+  final String? imageUrl; // mapped from image_url
+  final String? category;
   final List<String> features;
   final double latitude;
   final double longitude;
+  final int priceLevel;
+  final bool isOutdoor;
+
+  // Local state only, not from DB for now
   bool isFavorite;
 
   Activity({
+    required this.id,
     required this.title,
     required this.location,
     required this.duration,
-    required this.description,
-    required this.imageUrl,
-    required this.category,
+    this.description,
+    this.imageUrl,
+    this.category,
     required this.features,
     required this.latitude,
     required this.longitude,
+    this.priceLevel = 1,
+    this.isOutdoor = true,
     this.isFavorite = false,
   });
+
+  factory Activity.fromJson(Map<String, dynamic> json) {
+    return Activity(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      location: json['location_name'] as String,
+      duration: '${json['duration_minutes']} min', // Simple formatting
+      description: json['description'] as String?,
+      imageUrl: json['image_url'] as String?,
+      category: json['category'] as String?,
+      features: (json['features'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      priceLevel: json['price_level'] as int? ?? 1,
+      isOutdoor: json['is_outdoor'] as bool? ?? true,
+    );
+  }
 }
 
-List<Activity> mockActivities = [
-  Activity(
-    title: 'Visite du Château de Tourbillon',
-    location: 'Sion',
-    duration: '2h',
-    description:
-        'Découvrez ce château médiéval perché sur une colline dominant Sion. Une expérience historique unique avec une vue panoramique exceptionnelle.',
-    imageUrl:
-        'https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?q=80&w=1200&auto=format&fit=crop',
-    category: 'Culture',
-    features: ['Adapté aux familles', 'Accès gratuit'],
-    latitude: 46.2304,
-    longitude: 7.3626,
-  ),
-  Activity(
-    title: 'Randonnée du Bisse du Ro',
-    location: 'Crans-Montana',
-    duration: '3h30',
-    description:
-        'Une randonnée spectaculaire le long d\'un bisse historique taillé dans la roche. Des paysages à couper le souffle pour les amoureux de la nature.',
-    imageUrl:
-        'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop',
-    category: 'Sport & Nature',
-    features: ['Niveau moyen', 'Vue panoramique'],
-    latitude: 46.3117,
-    longitude: 7.4566,
-  ),
-  Activity(
-    title: 'Dégustation de Vins',
-    location: 'Salquencen',
-    duration: '1h30',
-    description:
-        'Plongez au cœur du vignoble valaisan. Dégustation de 5 vins locaux accompagnés de produits du terroir dans une cave traditionnelle.',
-    imageUrl:
-        'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=1200&auto=format&fit=crop',
-    category: 'Gastronomie',
-    features: ['Sur réservation', 'Dès 18 ans'],
-    latitude: 46.3052,
-    longitude: 7.5689,
-  ),
-];
+// Temporary empty list to avoid breaking imports immediately, though files using it will need updates
+List<Activity> mockActivities = [];

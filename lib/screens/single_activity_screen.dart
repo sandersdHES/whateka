@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
 import '../models/activity.dart';
+import '../services/activity_service.dart';
 
 class SingleActivityScreen extends StatefulWidget {
   const SingleActivityScreen({super.key});
@@ -22,10 +23,22 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
     }
   }
 
-  void _toggleFavorite() {
+  Future<void> _toggleFavorite() async {
     setState(() {
       activity.isFavorite = !activity.isFavorite;
     });
+    try {
+      await ActivityService().toggleFavorite(activity.id);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          activity.isFavorite = !activity.isFavorite;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -69,15 +82,33 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
         children: [
           // Background Image
           Positioned.fill(
-            child: Image.network(
-              activity.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                color: Colors.grey[200],
-                child: const Icon(Icons.broken_image,
-                    size: 50, color: Colors.grey),
-              ),
-            ),
+            child: activity.imageUrl != null
+                ? Image.network(
+                    activity.imageUrl!,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                          color: Colors.white,
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.broken_image,
+                          size: 50, color: Colors.grey),
+                    ),
+                  )
+                : Container(
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.image_not_supported,
+                        size: 50, color: Colors.grey),
+                  ),
           ),
           // Content Overlay
           Positioned.fill(
@@ -109,23 +140,24 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: AppColors.orange,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Text(
-                          activity.category.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            letterSpacing: 1.2,
+                      if (activity.category != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.orange,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Text(
+                            activity.category!.toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              letterSpacing: 1.2,
+                            ),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 16),
                       Text(
                         activity.title,
@@ -168,7 +200,8 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        activity.description,
+                        activity.description ??
+                            "Aucune description disponible.",
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -176,26 +209,29 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      Row(
-                        children: activity.features
-                            .map((feature) => Container(
-                                  margin: const EdgeInsets.only(right: 12),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.white
-                                            .withValues(alpha: 0.3)),
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: Colors.white.withValues(alpha: 0.1),
-                                  ),
-                                  child: Text(
-                                    feature,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ))
-                            .toList(),
-                      ),
+                      if (activity.features.isNotEmpty)
+                        Row(
+                          children: activity.features
+                              .map((feature) => Container(
+                                    margin: const EdgeInsets.only(right: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.3)),
+                                      borderRadius: BorderRadius.circular(16),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.1),
+                                    ),
+                                    child: Text(
+                                      feature,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  ))
+                              .toList(),
+                        ),
                       const SizedBox(height: 48),
                       SizedBox(
                         width: double.infinity,

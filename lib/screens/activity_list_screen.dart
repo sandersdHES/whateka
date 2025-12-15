@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
 import '../models/activity.dart';
+import '../services/activity_service.dart';
 
 class ActivityListScreen extends StatefulWidget {
   const ActivityListScreen({super.key});
@@ -12,6 +13,14 @@ class ActivityListScreen extends StatefulWidget {
 class _ActivityListScreenState extends State<ActivityListScreen> {
   final PageController _pageController = PageController(viewportFraction: 0.85);
   int _currentPage = 0;
+  final ActivityService _activityService = ActivityService();
+  late Future<List<Activity>> _activitiesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _activitiesFuture = _activityService.getActivities(limit: 3);
+  }
 
   @override
   void dispose() {
@@ -32,52 +41,67 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: mockActivities.length,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                final activity = mockActivities[index];
-                return AnimatedScale(
-                  scale: _currentPage == index ? 1.0 : 0.9,
-                  duration: const Duration(milliseconds: 300),
-                  child: Center(
-                    child: _ActivitySummaryCard(activity: activity),
-                  ),
-                );
-              },
-            ),
-          ),
-          // Dot Indicator
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                mockActivities.length,
-                (index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentPage == index ? 24 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: _currentPage == index
-                        ? AppColors.orange
-                        : AppColors.black.withValues(alpha: 0.1),
+      body: FutureBuilder<List<Activity>>(
+        future: _activitiesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Aucune activité trouvée.'));
+          }
+
+          final activities = snapshot.data!;
+
+          return Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: activities.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    final activity = activities[index];
+                    return AnimatedScale(
+                      scale: _currentPage == index ? 1.0 : 0.9,
+                      duration: const Duration(milliseconds: 300),
+                      child: Center(
+                        child: _ActivitySummaryCard(activity: activity),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              // Dot Indicator
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    activities.length,
+                    (index) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width: _currentPage == index ? 24 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: _currentPage == index
+                            ? AppColors.orange
+                            : AppColors.black.withValues(alpha: 0.1),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -127,26 +151,62 @@ class _ActivitySummaryCardState extends State<_ActivitySummaryCard> {
                   ClipRRect(
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(32)),
-                    child: Image.network(
-                      widget.activity.imageUrl,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.broken_image,
-                            size: 50, color: Colors.grey),
-                      ),
-                    ),
+                    child: widget.activity.imageUrl != null
+                        ? Image.network(
+                            widget.activity.imageUrl!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.broken_image,
+                                  size: 50, color: Colors.grey),
+                            ),
+                          )
+                        : Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.image_not_supported,
+                                size: 50, color: Colors.grey),
+                          ),
                   ),
                   Positioned(
                     top: 16,
                     right: 16,
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         setState(() {
                           widget.activity.isFavorite =
                               !widget.activity.isFavorite;
                         });
+                        try {
+                          await ActivityService()
+                              .toggleFavorite(widget.activity.id);
+                        } catch (e) {
+                          // Revert on error
+                          if (mounted) {
+                            setState(() {
+                              widget.activity.isFavorite =
+                                  !widget.activity.isFavorite;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Erreur lors de la mise à jour: $e')),
+                            );
+                          }
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
@@ -178,22 +238,23 @@ class _ActivitySummaryCardState extends State<_ActivitySummaryCard> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: AppColors.orange.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            widget.activity.category,
-                            style: const TextStyle(
-                              color: AppColors.orange,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                        if (widget.activity.category != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.orange.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              widget.activity.category!,
+                              style: const TextStyle(
+                                color: AppColors.orange,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                        ),
                         Row(
                           children: [
                             const Icon(Icons.place,
