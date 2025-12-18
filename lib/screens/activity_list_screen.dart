@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
+import '../widgets/fun_loading_widget.dart';
 
 class ActivityListScreen extends StatefulWidget {
   const ActivityListScreen({super.key});
@@ -14,12 +15,66 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
   final PageController _pageController = PageController(viewportFraction: 0.85);
   int _currentPage = 0;
   final ActivityService _activityService = ActivityService();
-  late Future<List<Activity>> _activitiesFuture;
+
+  List<Activity>? _activities;
+  bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _activitiesFuture = _activityService.getActivities(limit: 3);
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      // Minimum loading time for the "Fun" effect (2 seconds)
+      final minWait = Future.delayed(const Duration(seconds: 2));
+
+      // Fetch data
+      final activities = await _activityService.getActivities(limit: 3);
+
+      // Wait for at least 2 seconds before checking images
+      await minWait;
+
+      if (mounted) {
+        // Precache images if any
+        final List<Future<void>> imageLoaders = [];
+
+        for (var activity in activities) {
+          if (activity.imageUrl != null) {
+            imageLoaders.add(
+              precacheImage(
+                NetworkImage(activity.imageUrl!),
+                context,
+              ).catchError((e) {
+                // Ignore image loading errors during precache
+                debugPrint("Failed to precache image: $e");
+              }),
+            );
+          }
+        }
+
+        // Wait for all images to be cached
+        if (imageLoaders.isNotEmpty) {
+          await Future.wait(imageLoaders);
+        }
+
+        if (mounted) {
+          setState(() {
+            _activities = activities;
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -30,6 +85,38 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const FunLoadingWidget();
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF8FAFB),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: Center(child: Text("Oups ! Une erreur est survenue : $_error")),
+      );
+    }
+
+    if (_activities == null || _activities!.isEmpty) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF8FAFB),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: const Center(child: Text("Aucune activité trouvée.")),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
       appBar: AppBar(
@@ -41,67 +128,53 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: FutureBuilder<List<Activity>>(
-        future: _activitiesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Erreur: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Aucune activité trouvée.'));
-          }
-
-          final activities = snapshot.data!;
-
-          return Column(
-            children: [
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: activities.length,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentPage = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    final activity = activities[index];
-                    return AnimatedScale(
-                      scale: _currentPage == index ? 1.0 : 0.9,
-                      duration: const Duration(milliseconds: 300),
-                      child: Center(
-                        child: _ActivitySummaryCard(activity: activity),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              // Dot Indicator
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    activities.length,
-                    (index) => AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      width: _currentPage == index ? 24 : 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        color: _currentPage == index
-                            ? AppColors.orange
-                            : AppColors.black.withValues(alpha: 0.1),
-                      ),
-                    ),
+      body: Column(
+        children: [
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: _activities!.length,
+              allowImplicitScrolling: true, // Keep pages alive
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final activity = _activities![index];
+                return AnimatedScale(
+                  scale: _currentPage == index ? 1.0 : 0.9,
+                  duration: const Duration(milliseconds: 300),
+                  child: Center(
+                    child: _ActivitySummaryCard(activity: activity),
+                  ),
+                );
+              },
+            ),
+          ),
+          // Dot Indicator
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                _activities!.length,
+                (index) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: _currentPage == index ? 24 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: _currentPage == index
+                        ? AppColors.orange
+                        : AppColors.black.withValues(alpha: 0.1),
                   ),
                 ),
               ),
-            ],
-          );
-        },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -115,9 +188,14 @@ class _ActivitySummaryCard extends StatefulWidget {
   State<_ActivitySummaryCard> createState() => _ActivitySummaryCardState();
 }
 
-class _ActivitySummaryCardState extends State<_ActivitySummaryCard> {
+class _ActivitySummaryCardState extends State<_ActivitySummaryCard>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
@@ -156,18 +234,7 @@ class _ActivitySummaryCardState extends State<_ActivitySummaryCard> {
                             widget.activity.imageUrl!,
                             fit: BoxFit.cover,
                             width: double.infinity,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
-                            },
+                            // No loading builder needed as we precached!
                             errorBuilder: (context, error, stackTrace) =>
                                 Container(
                               color: Colors.grey[200],

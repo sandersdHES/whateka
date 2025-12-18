@@ -41,10 +41,9 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.explore,
-                    size: 80,
-                    color: AppColors.black,
+                  Image.asset(
+                    'assets/images/home_icon.png',
+                    height: 150,
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -56,7 +55,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'L' 'activité te trouvera !',
+                    'L\'activité te trouvera !',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: AppColors.black.withValues(alpha: 0.7),
