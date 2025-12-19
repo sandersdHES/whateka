@@ -173,6 +173,12 @@ class MyApp extends StatelessWidget {
         ),
         color: Colors.white,
       ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: OrganicPageTransitionsBuilder(),
+          TargetPlatform.iOS: OrganicPageTransitionsBuilder(),
+        },
+      ),
     );
 
     return MaterialApp(
@@ -194,6 +200,43 @@ class MyApp extends StatelessWidget {
         '/activity': (_) => const ActivityListScreen(),
         '/activity_detail': (_) => const SingleActivityScreen(),
       },
+    );
+  }
+}
+
+class OrganicPageTransitionsBuilder extends PageTransitionsBuilder {
+  const OrganicPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    // "Organic" feels: Slide up slightly + Fade in with easeInOut curve
+    const curve = Curves.easeInOutCubic;
+
+    final fadeAnimation = CurvedAnimation(
+      parent: animation,
+      curve: curve,
+    );
+
+    final slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.05), // Start slightly below (5% of height)
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: animation,
+      curve: curve,
+    ));
+
+    return SlideTransition(
+      position: slideAnimation,
+      child: FadeTransition(
+        opacity: fadeAnimation,
+        child: child,
+      ),
     );
   }
 }

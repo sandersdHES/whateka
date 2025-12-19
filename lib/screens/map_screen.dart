@@ -20,7 +20,10 @@ class _MapScreenState extends State<MapScreen> {
   // Default location: Sion, Switzerland
   LatLng _currentPosition = const LatLng(46.22935, 7.36204);
   bool _hasLocation = false;
+  bool _isLoading = false;
   List<Activity> _activities = [];
+  List<Activity> _filteredActivities = [];
+  double _radiusInKm = 10.0;
 
   @override
   void initState() {
@@ -30,16 +33,58 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _fetchActivities() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       final activities = await _activityService.getActivities();
       if (mounted) {
         setState(() {
           _activities = activities;
+          _isLoading = false;
+          // Initial filter based on user location if available, otherwise just show all or none
+          if (_hasLocation) {
+            _filterActivities(_currentPosition);
+          } else {
+            _filterActivities(_mapController.camera.center);
+          }
         });
       }
     } catch (e) {
       debugPrint('Error fetching activities: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
+  }
+
+  void _searchThisArea() {
+    // Re-fetch (optional if data is static, but requested by user)
+    // Then filter based on MAP CENTER
+    _fetchActivities().then((_) {
+      if (mounted) {
+        _filterActivities(_mapController.camera.center);
+      }
+    });
+  }
+
+  void _filterActivities(LatLng centerPoint) {
+    if (_activities.isEmpty) {
+      _filteredActivities = [];
+      return;
+    }
+
+    final distance = const Distance();
+
+    setState(() {
+      _filteredActivities = _activities.where((activity) {
+        final activityPos = LatLng(activity.latitude, activity.longitude);
+        final d = distance.as(LengthUnit.Kilometer, centerPoint, activityPos);
+        return d <= _radiusInKm;
+      }).toList();
+    });
   }
 
   Future<void> _determinePosition() async {
@@ -68,6 +113,8 @@ class _MapScreenState extends State<MapScreen> {
         setState(() {
           _currentPosition = LatLng(position.latitude, position.longitude);
           _hasLocation = true;
+          // Initial filter on load
+          _filterActivities(_currentPosition);
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           try {
@@ -111,7 +158,7 @@ class _MapScreenState extends State<MapScreen> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: _currentPosition,
-              initialZoom: 11.0, // Zoom out slightly to see more context
+              initialZoom: 11.0,
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               ),
@@ -140,7 +187,7 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ),
                   // Activity Markers
-                  ..._activities.map((activity) => Marker(
+                  ..._filteredActivities.map((activity) => Marker(
                         point: LatLng(activity.latitude, activity.longitude),
                         width: 50,
                         height: 50,
@@ -158,7 +205,96 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
 
-          // FAB for location
+          // Radius Filter Panel
+          Positioned(
+            top: 100, // Below AppBar
+            left: 20,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.95),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Rayon de recherche',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      Text(
+                        '${_radiusInKm.toInt()} km',
+                        style: const TextStyle(
+                          color: AppColors.cyan,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Slider(
+                    value: _radiusInKm,
+                    min: 1,
+                    max: 100,
+                    divisions: 99,
+                    activeColor: AppColors.cyan,
+                    inactiveColor: Colors.grey[300],
+                    onChanged: (value) {
+                      setState(() {
+                        _radiusInKm = value;
+                        // Don't auto filter heavily, let user decide when to search
+                        // OR we can auto-update based on curent center?
+                        // Let's stick to "Search" button philosophy but giving visual feedback is nice.
+                        // For now, update ONLY if they haven't moved the map significantly?
+                        // Let's keep it simple: Slider just updates value. Button applies it.
+                        // But user expects visual Feedback usually.
+                        // Let's make the button update.
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoading ? null : _searchThisArea,
+                      icon: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.search),
+                      label: Text(_isLoading
+                          ? 'Recherche...'
+                          : 'Rechercher dans cette zone'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.black,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Removed manual FAB for location since we want to focus on map interaction mostly,
+          // but keeping it is harmless.
           Positioned(
             bottom: 32,
             right: 24,
