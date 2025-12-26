@@ -99,13 +99,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         await _activityService.toggleFavorite(activity.id);
                         // No need to refresh full list if optimistic worked
                       } catch (e) {
+                        if (!mounted) return;
                         _refreshFavorites(); // Revert/Reload on error
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Erreur lors de la suppression')),
-                          );
-                        }
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Erreur lors de la suppression')),
+                        );
                       }
                     },
                   ),

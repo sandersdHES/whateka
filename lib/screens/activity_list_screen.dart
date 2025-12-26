@@ -262,17 +262,17 @@ class _ActivitySummaryCardState extends State<_ActivitySummaryCard>
                               .toggleFavorite(widget.activity.id);
                         } catch (e) {
                           // Revert on error
-                          if (mounted) {
-                            setState(() {
-                              widget.activity.isFavorite =
-                                  !widget.activity.isFavorite;
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'Erreur lors de la mise à jour: $e')),
-                            );
-                          }
+                          if (!mounted) return;
+                          setState(() {
+                            widget.activity.isFavorite =
+                                !widget.activity.isFavorite;
+                          });
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('Erreur lors de la mise à jour: $e')),
+                          );
                         }
                       },
                       child: Container(

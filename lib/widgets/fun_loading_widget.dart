@@ -130,7 +130,7 @@ class _BouncingIconState extends State<_BouncingIcon>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: widget.color.withOpacity(0.1),
+          color: widget.color.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(

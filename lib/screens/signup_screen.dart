@@ -12,6 +12,7 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _firstnameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
@@ -148,6 +149,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 validator: (v) => (v != null && v.length >= 6)
                                     ? null
                                     : 'Min 6 caractères',
+                              ),
+                              const SizedBox(height: 20),
+                              TextFormField(
+                                controller: _confirmPasswordController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Confirmer le mot de passe',
+                                  prefixIcon: Icon(Icons.lock_outline),
+                                ),
+                                obscureText: true,
+                                validator: (v) {
+                                  if (v == null || v.isEmpty) return 'Requis';
+                                  if (v != _passwordController.text) {
+                                    return 'Les mots de passe ne correspondent pas';
+                                  }
+                                  return null;
+                                },
                               ),
                               const SizedBox(height: 32),
                               if (_isLoading)
