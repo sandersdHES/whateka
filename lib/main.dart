@@ -14,6 +14,7 @@ import 'screens/signup_screen.dart';
 import 'screens/questionnaire_screen.dart';
 import 'screens/activity_list_screen.dart';
 import 'screens/single_activity_screen.dart';
+import 'screens/ai_result_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -199,6 +200,21 @@ class MyApp extends StatelessWidget {
         '/quiz': (_) => const QuestionnaireScreen(),
         '/activity': (_) => const ActivityListScreen(),
         '/activity_detail': (_) => const SingleActivityScreen(),
+      },
+      onGenerateRoute: (settings) {
+        // Handle routes with arguments
+        if (settings.name == '/ai_result') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          if (args != null) {
+            return MaterialPageRoute(
+              builder: (_) => AiResultScreen(
+                userPrefs: args['prefs'] as Map<String, dynamic>,
+                contextData: args['context'] as Map<String, dynamic>,
+              ),
+            );
+          }
+        }
+        return null;
       },
     );
   }

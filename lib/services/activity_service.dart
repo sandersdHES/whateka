@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/activity.dart';
+import '../models/ai_response.dart';
 
 class ActivityService {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -101,6 +102,79 @@ class ActivityService {
       }
     } catch (e) {
       throw Exception('Error toggling favorite: $e');
+    }
+  }
+
+  /// Get AI-powered activity recommendations based on user preferences and context
+  Future<AiResponse> getAIRecommendations({
+    required Map<String, dynamic> userPrefs,
+    required Map<String, dynamic> context,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+
+      // 1. Call Supabase Edge Function
+      final response = await _supabase.functions.invoke(
+        'recommend-activity',
+        body: {
+          "user_id": userId,
+          "user_prefs": userPrefs,
+          "context": context,
+        },
+      );
+
+      final data = response.data;
+
+      // Handle case where AI returns no recommendations
+      if (data == null || data['recommendations'] == null) {
+        return AiResponse(
+          activities: [],
+          globalComment: "Aucune suggestion trouvée pour ces critères.",
+        );
+      }
+
+      final recommendations = data['recommendations'] as List;
+      final globalComment = data['global_comment'] as String? ?? "";
+
+      // 2. Extract recommended activity IDs
+      final List<int> ids = recommendations.map((r) => r['id'] as int).toList();
+
+      if (ids.isEmpty) {
+        return AiResponse(activities: [], globalComment: globalComment);
+      }
+
+      // 3. Fetch full activity details from database
+      final dbResponse =
+          await _supabase.from('activities').select().inFilter('id', ids);
+
+      // 4. Merge DB data with AI reasoning and preserve AI ranking order
+      final Map<int, Activity> activityMap = {};
+
+      for (var json in dbResponse as List) {
+        final activity = Activity.fromJson(json);
+        activityMap[activity.id] = activity;
+      }
+
+      // Build final list in the order provided by AI recommendations
+      final List<Activity> sortedActivities = [];
+      for (var recData in recommendations) {
+        final activityId = recData['id'] as int;
+        final activity = activityMap[activityId];
+
+        if (activity != null) {
+          // Attach AI-generated reasoning to the activity
+          activity.aiReason = recData['match_reason'] as String?;
+          sortedActivities.add(activity);
+        }
+      }
+
+      return AiResponse(
+        activities: sortedActivities,
+        globalComment: globalComment,
+      );
+    } catch (e) {
+      throw Exception(
+          'Erreur lors de la récupération des recommandations IA: $e');
     }
   }
 }

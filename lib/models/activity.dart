@@ -14,6 +14,7 @@ class Activity {
 
   // Local state only, not from DB for now
   bool isFavorite;
+  String? aiReason; // AI-generated personalized explanation
 
   Activity({
     required this.id,
@@ -29,6 +30,7 @@ class Activity {
     this.priceLevel = 1,
     this.isOutdoor = true,
     this.isFavorite = false,
+    this.aiReason,
   });
 
   factory Activity.fromJson(Map<String, dynamic> json) {

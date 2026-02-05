@@ -32,21 +32,21 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     _QuestionQuestionData(
       "Avec qui partez-vous ?",
       [
-        _Option('Solo', Icons.person),
-        _Option('En couple', Icons.favorite),
-        _Option('En famille', Icons.family_restroom),
-        _Option('Entre amis', Icons.groups),
+        _Option('Solo', Icons.person, value: 'solo'),
+        _Option('En couple', Icons.favorite, value: 'couple'),
+        _Option('En famille', Icons.family_restroom, value: 'family'),
+        _Option('Entre amis', Icons.groups, value: 'friends'),
       ],
     ),
     _QuestionQuestionData(
       "Quelle est votre envie du moment ?",
       [
-        _Option('Nature', Icons.landscape),
-        _Option('Culture', Icons.museum),
-        _Option('Détente', Icons.spa),
-        _Option('Sport', Icons.directions_run),
-        _Option('Gourmandise', Icons.restaurant),
-        _Option('Aventure', Icons.explore_off),
+        _Option('Nature', Icons.landscape, value: 'nature'),
+        _Option('Culture', Icons.museum, value: 'culture'),
+        _Option('Détente', Icons.spa, value: 'relax'),
+        _Option('Sport', Icons.directions_run, value: 'sport'),
+        _Option('Gourmandise', Icons.restaurant, value: 'gastronomy'),
+        _Option('Aventure', Icons.explore_off, value: 'adventure'),
       ],
       maxSelections: 2,
     ),
@@ -55,25 +55,25 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
       [
         _Option('Outdoor', Icons.wb_sunny, value: 'outdoor'),
         _Option('Indoor', Icons.home, value: 'indoor'),
-        _Option('Egal', Icons.thumbs_up_down),
+        _Option('Egal', Icons.thumbs_up_down, value: 'any'),
       ],
     ),
     _QuestionQuestionData(
       "Quel est votre budget ?",
       [
-        _Option('Gratuit', Icons.money_off),
-        _Option('Éco', Icons.attach_money),
-        _Option('Modéré', Icons.currency_exchange),
-        _Option('Pas important', Icons.all_inclusive),
+        _Option('Gratuit', Icons.money_off, value: '0'),
+        _Option('Éco', Icons.attach_money, value: '1'),
+        _Option('Modéré', Icons.currency_exchange, value: '2'),
+        _Option('Pas important', Icons.all_inclusive, value: '3'),
       ],
     ),
     _QuestionQuestionData(
       "Combien de temps ?",
       [
-        _Option('Quelques h.', Icons.timer),
-        _Option('Demi-journée', Icons.wb_sunny_outlined),
-        _Option('Journée', Icons.calendar_today),
-        _Option('Week-end', Icons.weekend),
+        _Option('Quelques h.', Icons.timer, value: 'short'),
+        _Option('Demi-journée', Icons.wb_sunny_outlined, value: 'medium'),
+        _Option('Journée', Icons.calendar_today, value: 'long'),
+        _Option('Week-end', Icons.weekend, value: 'weekend'),
       ],
     ),
   ];
@@ -117,7 +117,39 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         currentStep++;
       });
     } else {
-      Navigator.pushNamed(context, '/activity');
+      // Extract user preferences from questionnaire responses
+
+      // Helper to get single value from a step
+      String getSingleValue(int stepIndex) {
+        final selectedIndex = selections[stepIndex].first;
+        return questions[stepIndex].options[selectedIndex].value ?? '';
+      }
+
+      // Build user preferences object
+      final userPrefs = {
+        'social': getSingleValue(0),
+        'category': getSingleValue(1), // Primary category choice
+        'environment': getSingleValue(2),
+        'price_max': int.tryParse(getSingleValue(3)) ?? 2,
+        'duration': getSingleValue(4),
+      };
+
+      // Mock context data (to be replaced with real sensors later)
+      final contextData = {
+        'weather': 'cloud', // TODO: Replace with real weather API
+        'season': 'winter', // TODO: Calculate from date
+        'lat_lon': '46.22, 7.36', // TODO: Get from geolocation
+      };
+
+      // Navigate to AI result screen
+      Navigator.pushNamed(
+        context,
+        '/ai_result',
+        arguments: {
+          'prefs': userPrefs,
+          'context': contextData,
+        },
+      );
     }
   }
 
