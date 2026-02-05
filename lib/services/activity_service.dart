@@ -51,22 +51,38 @@ class ActivityService {
       if (userId == null) return [];
 
       // Fetch favorites with related activity data
-      // Note: This relies on Supabase detecting the Foreign Key relation between favorites.activity_id and activities.id
-      final response = await _supabase
+      // 1. Fetch favorite activity IDs first (robust against join errors)
+      final favoritesResponse = await _supabase
           .from('favorites')
-          .select('activities(*)')
+          .select('activity_id')
           .eq('user_id', userId)
           .order('created_at', ascending: false);
 
+      final List<int> ids = (favoritesResponse as List)
+          .map((e) => e['activity_id'] as int)
+          .toList();
+
+      if (ids.isEmpty) return [];
+
+      // 2. Fetch the actual activities
+      final activitiesResponse =
+          await _supabase.from('activities').select().inFilter('id', ids);
+
+      final activitiesMap = {
+        for (var item in (activitiesResponse as List))
+          item['id'] as int: Activity.fromJson(item)
+      };
+
+      // 3. Reconstruct list in correct order (most recently favorited first)
       final List<Activity> activities = [];
-      for (var item in response as List) {
-        if (item['activities'] != null) {
-          final activity = Activity.fromJson(item['activities']);
-          activity.isFavorite =
-              true; // It's in the favorites table, so it is true
+      for (var id in ids) {
+        final activity = activitiesMap[id];
+        if (activity != null) {
+          activity.isFavorite = true;
           activities.add(activity);
         }
       }
+
       return activities;
     } catch (e) {
       throw Exception('Error fetching favorites: $e');
@@ -172,7 +188,19 @@ class ActivityService {
         activities: sortedActivities,
         globalComment: globalComment,
       );
+    } on FunctionException catch (e) {
+      if (e.status == 429 ||
+          (e.details != null && e.details.toString().contains('429'))) {
+        throw Exception(
+            "Le serveur IA est actuellement surchargé. Veuillez réessayer dans quelques instants.");
+      }
+      throw Exception(
+          'Erreur IA (${e.status}): ${e.reasonPhrase ?? e.details ?? "Erreur inconnue"}');
     } catch (e) {
+      if (e.toString().contains('429')) {
+        throw Exception(
+            "Le serveur IA est actuellement surchargé. Veuillez réessayer dans quelques instants.");
+      }
       throw Exception(
           'Erreur lors de la récupération des recommandations IA: $e');
     }

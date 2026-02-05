@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
+import '../services/context_service.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
   const QuestionnaireScreen({super.key});
@@ -25,6 +26,9 @@ class _QuestionQuestionData {
 
 class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   int currentStep = 0;
+  bool _isLoading = false;
+  final ContextService _contextService = ContextService();
+
   // Use Set<int> for multiple selections per step
   final List<Set<int>> selections = [{}, {}, {}, {}, {}];
 
@@ -81,65 +85,40 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   void _nextStep() {
     if (selections[currentStep].isEmpty) return; // Prevent empty step if needed
 
-    // Check for weather warning mock logic
-    if (currentStep == 2) {
-      // Q3 Ambiance
-      final selectedIndices = selections[currentStep];
-      final isOutdoor = selectedIndices
-          .any((i) => questions[2].options[i].value == 'outdoor');
-
-      if (isOutdoor) {
-        // Mock random weather check: 50% chance of warning for demo
-        // In real app, check API
-        bool badWeather =
-            true; // Force warning for demo purposes as requested/implied
-
-        if (badWeather) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Row(
-                children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.white),
-                  SizedBox(width: 8),
-                  Expanded(child: Text("Attention, la météo est incertaine !")),
-                ],
-              ),
-              backgroundColor: Colors.orange[800],
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
-      }
-    }
-
     if (currentStep < questions.length - 1) {
       setState(() {
         currentStep++;
       });
     } else {
-      // Extract user preferences from questionnaire responses
+      // Final step: Fetch context and navigate
+      _finishQuestionnaire();
+    }
+  }
 
-      // Helper to get single value from a step
+  Future<void> _finishQuestionnaire() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Extract user preferences from questionnaire responses
       String getSingleValue(int stepIndex) {
         final selectedIndex = selections[stepIndex].first;
         return questions[stepIndex].options[selectedIndex].value ?? '';
       }
 
-      // Build user preferences object
       final userPrefs = {
         'social': getSingleValue(0),
-        'category': getSingleValue(1), // Primary category choice
+        'category': getSingleValue(1),
         'environment': getSingleValue(2),
         'price_max': int.tryParse(getSingleValue(3)) ?? 2,
         'duration': getSingleValue(4),
       };
 
-      // Mock context data (to be replaced with real sensors later)
-      final contextData = {
-        'weather': 'cloud', // TODO: Replace with real weather API
-        'season': 'winter', // TODO: Calculate from date
-        'lat_lon': '46.22, 7.36', // TODO: Get from geolocation
-      };
+      // Get real context data
+      final contextData = await _contextService.getFullContext();
+
+      if (!mounted) return;
 
       // Navigate to AI result screen
       Navigator.pushNamed(
@@ -147,9 +126,20 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         '/ai_result',
         arguments: {
           'prefs': userPrefs,
-          'context': contextData,
+          'context': contextData, // Real data passed here
         },
       );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Erreur lors de la récupération du contexte: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -316,14 +306,16 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: canProceed ? _nextStep : null,
+                      onPressed: (canProceed && !_isLoading) ? _nextStep : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
                             canProceed ? AppColors.orange : Colors.grey[300],
                       ),
-                      child: Text(currentStep == questions.length - 1
-                          ? 'Terminer'
-                          : 'Continuer'),
+                      child: Text(
+                        currentStep == questions.length - 1
+                            ? (_isLoading ? 'Chargement...' : 'Terminer')
+                            : 'Continuer',
+                      ),
                     ),
                   ),
                 ),
