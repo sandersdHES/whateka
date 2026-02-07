@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "whateka (debug)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--dart-define=SUPABASE_URL=https://pqywriedvxsdngypplpg.supabase.co",
+                "--dart-define=SUPABASE_ANON_KEY=sb_publishable_KzcTKvqLTbWoECaUkD--xw_xJ8A35K6"
+            ]
+        },
+        {
+            "name": "whateka (release)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--dart-define=SUPABASE_URL=https://pqywriedvxsdngypplpg.supabase.co",
+                "--dart-define=SUPABASE_ANON_KEY=sb_publishable_KzcTKvqLTbWoECaUkD--xw_xJ8A35K6"
+            ]
+        }
+    ]
+}

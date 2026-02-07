@@ -20,8 +20,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-    url: 'https://pqywriedvxsdngypplpg.supabase.co',
-    anonKey: 'sb_publishable_KzcTKvqLTbWoECaUkD--xw_xJ8A35K6',
+    url: const String.fromEnvironment(
+      'SUPABASE_URL',
+      defaultValue: 'https://pqywriedvxsdngypplpg.supabase.co',
+    ),
+    anonKey: const String.fromEnvironment(
+      'SUPABASE_ANON_KEY',
+      defaultValue: 'sb_publishable_KzcTKvqLTbWoECaUkD--xw_xJ8A35K6',
+    ),
   );
 
   runApp(const MyApp());
