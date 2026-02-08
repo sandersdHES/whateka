@@ -16,8 +16,12 @@ import 'screens/activity_list_screen.dart';
 import 'screens/single_activity_screen.dart';
 import 'screens/ai_result_screen.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
 
   await Supabase.initialize(
     url: const String.fromEnvironment(
