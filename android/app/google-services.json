@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1012253356889",
+    "project_id": "whateka",
+    "storage_bucket": "whateka.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1012253356889:android:eba4a214534c66cdea9248",
+        "android_client_info": {
+          "package_name": "com.example.whateka"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQKz6hb7IHWBCe679WKzAGNkZJnsyn9ls"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1012253356889:android:ec0a1dda44c05ed2ea9248",
+        "android_client_info": {
+          "package_name": "com.shz.whateka"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQKz6hb7IHWBCe679WKzAGNkZJnsyn9ls"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
