@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -16,7 +19,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = "17"
     }
 
     defaultConfig {
@@ -33,9 +36,9 @@ android {
     signingConfigs {
         create("release") {
             val keyPropertiesFile = rootProject.file("key.properties")
-            val keyProperties = java.util.Properties()
+            val keyProperties = Properties()
             if (keyPropertiesFile.exists()) {
-                keyProperties.load(java.io.FileInputStream(keyPropertiesFile))
+                keyProperties.load(FileInputStream(keyPropertiesFile))
             }
             
             keyAlias = keyProperties.getProperty("keyAlias")
