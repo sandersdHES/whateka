@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
+import '../widgets/responsive_center.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -88,119 +89,124 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
           ),
           SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    Text(
-                      'Créer un compte',
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                            color: AppColors.orange,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Rejoignez l\'aventure Whateka',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppColors.black.withValues(alpha: 0.6),
-                          ),
-                    ),
-                    const SizedBox(height: 40),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              TextFormField(
-                                controller: _firstnameController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Prénom',
-                                  prefixIcon: Icon(Icons.person_outline),
+            child: ResponsiveCenter(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Créer un compte',
+                        style:
+                            Theme.of(context).textTheme.displaySmall?.copyWith(
+                                  color: AppColors.orange,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                validator: (v) => (v != null && v.isNotEmpty)
-                                    ? null
-                                    : 'Requis',
-                              ),
-                              const SizedBox(height: 20),
-                              TextFormField(
-                                controller: _emailController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Email',
-                                  prefixIcon: Icon(Icons.email_outlined),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Rejoignez l\'aventure Whateka',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: AppColors.black.withValues(alpha: 0.6),
+                            ),
+                      ),
+                      const SizedBox(height: 40),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                TextFormField(
+                                  controller: _firstnameController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Prénom',
+                                    prefixIcon: Icon(Icons.person_outline),
+                                  ),
+                                  validator: (v) => (v != null && v.isNotEmpty)
+                                      ? null
+                                      : 'Requis',
                                 ),
-                                keyboardType: TextInputType.emailAddress,
-                                validator: (v) => (v != null && v.contains('@'))
-                                    ? null
-                                    : 'Email invalide',
-                              ),
-                              const SizedBox(height: 20),
-                              TextFormField(
-                                controller: _passwordController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Mot de passe',
-                                  prefixIcon: Icon(Icons.lock_outline),
+                                const SizedBox(height: 20),
+                                TextFormField(
+                                  controller: _emailController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Email',
+                                    prefixIcon: Icon(Icons.email_outlined),
+                                  ),
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (v) =>
+                                      (v != null && v.contains('@'))
+                                          ? null
+                                          : 'Email invalide',
                                 ),
-                                obscureText: true,
-                                validator: (v) => (v != null && v.length >= 6)
-                                    ? null
-                                    : 'Min 6 caractères',
-                              ),
-                              const SizedBox(height: 20),
-                              TextFormField(
-                                controller: _confirmPasswordController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Confirmer le mot de passe',
-                                  prefixIcon: Icon(Icons.lock_outline),
+                                const SizedBox(height: 20),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Mot de passe',
+                                    prefixIcon: Icon(Icons.lock_outline),
+                                  ),
+                                  obscureText: true,
+                                  validator: (v) => (v != null && v.length >= 6)
+                                      ? null
+                                      : 'Min 6 caractères',
                                 ),
-                                obscureText: true,
-                                validator: (v) {
-                                  if (v == null || v.isEmpty) return 'Requis';
-                                  if (v != _passwordController.text) {
-                                    return 'Les mots de passe ne correspondent pas';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 32),
-                              if (_isLoading)
-                                const Center(child: CircularProgressIndicator())
-                              else
-                                ElevatedButton(
-                                  onPressed: _signUp,
-                                  child: const Text('S\'inscrire'),
+                                const SizedBox(height: 20),
+                                TextFormField(
+                                  controller: _confirmPasswordController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Confirmer le mot de passe',
+                                    prefixIcon: Icon(Icons.lock_outline),
+                                  ),
+                                  obscureText: true,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return 'Requis';
+                                    if (v != _passwordController.text) {
+                                      return 'Les mots de passe ne correspondent pas';
+                                    }
+                                    return null;
+                                  },
                                 ),
-                            ],
+                                const SizedBox(height: 32),
+                                if (_isLoading)
+                                  const Center(
+                                      child: CircularProgressIndicator())
+                                else
+                                  ElevatedButton(
+                                    onPressed: _signUp,
+                                    child: const Text('S\'inscrire'),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Déjà un compte ?',
-                          style: TextStyle(
-                              color: AppColors.black.withValues(alpha: 0.6)),
-                        ),
-                        TextButton(
-                          onPressed: () =>
-                              Navigator.pushReplacementNamed(context, '/login'),
-                          child: const Text(
-                            ' Se connecter',
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Déjà un compte ?',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.orange),
+                                color: AppColors.black.withValues(alpha: 0.6)),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          TextButton(
+                            onPressed: () => Navigator.pushReplacementNamed(
+                                context, '/login'),
+                            child: const Text(
+                              ' Se connecter',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.orange),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

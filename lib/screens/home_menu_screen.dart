@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
+import '../widgets/responsive_center.dart';
 
 class HomeMenuScreen extends StatefulWidget {
   const HomeMenuScreen({super.key});
@@ -72,83 +73,85 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
           ),
 
           SafeArea(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Top Bar: Bonjour + Profile
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pushNamed(context, '/profile'),
-                        child: _GlassContainer(
-                          child: Row(
-                            children: [
-                              const Icon(Icons.account_circle,
-                                  color: AppColors.cyan, size: 28),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Bonjour $_userName',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+            child: ResponsiveCenter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0, vertical: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Top Bar: Bonjour + Profile
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.pushNamed(context, '/profile'),
+                          child: _GlassContainer(
+                            child: Row(
+                              children: [
+                                const Icon(Icons.account_circle,
+                                    color: AppColors.cyan, size: 28),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Bonjour $_userName',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      _GlassIconButton(
-                        icon: Icons.logout,
-                        color: AppColors.black,
-                        onPressed: _signOut,
-                        tooltip: 'Se déconnecter',
-                      ),
-                    ],
-                  ),
+                        _GlassIconButton(
+                          icon: Icons.logout,
+                          color: AppColors.black,
+                          onPressed: _signOut,
+                          tooltip: 'Se déconnecter',
+                        ),
+                      ],
+                    ),
 
-                  // Center Content (Spacer + Text + Spacer)
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      'Commence à explorer avec Whateka !',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.concertOne(
-                        fontSize: 36,
-                        height: 1.2,
-                        color: AppColors.black,
+                    // Center Content (Spacer + Text + Spacer)
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        'Commence à explorer avec Whateka !',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.concertOne(
+                          fontSize: 36,
+                          height: 1.2,
+                          color: AppColors.black,
+                        ),
                       ),
                     ),
-                  ),
-                  const Spacer(),
+                    const Spacer(),
 
-                  // Bottom Buttons
-                  _MenuButton(
-                    label: 'Trouver mon activité du jour !',
-                    icon: Icons.assignment,
-                    color: AppColors.orange,
-                    onTap: () => Navigator.pushNamed(context, '/quiz'),
-                  ),
-                  const SizedBox(height: 16),
-                  _MenuButton(
-                    label: 'Carte',
-                    icon: Icons.map,
-                    color: AppColors.cyan,
-                    onTap: () => Navigator.pushNamed(context, '/map'),
-                  ),
-                  const SizedBox(height: 16),
-                  _MenuButton(
-                    label: 'Activités likées',
-                    icon: Icons.favorite,
-                    color: AppColors.green,
-                    onTap: () => Navigator.pushNamed(context, '/favorites'),
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                    // Bottom Buttons
+                    _MenuButton(
+                      label: 'Trouver mon activité du jour !',
+                      icon: Icons.assignment,
+                      color: AppColors.orange,
+                      onTap: () => Navigator.pushNamed(context, '/quiz'),
+                    ),
+                    const SizedBox(height: 16),
+                    _MenuButton(
+                      label: 'Carte',
+                      icon: Icons.map,
+                      color: AppColors.cyan,
+                      onTap: () => Navigator.pushNamed(context, '/map'),
+                    ),
+                    const SizedBox(height: 16),
+                    _MenuButton(
+                      label: 'Activités likées',
+                      icon: Icons.favorite,
+                      color: AppColors.green,
+                      onTap: () => Navigator.pushNamed(context, '/favorites'),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
           ),
