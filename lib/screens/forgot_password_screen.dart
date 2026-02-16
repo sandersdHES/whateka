@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
@@ -21,6 +22,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     try {
       await Supabase.instance.client.auth.resetPasswordForEmail(
         _emailController.text.trim(),
+        redirectTo: kIsWeb ? null : 'io.supabase.whateka://login-callback',
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -32,11 +34,25 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         );
         Navigator.pop(context);
       }
+    } on AuthException catch (e) {
+      if (mounted) {
+        String message = e.message;
+        if (e.code == 'over_email_send_rate_limit') {
+          message = 'Trop de tentatives. Veuillez patienter.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Erreur lors de l\'envoi'),
+            content: Text('Erreur inattendue: $e'),
             backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),

@@ -15,6 +15,7 @@ import 'screens/questionnaire_screen.dart';
 import 'screens/activity_list_screen.dart';
 import 'screens/single_activity_screen.dart';
 import 'screens/ai_result_screen.dart';
+import 'screens/update_password_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -56,8 +57,25 @@ class AppColors {
   static const Color lightBg = white;
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.passwordRecovery) {
+        navigatorKey.currentState?.pushNamed('/update_password');
+      }
+    });
+  }
+
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -197,6 +215,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       title: 'Whateka',
       theme: theme,
       initialRoute: '/',
@@ -213,6 +232,7 @@ class MyApp extends StatelessWidget {
         '/quiz': (_) => const QuestionnaireScreen(),
         '/activity': (_) => const ActivityListScreen(),
         '/activity_detail': (_) => const SingleActivityScreen(),
+        '/update_password': (_) => const UpdatePasswordScreen(),
       },
       onGenerateRoute: (settings) {
         // Handle routes with arguments
