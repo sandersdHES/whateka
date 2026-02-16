@@ -92898,9 +92898,9 @@ A.aaj.prototype={}
 A.aak.prototype={
 gmY(){var s=this.r
 return s===$?this.r=new A.NY(this.f):s},
-uz(a,b,c){return this.a5g(a,b,c)},
-a5g(a,b,c){var s=0,r=A.u(t.W8),q,p=this,o,n,m,l,k,j,i,h,g
-var $async$uz=A.v(function(d,e){if(d===1)return A.q(e,r)
+uz(a,b,c,d){return this.a5g(a,b,c,d)},
+a5g(a,b,c,d){var s=0,r=A.u(t.W8),q,p=this,o,n,m,l,k,j,i,h,g
+var $async$uz=A.v(function(e,f){if(e===1)return A.q(f,r)
 for(;;)switch(s){case 0:h=A.bM()
 s=p.at===B.eU?3:5
 break
@@ -92916,8 +92916,8 @@ l=t.N
 k=A.a_(["captcha_token",null],l,t.T)
 g=h
 s=7
-return A.m(m.ku(p.d+"/signup",B.ev,A.qt(A.a_(["email",b,"password",c,"data",a,"gotrue_meta_security",k,"code_challenge",n,"code_challenge_method",n!=null?"s256":null],l,t.z),p.e,null,null,null,null)),$async$uz)
-case 7:g.sd9(e)
+return A.m(m.ku(p.d+"/signup",B.ev,A.qt(A.a_(["email",b,"password",d,"data",a,"gotrue_meta_security",k,"code_challenge",n,"code_challenge_method",n!=null?"s256":null],l,t.z),p.e,null,null,null,c)),$async$uz)
+case 7:g.sd9(f)
 j=A.aFD(h.aS())
 i=j.a
 if(i!=null){p.oS(i)
@@ -93106,9 +93106,9 @@ break
 case 10:case 6:return A.r(null,r)
 case 1:return A.q(p.at(-1),r)}})
 return A.t($async$lD,r)},
-y0(a){return this.aB8(a)},
-aB8(a){var s=0,r=A.u(t.H),q=this,p,o,n,m,l
-var $async$y0=A.v(function(b,c){if(b===1)return A.q(c,r)
+y0(a,b){return this.aB8(a,b)},
+aB8(a,b){var s=0,r=A.u(t.H),q=this,p,o,n,m,l
+var $async$y0=A.v(function(c,d){if(c===1)return A.q(d,r)
 for(;;)switch(s){case 0:s=q.at===B.eU?2:4
 break
 case 2:p=A.aQ0()
@@ -93120,7 +93120,7 @@ break
 case 4:o=null
 case 3:n=t.N
 m=A.a_(["captcha_token",null],n,t.T)
-l=A.qt(A.a_(["email",a,"gotrue_meta_security",m,"code_challenge",o,"code_challenge_method",o!=null?"s256":null],n,t.X),q.e,null,null,null,null)
+l=A.qt(A.a_(["email",a,"gotrue_meta_security",m,"code_challenge",o,"code_challenge_method",o!=null?"s256":null],n,t.X),q.e,null,null,null,b)
 s=6
 return A.m(q.gmY().ku(q.d+"/recover",B.ev,l),$async$y0)
 case 6:return A.r(null,r)}})
@@ -98278,7 +98278,7 @@ p=4
 l=$.dG().b
 l===$&&A.a()
 s=7
-return A.m(l.ge7().y0(B.c.hm(m.d.a.a)),$async$AA)
+return A.m(l.ge7().y0(B.c.hm(m.d.a.a),null),$async$AA)
 case 7:l=m.c
 if(l!=null){l.af(t.J).f.hq(B.TT)
 l=m.c
@@ -98916,7 +98916,7 @@ k=k.ge7()
 j=B.c.hm(m.d.a.a)
 i=B.c.hm(m.e.a.a)
 s=7
-return A.m(k.uz(A.a_(["first_name",B.c.hm(m.r.a.a)],t.N,t.z),j,i),$async$AO)
+return A.m(k.uz(A.a_(["first_name",B.c.hm(m.r.a.a)],t.N,t.z),j,null,i),$async$AO)
 case 7:k=m.c
 if(k!=null){j=t.X
 A.PK(k,"/verification",j,j)}n.push(6)
