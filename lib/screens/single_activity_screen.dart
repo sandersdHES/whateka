@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
@@ -36,6 +37,30 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _openActivityUrl() async {
+    if (activity.activityUrl == null || activity.activityUrl!.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Aucune URL disponible pour cette activité')),
+        );
+      }
+      return;
+    }
+
+    final Uri url = Uri.parse(activity.activityUrl!);
+    try {
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        throw Exception('Impossible d\'ouvrir l\'URL');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de l\'ouverture du lien: $e')),
         );
       }
     }
@@ -242,9 +267,8 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                             elevation: 0,
                             padding: const EdgeInsets.symmetric(vertical: 20),
                           ),
-                          onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                              context, '/dashboard', (route) => false),
-                          child: const Text('Choisir cette expérience'),
+                          onPressed: _openActivityUrl,
+                          child: const Text('Visiter le site officiel'),
                         ),
                       ),
                     ],

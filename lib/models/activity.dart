@@ -6,6 +6,7 @@ class Activity {
   final String? description;
   final String? imageUrl; // mapped from image_url
   final String? category;
+  final String? activityUrl; // mapped from activity_url
   final List<String> features;
   final double latitude;
   final double longitude;
@@ -24,6 +25,7 @@ class Activity {
     this.description,
     this.imageUrl,
     this.category,
+    this.activityUrl,
     required this.features,
     required this.latitude,
     required this.longitude,
@@ -42,6 +44,7 @@ class Activity {
       description: json['description'] as String?,
       imageUrl: json['image_url'] as String?,
       category: json['category'] as String?,
+      activityUrl: json['activity_url'] as String?,
       features: (json['features'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
