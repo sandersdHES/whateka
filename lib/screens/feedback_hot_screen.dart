@@ -55,7 +55,8 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.of(context).pop();
+        // Retourner à l'accueil en supprimant toutes les routes précédentes
+        Navigator.of(context).popUntil((route) => route.isFirst);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
