@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
+import 'feedback_hot_screen.dart';
 
 class SingleActivityScreen extends StatefulWidget {
   const SingleActivityScreen({super.key});
@@ -57,6 +58,8 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
       if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
         throw Exception('Impossible d\'ouvrir l\'URL');
       }
+      // Attendre un peu puis proposer le feedback
+      _scheduleFeedbackPrompt();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -64,6 +67,65 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
         );
       }
     }
+  }
+
+  void _scheduleFeedbackPrompt() {
+    // Attendre 3 secondes avant de proposer le feedback
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        _showFeedbackDialog();
+      }
+    });
+  }
+
+  void _showFeedbackDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Votre avis compte !',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'Souhaitez-vous partager votre expérience avec cette activité ?',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Plus tard',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E3A8A),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FeedbackHotScreen(activity: activity),
+                  ),
+                );
+              },
+              child: const Text('Donner mon avis'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
