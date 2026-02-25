@@ -218,13 +218,18 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
           ),
           // Content
           SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (activity.category != null)
@@ -333,12 +338,14 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                           child: const Text('Visiter le site officiel'),
                         ),
                       ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
+        ),
         ],
       ),
     );
