@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../models/activity.dart';
 import '../models/feedback_hot.dart';
 import '../services/feedback_service.dart';
@@ -91,12 +92,12 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                 height: 50,
                 decoration: BoxDecoration(
                   color: currentValue == value 
-                      ? const Color(0xFF1E3A8A) 
+                      ? AppColors.orange 
                       : Colors.grey[200],
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: currentValue == value 
-                        ? const Color(0xFF1E3A8A) 
+                        ? AppColors.orange 
                         : Colors.grey[300]!,
                     width: 2,
                   ),
@@ -138,7 +139,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Votre avis compte !'),
-        backgroundColor: const Color(0xFF1E3A8A),
+        backgroundColor: AppColors.orange,
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
@@ -194,7 +195,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                     onPressed: () => setState(() => _discoveredNewActivities = true),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _discoveredNewActivities 
-                          ? const Color(0xFF1E3A8A) 
+                          ? AppColors.orange 
                           : Colors.grey[200],
                       foregroundColor: _discoveredNewActivities 
                           ? Colors.white 
@@ -213,7 +214,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                     onPressed: () => setState(() => _discoveredNewActivities = false),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: !_discoveredNewActivities 
-                          ? const Color(0xFF1E3A8A) 
+                          ? AppColors.orange 
                           : Colors.grey[200],
                       foregroundColor: !_discoveredNewActivities 
                           ? Colors.white 
@@ -274,14 +275,14 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                     onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: Color(0xFF1E3A8A)),
+                      side: const BorderSide(color: AppColors.cyan),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     child: const Text(
                       'Passer',
-                      style: TextStyle(color: Color(0xFF1E3A8A)),
+                      style: TextStyle(color: AppColors.cyan),
                     ),
                   ),
                 ),
@@ -291,7 +292,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                   child: ElevatedButton(
                     onPressed: _isSubmitting ? null : _submitFeedback,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E3A8A),
+                      backgroundColor: AppColors.orange,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
