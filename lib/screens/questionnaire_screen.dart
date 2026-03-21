@@ -30,7 +30,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   final ContextService _contextService = ContextService();
 
   // Use Set<int> for multiple selections per step
-  final List<Set<int>> selections = [{}, {}, {}, {}, {}];
+  final List<Set<int>> selections = [{}, {}, {}, {}, {}, {}];
 
   final List<_QuestionQuestionData> questions = const [
     _QuestionQuestionData(
@@ -51,8 +51,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         _Option('Sport', Icons.directions_run, value: 'sport'),
         _Option('Gourmandise', Icons.restaurant, value: 'gastronomy'),
         _Option('Aventure', Icons.explore_off, value: 'adventure'),
+        _Option('Fun', Icons.celebration, value: 'fun'),
+        _Option('Bien-être', Icons.self_improvement, value: 'wellness'),
       ],
-      maxSelections: 2,
+      maxSelections: 3,
     ),
     _QuestionQuestionData(
       "Envie d'extérieur ou d'intérieur ?",
@@ -65,10 +67,11 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     _QuestionQuestionData(
       "Quel est votre budget ?",
       [
-        _Option('Gratuit', Icons.money_off, value: '0'),
-        _Option('Éco', Icons.attach_money, value: '1'),
-        _Option('Modéré', Icons.currency_exchange, value: '2'),
-        _Option('Pas important', Icons.all_inclusive, value: '3'),
+        _Option('Gratuit', Icons.money_off, value: '1'),
+        _Option('1–20 CHF', Icons.attach_money, value: '2'),
+        _Option('20–50 CHF', Icons.currency_exchange, value: '3'),
+        _Option('50–100 CHF', Icons.payments, value: '4'),
+        _Option('100+ CHF', Icons.diamond_outlined, value: '5'),
       ],
     ),
     _QuestionQuestionData(
@@ -107,11 +110,20 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         return questions[stepIndex].options[selectedIndex].value ?? '';
       }
 
+      // Support multi-selection for categories (step 1)
+      List<String> getMultipleValues(int stepIndex) {
+        return selections[stepIndex]
+            .map((i) => questions[stepIndex].options[i].value ?? '')
+            .where((v) => v.isNotEmpty)
+            .toList();
+      }
+
       final userPrefs = {
         'social': getSingleValue(0),
-        'category': getSingleValue(1),
+        'categories': getMultipleValues(1), // multi-catégories
+        'category': getSingleValue(1),      // rétrocompatibilité
         'environment': getSingleValue(2),
-        'price_max': int.tryParse(getSingleValue(3)) ?? 2,
+        'price_max': int.tryParse(getSingleValue(3)) ?? 3, // 1-5
         'duration': getSingleValue(4),
       };
 

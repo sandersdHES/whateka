@@ -2,7 +2,7 @@ class Activity {
   final int id;
   final String title;
   final String location; // mapped from location_name
-  final String duration; // mapped from duration_minutes
+  final String duration; // mapped from duration_minutes → formatted as hours
   final String? description;
   final String? imageUrl; // mapped from image_url
   final String? category;
@@ -35,12 +35,41 @@ class Activity {
     this.aiReason,
   });
 
+  /// Format duration_minutes into a human-readable string in hours
+  static String _formatDuration(int minutes) {
+    if (minutes <= 0) return '';
+    if (minutes < 60) return '$minutes min';
+    final hours = minutes / 60;
+    if (hours == hours.truncateToDouble()) {
+      return '${hours.toInt()} h';
+    }
+    return '${hours.toStringAsFixed(1)} h';
+  }
+
+  /// Returns a human-readable price label for the given price level
+  static String priceLevelLabel(int level) {
+    switch (level) {
+      case 1:
+        return 'Gratuit';
+      case 2:
+        return '1–20 CHF';
+      case 3:
+        return '20–50 CHF';
+      case 4:
+        return '50–100 CHF';
+      case 5:
+        return '100 CHF et plus';
+      default:
+        return 'Gratuit';
+    }
+  }
+
   factory Activity.fromJson(Map<String, dynamic> json) {
     return Activity(
       id: json['id'] as int,
       title: json['title'] as String,
       location: json['location_name'] as String,
-      duration: '${json['duration_minutes']} min', // Simple formatting
+      duration: _formatDuration(json['duration_minutes'] as int? ?? 0),
       description: json['description'] as String?,
       imageUrl: json['image_url'] as String?,
       category: json['category'] as String?,
