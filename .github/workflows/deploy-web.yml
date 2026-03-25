@@ -34,6 +34,13 @@ jobs:
             --release \
             --base-href "/"
 
+      # Mettre à jour la date du sitemap à chaque déploiement
+      - name: Update sitemap date
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          sed -i "s|<lastmod>.*</lastmod>|<lastmod>${TODAY}</lastmod>|g" build/web/sitemap.xml
+          echo "Sitemap updated with date: $TODAY"
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -41,3 +48,9 @@ jobs:
           publish_dir: ./build/web
           cname: whateka.ch
           commit_message: "Deploy: ${{ github.event.head_commit.message }}"
+
+      # Notifier Google du nouveau sitemap (ping)
+      - name: Ping Google Search Console sitemap
+        run: |
+          curl -s "https://www.google.com/ping?sitemap=https://whateka.ch/sitemap.xml" || true
+          echo "Google pinged about sitemap update"

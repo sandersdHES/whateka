@@ -1,16 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
-
     The path provided below has to start and end with a slash "/" in order for
     it to work correctly.
-
     For more details:
     * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
@@ -18,21 +15,102 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Whateka, l'activité te trouvera !">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- iOS meta tags & icons -->
+  <!-- SEO - Métadonnées principales -->
+  <title>Whateka – Découvrez les meilleures activités en Valais</title>
+  <meta name="description" content="Whateka vous recommande les meilleures activités en Valais selon vos envies et votre budget. Aventure, nature, culture, sport, bien-être et plus encore.">
+  <meta name="keywords" content="activités Valais, que faire en Valais, activités Sion, loisirs Valais, tourisme Valais, activités outdoor Valais, activités famille Valais, randonnée Valais, aventure Valais">
+  <meta name="author" content="Whateka">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="French">
+  <link rel="canonical" href="https://whateka.ch/">
+
+  <!-- Open Graph (Facebook, LinkedIn, WhatsApp) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://whateka.ch/">
+  <meta property="og:title" content="Whateka – Découvrez les meilleures activités en Valais">
+  <meta property="og:description" content="Whateka vous recommande les meilleures activités en Valais selon vos envies et votre budget. Aventure, nature, culture, sport et bien-être.">
+  <meta property="og:image" content="https://whateka.ch/icons/Icon-512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:locale" content="fr_CH">
+  <meta property="og:site_name" content="Whateka">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://whateka.ch/">
+  <meta name="twitter:title" content="Whateka – Activités en Valais">
+  <meta name="twitter:description" content="Découvrez les meilleures activités en Valais selon vos envies et votre budget.">
+  <meta name="twitter:image" content="https://whateka.ch/icons/Icon-512.png">
+
+  <!-- Schema.org JSON-LD (données structurées pour Google) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Whateka",
+    "url": "https://whateka.ch",
+    "description": "Application de recommandation d'activités touristiques en Valais, Suisse. Trouvez les meilleures activités selon vos envies, votre budget et la saison.",
+    "applicationCategory": "TravelApplication",
+    "operatingSystem": "Web, iOS, Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CHF"
+    },
+    "areaServed": {
+      "@type": "State",
+      "name": "Valais",
+      "containedInPlace": {
+        "@type": "Country",
+        "name": "Suisse"
+      }
+    },
+    "inLanguage": "fr",
+    "author": {
+      "@type": "Organization",
+      "name": "Whateka",
+      "url": "https://whateka.ch"
+    }
+  }
+  </script>
+
+  <!-- iOS / PWA -->
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="whateka">
+  <meta name="apple-mobile-web-app-title" content="Whateka">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Favicon -->
+  <!-- Favicon & Manifest -->
   <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>whateka</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Performance : préconnexion aux domaines tiers -->
+  <link rel="preconnect" href="https://pqywriedvxsdngypplpg.supabase.co">
+  <link rel="dns-prefetch" href="https://pqywriedvxsdngypplpg.supabase.co">
 </head>
 <body>
+
+  <!-- Contenu statique pour les crawlers (masqué si JS actif) -->
+  <div id="seo-content" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;" aria-hidden="true">
+    <h1>Whateka – Activités en Valais</h1>
+    <p>Whateka est l'application qui vous recommande les meilleures activités touristiques en Valais, Suisse. Que vous cherchiez de l'aventure, de la nature, de la culture, du sport ou du bien-être, Whateka trouve l'activité parfaite selon votre budget et vos envies.</p>
+    <h2>Catégories d'activités disponibles</h2>
+    <ul>
+      <li>Aventure en Valais : randonnées, via ferrata, saut à l'élastique, rafting</li>
+      <li>Nature en Valais : bisses, lacs, cascades, domaines naturels</li>
+      <li>Culture en Valais : musées, châteaux, visites guidées, patrimoine</li>
+      <li>Sport en Valais : ski, vélo, escalade, natation</li>
+      <li>Bien-être en Valais : spas, thermes, yoga, relaxation</li>
+      <li>Fun en Valais : parcs de loisirs, karting, escape games</li>
+    </ul>
+    <h2>Pourquoi Whateka ?</h2>
+    <p>Whateka utilise l'intelligence artificielle pour vous recommander des activités personnalisées en Valais. Répondez à quelques questions sur vos envies, votre budget et votre groupe, et Whateka vous propose les meilleures activités disponibles dans la région.</p>
+    <p>Disponible sur le web, iOS et Android. Gratuit et sans inscription obligatoire.</p>
+  </div>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

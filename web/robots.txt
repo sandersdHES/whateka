@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://whateka.ch/sitemap.xml
+
+# Désactiver l'indexation des fichiers techniques Flutter
+Disallow: /flutter_service_worker.js
+Disallow: /flutter_bootstrap.js
+Disallow: /main.dart.js
+Disallow: /canvaskit/

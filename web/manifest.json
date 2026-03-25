@@ -1,13 +1,15 @@
 {
-    "name": "whateka",
-    "short_name": "whateka",
-    "start_url": ".",
+    "name": "Whateka – Activités en Valais",
+    "short_name": "Whateka",
+    "start_url": "/",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "Whateka, l'activité te trouvera !",
+    "background_color": "#FFFFFF",
+    "theme_color": "#FF6B35",
+    "description": "Whateka vous recommande les meilleures activités en Valais selon vos envies et votre budget.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "lang": "fr",
+    "categories": ["travel", "lifestyle", "entertainment"],
     "icons": [
         {
             "src": "icons/Icon-192.png",
