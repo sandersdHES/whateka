@@ -105,7 +105,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                         ),
                         _GlassIconButton(
                           icon: Icons.logout,
-                          color: AppColors.black,
+                          color: AppColors.cyan,
                           onPressed: _signOut,
                           tooltip: 'Se déconnecter',
                         ),
@@ -122,7 +122,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                         style: GoogleFonts.concertOne(
                           fontSize: 36,
                           height: 1.2,
-                          color: AppColors.black,
+                          color: AppColors.cyan,
                         ),
                       ),
                     ),
@@ -212,12 +212,12 @@ class _MenuButton extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.black.withValues(alpha: 0.8),
+                      color: AppColors.cyan.withValues(alpha: 0.8),
                     ),
                   ),
                 ),
                 Icon(Icons.arrow_forward_ios,
-                    color: AppColors.black.withValues(alpha: 0.3), size: 16),
+                    color: AppColors.cyan.withValues(alpha: 0.3), size: 16),
               ],
             ),
           ),

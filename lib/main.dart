@@ -47,7 +47,7 @@ class AppColors {
   static const Color brown = Color(0xFF926335);
   static const Color cyan = Color(0xFF00B8D9); // primary
   static const Color green = Color(0xFF97C45F);
-  static const Color orange = Color(0xFFF26419); // CTA / secondary
+  static const Color orange = Color(0xFFFF6F61); // CTA / secondary
   static const Color yellow = Color(0xFFF6AE2D);
   static const Color white = Color(0xFFFFFFFF);
 

@@ -3,6 +3,7 @@ import '../services/activity_service.dart';
 import '../models/activity.dart';
 import '../models/ai_response.dart';
 import '../widgets/fun_loading_widget.dart';
+import '../main.dart';
 
 class AiResultScreen extends StatefulWidget {
   final Map<String, dynamic> userPrefs;
@@ -57,7 +58,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
                           : Icons.error_outline,
                       size: 64,
                       color: snapshot.error.toString().contains("surchargé")
-                          ? Colors.orange
+                          ? AppColors.orange
                           : Colors.red,
                     ),
                     const SizedBox(height: 16),
@@ -106,7 +107,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
                     const Icon(
                       Icons.search_off,
                       size: 64,
-                      color: Colors.orange,
+                      color: AppColors.orange,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -196,7 +197,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
                 // Section title
                 Row(
                   children: [
-                    const Icon(Icons.stars, color: Colors.orange),
+                    const Icon(Icons.stars, color: AppColors.orange),
                     const SizedBox(width: 8),
                     Text(
                       "Top ${response.activities.length} Activités",
@@ -348,10 +349,10 @@ class _AiResultScreenState extends State<AiResultScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.1),
+                        color: AppColors.orange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.orange.withValues(alpha: 0.3),
+                          color: AppColors.orange.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
@@ -361,14 +362,14 @@ class _AiResultScreenState extends State<AiResultScreen> {
                           const Icon(
                             Icons.lightbulb_outline,
                             size: 20,
-                            color: Colors.orange,
+                            color: AppColors.orange,
                           ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               activity.aiReason!,
                               style: TextStyle(
-                                color: Colors.orange[900],
+                                color: AppColors.orange,
                                 fontSize: 14,
                                 fontStyle: FontStyle.italic,
                                 height: 1.4,

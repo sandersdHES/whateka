@@ -52,7 +52,7 @@ class HomeScreen extends StatelessWidget {
                       'Whateka',
                       style: Theme.of(context).textTheme.displayLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppColors.black,
+                            color: AppColors.cyan,
                           ),
                     ),
                     const SizedBox(height: 16),
@@ -61,7 +61,7 @@ class HomeScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: AppColors.black.withValues(alpha: 0.7),
+                                color: AppColors.cyan,
                               ),
                     ),
                     const SizedBox(height: 48),
