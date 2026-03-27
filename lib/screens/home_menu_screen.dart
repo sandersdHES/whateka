@@ -105,7 +105,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                         ),
                         _GlassIconButton(
                           icon: Icons.logout,
-                          color: AppColors.cyan,
+                          color: AppColors.black,
                           onPressed: _signOut,
                           tooltip: 'Se déconnecter',
                         ),
@@ -114,15 +114,20 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
 
                     // Center Content (Spacer + Text + Spacer)
                     const Spacer(),
+                    Image.asset(
+                      'assets/images/home_icon.png',
+                      height: 120,
+                    ),
+                    const SizedBox(height: 16),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
-                        'Commence à explorer avec Whateka !',
+                        'Commence à explorer avec WHATEKA !',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.concertOne(
                           fontSize: 36,
                           height: 1.2,
-                          color: AppColors.cyan,
+                          color: AppColors.black,
                         ),
                       ),
                     ),
@@ -212,12 +217,12 @@ class _MenuButton extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.cyan.withValues(alpha: 0.8),
+                      color: AppColors.black.withValues(alpha: 0.8),
                     ),
                   ),
                 ),
                 Icon(Icons.arrow_forward_ios,
-                    color: AppColors.cyan.withValues(alpha: 0.3), size: 16),
+                    color: AppColors.black.withValues(alpha: 0.3), size: 16),
               ],
             ),
           ),

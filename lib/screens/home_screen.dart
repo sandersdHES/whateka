@@ -49,7 +49,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Whateka',
+                      'WHATEKA',
                       style: Theme.of(context).textTheme.displayLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppColors.cyan,
