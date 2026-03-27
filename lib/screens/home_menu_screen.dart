@@ -127,7 +127,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                         style: GoogleFonts.concertOne(
                           fontSize: 36,
                           height: 1.2,
-                          color: AppColors.black,
+                          color: AppColors.cyan,
                         ),
                       ),
                     ),

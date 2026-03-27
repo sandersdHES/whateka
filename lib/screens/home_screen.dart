@@ -51,7 +51,7 @@ class HomeScreen extends StatelessWidget {
                     Text(
                       'WHATEKA',
                       style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.normal,
                             color: AppColors.cyan,
                           ),
                     ),
