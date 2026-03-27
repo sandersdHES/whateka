@@ -125,7 +125,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                         'Commence à explorer avec WHATEKA !',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.concertOne(
-                          fontSize: 36,
+                          fontSize: 24,
                           height: 1.2,
                           color: AppColors.cyan,
                         ),

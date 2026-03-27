@@ -3,6 +3,7 @@ import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
 import '../widgets/fun_loading_widget.dart';
+import '../widgets/whateka_bottom_nav.dart';
 
 class ActivityListScreen extends StatefulWidget {
   const ActivityListScreen({super.key});
@@ -18,7 +19,10 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
 
   List<Activity>? _activities;
   bool _isLoading = true;
+  bool _isLoadingMore = false;
   String? _error;
+  int _searchesCount = 1;
+  static const int _pageSize = 3;
 
   @override
   void initState() {
@@ -28,37 +32,24 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
 
   Future<void> _loadData() async {
     try {
-      // Minimum loading time for the "Fun" effect (2 seconds)
       final minWait = Future.delayed(const Duration(seconds: 2));
-
-      // Fetch data
-      final activities = await _activityService.getActivities(limit: 3);
-
-      // Wait for at least 2 seconds before checking images
+      final activities =
+          await _activityService.getActivities(limit: _pageSize, offset: 0);
       await minWait;
 
       if (mounted) {
-        // Precache images if any
         final List<Future<void>> imageLoaders = [];
-
         for (var activity in activities) {
           if (activity.imageUrl != null) {
             imageLoaders.add(
-              precacheImage(
-                NetworkImage(activity.imageUrl!),
-                context,
-              ).catchError((e) {
-                // Ignore image loading errors during precache
+              precacheImage(NetworkImage(activity.imageUrl!), context)
+                  .catchError((e) {
                 debugPrint("Failed to precache image: $e");
               }),
             );
           }
         }
-
-        // Wait for all images to be cached
-        if (imageLoaders.isNotEmpty) {
-          await Future.wait(imageLoaders);
-        }
+        if (imageLoaders.isNotEmpty) await Future.wait(imageLoaders);
 
         if (mounted) {
           setState(() {
@@ -74,6 +65,28 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (_isLoadingMore || _activities == null) return;
+    setState(() => _isLoadingMore = true);
+
+    try {
+      final more = await _activityService.getActivities(
+        limit: _pageSize,
+        offset: _activities!.length,
+      );
+
+      if (mounted) {
+        setState(() {
+          _activities!.addAll(more);
+          _searchesCount++;
+          _isLoadingMore = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingMore = false);
     }
   }
 
@@ -100,6 +113,8 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
           ),
         ),
         body: Center(child: Text("Oups ! Une erreur est survenue : $_error")),
+        bottomNavigationBar:
+            const WhatekBottomNav(currentRoute: '/activity'),
       );
     }
 
@@ -114,11 +129,14 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
           ),
         ),
         body: const Center(child: Text("Aucune activité trouvée.")),
+        bottomNavigationBar:
+            const WhatekBottomNav(currentRoute: '/activity'),
       );
     }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
+      bottomNavigationBar: const WhatekBottomNav(currentRoute: '/activity'),
       appBar: AppBar(
         title: const Text('Vos suggestions'),
         centerTitle: true,
@@ -134,11 +152,9 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
             child: PageView.builder(
               controller: _pageController,
               itemCount: _activities!.length,
-              allowImplicitScrolling: true, // Keep pages alive
+              allowImplicitScrolling: true,
               onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
+                setState(() => _currentPage = index);
               },
               itemBuilder: (context, index) {
                 final activity = _activities![index];
@@ -146,15 +162,19 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
                   scale: _currentPage == index ? 1.0 : 0.9,
                   duration: const Duration(milliseconds: 300),
                   child: Center(
-                    child: _ActivitySummaryCard(activity: activity),
+                    child: _ActivitySummaryCard(
+                      activity: activity,
+                      searchesCount: _searchesCount,
+                    ),
                   ),
                 );
               },
             ),
           ),
-          // Dot Indicator
+
+          // Indicateurs de page
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
@@ -174,6 +194,37 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
               ),
             ),
           ),
+
+          // Bouton "Plus d'activités"
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _isLoadingMore ? null : _loadMore,
+                icon: _isLoadingMore
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: AppColors.cyan),
+                      )
+                    : const Icon(Icons.add_circle_outline),
+                label: Text(
+                    _isLoadingMore ? 'Chargement...' : 'Plus d\'activités'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.cyan,
+                  side: const BorderSide(color: AppColors.cyan, width: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  textStyle: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -182,7 +233,12 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
 
 class _ActivitySummaryCard extends StatefulWidget {
   final Activity activity;
-  const _ActivitySummaryCard({required this.activity});
+  final int searchesCount;
+
+  const _ActivitySummaryCard({
+    required this.activity,
+    required this.searchesCount,
+  });
 
   @override
   State<_ActivitySummaryCard> createState() => _ActivitySummaryCardState();
@@ -201,11 +257,14 @@ class _ActivitySummaryCardState extends State<_ActivitySummaryCard>
         Navigator.pushNamed(
           context,
           '/activity_detail',
-          arguments: widget.activity,
-        ).then((_) => setState(() {})); // Refresh on return
+          arguments: {
+            'activity': widget.activity,
+            'searches_count': widget.searchesCount,
+          },
+        ).then((_) => setState(() {}));
       },
       child: Container(
-        height: 500, // Fixed height for carousel items
+        height: 500,
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -234,7 +293,6 @@ class _ActivitySummaryCardState extends State<_ActivitySummaryCard>
                             widget.activity.imageUrl!,
                             fit: BoxFit.cover,
                             width: double.infinity,
-                            // No loading builder needed as we precached!
                             errorBuilder: (context, error, stackTrace) =>
                                 Container(
                               color: Colors.grey[200],
@@ -261,7 +319,6 @@ class _ActivitySummaryCardState extends State<_ActivitySummaryCard>
                           await ActivityService()
                               .toggleFavorite(widget.activity.id);
                         } catch (e) {
-                          // Revert on error
                           if (!mounted) return;
                           setState(() {
                             widget.activity.isFavorite =
@@ -294,7 +351,7 @@ class _ActivitySummaryCardState extends State<_ActivitySummaryCard>
                 ],
               ),
             ),
-            // Content
+            // Contenu
             Expanded(
               flex: 2,
               child: Padding(

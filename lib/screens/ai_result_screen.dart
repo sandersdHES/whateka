@@ -3,6 +3,7 @@ import '../services/activity_service.dart';
 import '../models/activity.dart';
 import '../models/ai_response.dart';
 import '../widgets/fun_loading_widget.dart';
+import '../widgets/whateka_bottom_nav.dart';
 import '../main.dart';
 
 class AiResultScreen extends StatefulWidget {
@@ -23,14 +24,51 @@ class _AiResultScreenState extends State<AiResultScreen> {
   final ActivityService _activityService = ActivityService();
   late Future<AiResponse> _aiFuture;
 
+  // Activités supplémentaires chargées via "Plus d'activités"
+  final List<Activity> _extraActivities = [];
+  bool _isLoadingMore = false;
+  int _searchesCount = 1;
+  // IDs des activités déjà affichées (pour éviter les doublons)
+  Set<int> _shownIds = {};
+
   @override
   void initState() {
     super.initState();
-    // Launch AI recommendation search on screen load
     _aiFuture = _activityService.getAIRecommendations(
       userPrefs: widget.userPrefs,
       context: widget.contextData,
     );
+  }
+
+  Future<void> _loadMoreActivities(List<Activity> currentActivities) async {
+    if (_isLoadingMore) return;
+    setState(() => _isLoadingMore = true);
+
+    try {
+      // Construire la liste des IDs déjà affichés
+      _shownIds = {
+        ...currentActivities.map((a) => a.id),
+        ..._extraActivities.map((a) => a.id),
+      };
+
+      final more = await _activityService.getActivities(
+        limit: 3,
+        offset: _extraActivities.length,
+      );
+
+      // Filtrer les doublons
+      final filtered = more.where((a) => !_shownIds.contains(a.id)).toList();
+
+      if (mounted) {
+        setState(() {
+          _extraActivities.addAll(filtered);
+          _searchesCount++;
+          _isLoadingMore = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingMore = false);
+    }
   }
 
   @override
@@ -40,6 +78,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
         title: const Text("L'avis de l'Expert"),
         centerTitle: true,
       ),
+      bottomNavigationBar: const WhatekBottomNav(currentRoute: '/ai_result'),
       body: FutureBuilder<AiResponse>(
         future: _aiFuture,
         builder: (context, snapshot) {
@@ -104,16 +143,11 @@ class _AiResultScreenState extends State<AiResultScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.search_off,
-                      size: 64,
-                      color: AppColors.orange,
-                    ),
+                    const Icon(Icons.search_off,
+                        size: 64, color: AppColors.orange),
                     const SizedBox(height: 16),
-                    Text(
-                      "Aucune activité trouvée",
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text("Aucune activité trouvée",
+                        style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 8),
                     Text(
                       "Essayez de modifier vos critères de recherche",
@@ -133,6 +167,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
           }
 
           final response = snapshot.data!;
+          final allActivities = [...response.activities, ..._extraActivities];
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -140,16 +175,13 @@ class _AiResultScreenState extends State<AiResultScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Global AI comment section
+                // Commentaire IA global
                 if (response.globalComment.isNotEmpty)
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.blue.shade50,
-                          Colors.cyan.shade50,
-                        ],
+                        colors: [Colors.blue.shade50, Colors.cyan.shade50],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -194,7 +226,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
                   ),
                 const SizedBox(height: 24),
 
-                // Section title
+                // Titre section
                 Row(
                   children: [
                     const Icon(Icons.stars, color: AppColors.orange),
@@ -210,11 +242,67 @@ class _AiResultScreenState extends State<AiResultScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Activities list
-                ...response.activities
-                    .map((activity) => _buildActivityCard(activity)),
+                // Activités IA
+                ...response.activities.map((activity) =>
+                    _buildActivityCard(activity, withAiReason: true)),
 
-                // Extra padding at bottom for comfortable scrolling
+                // Activités supplémentaires
+                if (_extraActivities.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.explore_outlined,
+                            color: AppColors.cyan),
+                        const SizedBox(width: 8),
+                        Text(
+                          "D'autres idées pour vous",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ..._extraActivities.map((activity) =>
+                      _buildActivityCard(activity, withAiReason: false)),
+                ],
+
+                const SizedBox(height: 16),
+
+                // Bouton "Plus d'activités"
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _isLoadingMore
+                        ? null
+                        : () => _loadMoreActivities(allActivities),
+                    icon: _isLoadingMore
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: AppColors.cyan),
+                          )
+                        : const Icon(Icons.add_circle_outline),
+                    label: Text(
+                        _isLoadingMore ? 'Chargement...' : 'Plus d\'activités'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.cyan,
+                      side: const BorderSide(color: AppColors.cyan, width: 2),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      textStyle: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 40),
               ],
             ),
@@ -224,26 +312,26 @@ class _AiResultScreenState extends State<AiResultScreen> {
     );
   }
 
-  Widget _buildActivityCard(Activity activity) {
+  Widget _buildActivityCard(Activity activity, {required bool withAiReason}) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: InkWell(
         onTap: () {
           Navigator.pushNamed(
             context,
             '/activity_detail',
-            arguments: activity,
+            arguments: {
+              'activity': activity,
+              'searches_count': _searchesCount,
+            },
           );
         },
         borderRadius: BorderRadius.circular(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Activity image
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(20)),
@@ -253,23 +341,19 @@ class _AiResultScreenState extends State<AiResultScreen> {
                       height: 180,
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 180,
-                          color: Colors.grey[300],
-                          child: const Center(
-                            child: Icon(Icons.image_not_supported, size: 50),
-                          ),
-                        );
-                      },
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 180,
+                        color: Colors.grey[300],
+                        child: const Center(
+                            child: Icon(Icons.image_not_supported, size: 50)),
+                      ),
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
                         return Container(
                           height: 180,
                           color: Colors.grey[200],
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
+                          child:
+                              const Center(child: CircularProgressIndicator()),
                         );
                       },
                     )
@@ -277,29 +361,22 @@ class _AiResultScreenState extends State<AiResultScreen> {
                       height: 180,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Colors.grey[300]!, Colors.grey[200]!],
-                        ),
+                            colors: [Colors.grey[300]!, Colors.grey[200]!]),
                       ),
                       child: const Center(
-                        child: Icon(Icons.landscape,
-                            size: 60, color: Colors.white),
-                      ),
+                          child: Icon(Icons.landscape,
+                              size: 60, color: Colors.white)),
                     ),
             ),
-
-            // Activity details
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title and location
                   Text(
                     activity.title,
                     style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -310,17 +387,13 @@ class _AiResultScreenState extends State<AiResultScreen> {
                       Expanded(
                         child: Text(
                           activity.location,
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontSize: 14,
-                          ),
+                          style:
+                              TextStyle(color: Colors.grey[700], fontSize: 14),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-
-                  // Duration and price level
                   Row(
                     children: [
                       Icon(Icons.access_time,
@@ -333,19 +406,15 @@ class _AiResultScreenState extends State<AiResultScreen> {
                       const SizedBox(width: 16),
                       ...List.generate(
                         activity.priceLevel,
-                        (index) => const Icon(
-                          Icons.euro,
-                          size: 14,
-                          color: Colors.green,
-                        ),
+                        (index) => const Icon(Icons.euro,
+                            size: 14, color: Colors.green),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-
-                  // AI reasoning highlight
-                  if (activity.aiReason != null &&
-                      activity.aiReason!.isNotEmpty)
+                  if (withAiReason &&
+                      activity.aiReason != null &&
+                      activity.aiReason!.isNotEmpty) ...[
+                    const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -359,11 +428,8 @@ class _AiResultScreenState extends State<AiResultScreen> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
-                            Icons.lightbulb_outline,
-                            size: 20,
-                            color: AppColors.orange,
-                          ),
+                          const Icon(Icons.lightbulb_outline,
+                              size: 20, color: AppColors.orange),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
@@ -379,6 +445,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
                         ],
                       ),
                     ),
+                  ],
                 ],
               ),
             ),

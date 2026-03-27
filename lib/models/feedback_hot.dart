@@ -8,6 +8,7 @@ class FeedbackHot {
   final int personalizationSatisfaction;
   final int informationLevelSatisfaction;
   final String? comments;
+  final int? searchesCount;
 
   FeedbackHot({
     this.id,
@@ -19,6 +20,7 @@ class FeedbackHot {
     required this.personalizationSatisfaction,
     required this.informationLevelSatisfaction,
     this.comments,
+    this.searchesCount,
   });
 
   Map<String, dynamic> toJson() {
@@ -30,14 +32,15 @@ class FeedbackHot {
       'personalization_satisfaction': personalizationSatisfaction,
       'information_level_satisfaction': informationLevelSatisfaction,
       'comments': comments,
+      'searches_count': searchesCount,
     };
   }
 
   factory FeedbackHot.fromJson(Map<String, dynamic> json) {
     return FeedbackHot(
       id: json['id'],
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
           : null,
       userId: json['user_id'],
       activityId: json['activity_id'],
@@ -46,6 +49,7 @@ class FeedbackHot {
       personalizationSatisfaction: json['personalization_satisfaction'],
       informationLevelSatisfaction: json['information_level_satisfaction'],
       comments: json['comments'],
+      searchesCount: json['searches_count'],
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
+import '../widgets/whateka_bottom_nav.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -33,6 +34,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         title: const Text('Mes Favoris'),
         centerTitle: true,
       ),
+      bottomNavigationBar: const WhatekBottomNav(currentRoute: '/favorites'),
       body: FutureBuilder<List<Activity>>(
         future: _favoritesFuture,
         builder: (context, snapshot) {
@@ -113,9 +115,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     Navigator.pushNamed(
                       context,
                       '/activity_detail',
-                      arguments: activity,
-                    ).then((_) =>
-                        _refreshFavorites()); // Refresh on return in case status changed
+                      arguments: {
+                        'activity': activity,
+                        'searches_count': 1,
+                      },
+                    ).then((_) => _refreshFavorites());
                   },
                 ),
               );

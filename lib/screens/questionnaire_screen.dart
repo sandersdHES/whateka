@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
 import '../services/context_service.dart';
 
@@ -52,7 +53,6 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         _Option('Gourmandise', Icons.restaurant, value: 'gastronomy'),
         _Option('Aventure', Icons.explore_off, value: 'adventure'),
         _Option('Fun', Icons.celebration, value: 'fun'),
-        _Option('Bien-être', Icons.self_improvement, value: 'wellness'),
       ],
       maxSelections: 3,
     ),
@@ -80,7 +80,6 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         _Option('Quelques h.', Icons.timer, value: 'short'),
         _Option('Demi-journée', Icons.wb_sunny_outlined, value: 'medium'),
         _Option('Journée', Icons.calendar_today, value: 'long'),
-        _Option('Week-end', Icons.weekend, value: 'weekend'),
       ],
     ),
   ];
@@ -118,6 +117,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
             .toList();
       }
 
+      // Lire le rayon de recherche depuis les métadonnées utilisateur
+      final user = Supabase.instance.client.auth.currentUser;
+      final radiusKm = user?.userMetadata?['search_radius_km'] as int? ?? 50;
+
       final userPrefs = {
         'social': getSingleValue(0),
         'categories': getMultipleValues(1), // multi-catégories
@@ -125,6 +128,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         'environment': getSingleValue(2),
         'price_max': int.tryParse(getSingleValue(3)) ?? 3, // 1-5
         'duration': getSingleValue(4),
+        'radius_km': radiusKm,
       };
 
       // Get real context data

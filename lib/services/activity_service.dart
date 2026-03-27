@@ -5,7 +5,7 @@ import '../models/ai_response.dart';
 class ActivityService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  Future<List<Activity>> getActivities({int? limit}) async {
+  Future<List<Activity>> getActivities({int? limit, int offset = 0, List<int> excludeIds = const []}) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
 
@@ -16,7 +16,7 @@ class ActivityService {
           .order('created_at', ascending: false);
 
       if (limit != null) {
-        query = query.limit(limit);
+        query = query.range(offset, offset + limit - 1);
       }
       final List<dynamic> data = await query;
       final activities = data.map((json) => Activity.fromJson(json)).toList();
