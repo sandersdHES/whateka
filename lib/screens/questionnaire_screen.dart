@@ -302,28 +302,52 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Grille d'options
+            // Grille d'options — aspect ratio calcule dynamiquement pour
+            // que TOUTES les options tiennent dans l'espace disponible sans
+            // scroll, quelle que soit la taille de l'ecran.
             Expanded(
-              child: GridView.builder(
+              child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-                itemCount: question.options.length,
-                gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.15,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    const crossAxisCount = 2;
+                    const spacing = 12.0;
+                    final rows =
+                        (question.options.length / crossAxisCount).ceil();
+                    final cellHeight =
+                        (constraints.maxHeight - (rows - 1) * spacing) / rows;
+                    final cellWidth =
+                        (constraints.maxWidth - spacing) / crossAxisCount;
+                    // Garde-fou : au moins 70 de haut pour garder lisibilite
+                    // (si ecran vraiment minuscule, le scroll revient).
+                    final aspect = cellHeight > 70
+                        ? cellWidth / cellHeight
+                        : cellWidth / 70.0;
+                    return GridView.builder(
+                      physics: cellHeight > 70
+                          ? const NeverScrollableScrollPhysics()
+                          : const BouncingScrollPhysics(),
+                      itemCount: question.options.length,
+                      gridDelegate:
+                          SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: spacing,
+                        mainAxisSpacing: spacing,
+                        childAspectRatio: aspect,
+                      ),
+                      itemBuilder: (context, index) {
+                        final isSelected =
+                            selections[currentStep].contains(index);
+                        return _OptionCard(
+                          option: question.options[index],
+                          selected: isSelected,
+                          onTap: () => _toggleSelection(
+                              index, question.maxSelections),
+                        );
+                      },
+                    );
+                  },
                 ),
-                itemBuilder: (context, index) {
-                  final isSelected =
-                      selections[currentStep].contains(index);
-                  return _OptionCard(
-                    option: question.options[index],
-                    selected: isSelected,
-                    onTap: () =>
-                        _toggleSelection(index, question.maxSelections),
-                  );
-                },
               ),
             ),
 
