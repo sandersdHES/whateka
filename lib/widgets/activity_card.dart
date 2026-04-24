@@ -66,6 +66,9 @@ class ActivityCard extends StatelessWidget {
 
     final cat = (activity.category ?? '').split(',').first.trim().toLowerCase();
     final chipColor = _categoryColors[cat] ?? AppColors.stone;
+    // Fallback coloré par catégorie (teinte foncée) quand la photo est
+    // absente ou en erreur — plus cohérent visuellement que du gris.
+    final fallbackColor = Color.lerp(chipColor, Colors.black, 0.45)!;
 
     return GestureDetector(
       onTap: onTap,
@@ -81,9 +84,10 @@ class ActivityCard extends StatelessWidget {
                   ? Image.network(
                       activity.imageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(color: AppColors.line),
+                      errorBuilder: (_, __, ___) =>
+                          Container(color: fallbackColor),
                     )
-                  : Container(color: const Color(0xFF3E4B5A)),
+                  : Container(color: fallbackColor),
             ),
             // Gradient sombre en bas pour lisibilité du texte
             Positioned.fill(

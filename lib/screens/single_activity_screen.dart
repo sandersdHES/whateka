@@ -1,11 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
+import '../widgets/responsive_center.dart';
 import 'feedback_hot_screen.dart';
 
 class SingleActivityScreen extends StatefulWidget {
@@ -147,7 +148,9 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.paper,
-      body: Stack(
+      body: ResponsiveCenter(
+        maxWidth: 560,
+        child: Stack(
         children: [
           CustomScrollView(
             slivers: [
@@ -413,6 +416,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

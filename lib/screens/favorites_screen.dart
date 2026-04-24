@@ -3,6 +3,7 @@ import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
 import '../widgets/activity_card.dart';
+import '../widgets/responsive_center.dart';
 import '../widgets/whateka_bottom_nav.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -87,7 +88,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
           final favorites = snapshot.data!;
 
-          return CustomScrollView(
+          return ResponsiveCenter(
+            maxWidth: 560,
+            child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
@@ -168,6 +171,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 ),
               ),
             ],
+            ),
           );
         },
       ),

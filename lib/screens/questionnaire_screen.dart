@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
 import '../services/context_service.dart';
+import '../widgets/responsive_center.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
   const QuestionnaireScreen({super.key});
@@ -239,7 +240,9 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Column(
+        child: ResponsiveCenter(
+          maxWidth: 560,
+          child: Column(
           children: [
             // Progress bar fine cyan
             Padding(
@@ -332,6 +335,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
               ),
             ),
           ],
+          ),
         ),
       ),
     );

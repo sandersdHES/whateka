@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
+import '../widgets/responsive_center.dart';
 import '../widgets/whateka_bottom_nav.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -111,7 +112,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       bottomNavigationBar: const WhatekBottomNav(currentRoute: '/profile'),
-      body: SingleChildScrollView(
+      body: ResponsiveCenter(
+        maxWidth: 560,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -256,6 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

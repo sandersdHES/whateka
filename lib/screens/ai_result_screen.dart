@@ -5,6 +5,7 @@ import '../models/ai_response.dart';
 import '../widgets/fun_loading_widget.dart';
 import '../widgets/whateka_bottom_nav.dart';
 import '../widgets/activity_card.dart';
+import '../widgets/responsive_center.dart';
 import '../main.dart';
 
 class AiResultScreen extends StatefulWidget {
@@ -116,127 +117,142 @@ class _AiResultScreenState extends State<AiResultScreen> {
           final heroActivity = response.activities.first;
           final mediumActivities = response.activities.skip(1).toList();
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Sous-titre
-                Padding(
-                  padding: const EdgeInsets.only(left: 4, bottom: 20),
-                  child: Text(
-                    '${response.activities.length} suggestions · cet après-midi',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-
-                // Commentaire IA global (optionnel, épuré)
-                if (response.globalComment.isNotEmpty) ...[
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.line, width: 0.5),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.auto_awesome,
-                            size: 18, color: AppColors.cyan),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            response.globalComment,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                      ],
+          return ResponsiveCenter(
+            maxWidth: 560,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Sous-titre
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 20),
+                    child: Text(
+                      '${response.activities.length} suggestions · cet après-midi',
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
-                  const SizedBox(height: 20),
-                ],
 
-                // Hero activity
-                ActivityCard(
-                  activity: heroActivity,
-                  size: ActivityCardSize.hero,
-                  onTap: () => _openDetail(heroActivity),
-                ),
-                if (heroActivity.aiReason != null &&
-                    heroActivity.aiReason!.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  _AiReasonChip(reason: heroActivity.aiReason!),
-                ],
-                const SizedBox(height: 20),
-
-                // Medium activities
-                ...mediumActivities.map((a) => Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                  // Commentaire IA global (optionnel, épuré)
+                  if (response.globalComment.isNotEmpty) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.line, width: 0.5),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ActivityCard(
-                            activity: a,
-                            size: ActivityCardSize.medium,
-                            onTap: () => _openDetail(a),
+                          const Icon(Icons.auto_awesome,
+                              size: 18, color: AppColors.cyan),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              response.globalComment,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
                           ),
-                          if (a.aiReason != null && a.aiReason!.isNotEmpty) ...[
-                            const SizedBox(height: 10),
-                            _AiReasonChip(reason: a.aiReason!),
-                          ],
                         ],
                       ),
-                    )),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
 
-                // Activités supplémentaires
-                if (_extraActivities.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      'D\'autres idées',
-                      style: Theme.of(context).textTheme.headlineMedium,
+                  // Hero activity
+                  ActivityCard(
+                    activity: heroActivity,
+                    size: ActivityCardSize.hero,
+                    onTap: () => _openDetail(heroActivity),
+                  ),
+                  if (heroActivity.aiReason != null &&
+                      heroActivity.aiReason!.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    _AiReasonChip(reason: heroActivity.aiReason!),
+                  ],
+                  const SizedBox(height: 20),
+
+                  // Medium activities — grille 2 colonnes (côte à côte)
+                  if (mediumActivities.isNotEmpty)
+                    _MediumGrid(
+                      activities: mediumActivities,
+                      onTap: _openDetail,
+                    ),
+
+                  // Activités supplémentaires
+                  if (_extraActivities.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        'D\'autres idées',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _MediumGrid(
+                      activities: _extraActivities,
+                      onTap: _openDetail,
+                    ),
+                  ],
+
+                  const SizedBox(height: 16),
+
+                  // Bouton "Plus d'activités" épuré
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _isLoadingMore
+                          ? null
+                          : () => _loadMoreActivities(
+                                [...response.activities, ..._extraActivities],
+                              ),
+                      icon: _isLoadingMore
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: AppColors.cyan),
+                            )
+                          : const Icon(Icons.refresh, size: 18),
+                      label: Text(
+                          _isLoadingMore ? 'Chargement...' : 'Plus d\'idées'),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  ..._extraActivities.map((a) => Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: ActivityCard(
-                          activity: a,
-                          size: ActivityCardSize.medium,
-                          onTap: () => _openDetail(a),
-                        ),
-                      )),
                 ],
-
-                const SizedBox(height: 4),
-
-                // Bouton "Plus d'activités" épuré
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _isLoadingMore
-                        ? null
-                        : () => _loadMoreActivities(
-                              [...response.activities, ..._extraActivities],
-                            ),
-                    icon: _isLoadingMore
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: AppColors.cyan),
-                          )
-                        : const Icon(Icons.refresh, size: 18),
-                    label: Text(
-                        _isLoadingMore ? 'Chargement...' : 'Plus d\'idées'),
-                  ),
-                ),
-              ],
+              ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _MediumGrid extends StatelessWidget {
+  final List<Activity> activities;
+  final void Function(Activity) onTap;
+
+  const _MediumGrid({required this.activities, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        mainAxisExtent: 200,
+      ),
+      itemCount: activities.length,
+      itemBuilder: (_, i) => ActivityCard(
+        activity: activities[i],
+        size: ActivityCardSize.medium,
+        onTap: () => onTap(activities[i]),
       ),
     );
   }

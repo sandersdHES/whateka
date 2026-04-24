@@ -4,6 +4,7 @@ import '../models/activity.dart';
 import '../services/activity_service.dart';
 import '../widgets/activity_card.dart';
 import '../widgets/fun_loading_widget.dart';
+import '../widgets/responsive_center.dart';
 import '../widgets/whateka_bottom_nav.dart';
 
 class ActivityListScreen extends StatefulWidget {
@@ -123,7 +124,9 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
         ),
       ),
       bottomNavigationBar: const WhatekBottomNav(currentRoute: '/activity'),
-      body: CustomScrollView(
+      body: ResponsiveCenter(
+        maxWidth: 560,
+        child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
@@ -187,6 +190,7 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
