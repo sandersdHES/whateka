@@ -267,11 +267,28 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
+          // Bouton "+" pour proposer une activité (au-dessus du recentrer)
+          Positioned(
+            bottom: 88,
+            right: 24,
+            child: FloatingActionButton(
+              heroTag: 'submit_activity_fab',
+              onPressed: () =>
+                  Navigator.pushNamed(context, '/submit_activity'),
+              backgroundColor: AppColors.orange,
+              foregroundColor: Colors.white,
+              elevation: 3,
+              tooltip: 'Proposer une activité',
+              child: const Icon(Icons.add, size: 28),
+            ),
+          ),
+
           // Bouton recentrer
           Positioned(
             bottom: 20,
             right: 24,
             child: FloatingActionButton(
+              heroTag: 'recenter_fab',
               onPressed: _determinePosition,
               backgroundColor: Colors.white,
               foregroundColor: AppColors.ink,

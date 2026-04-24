@@ -17,6 +17,7 @@ import 'screens/single_activity_screen.dart';
 import 'screens/ai_result_screen.dart';
 import 'screens/update_password_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/submit_activity_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -214,6 +215,7 @@ class _MyAppState extends State<MyApp> {
         '/activity': (_) => const ActivityListScreen(),
         '/activity_detail': (_) => const SingleActivityScreen(),
         '/update_password': (_) => const UpdatePasswordScreen(),
+        '/submit_activity': (_) => const SubmitActivityScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/ai_result') {
