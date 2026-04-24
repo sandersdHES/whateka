@@ -16,7 +16,7 @@ class AvatarPromenade extends StatefulWidget {
   const AvatarPromenade({
     super.key,
     required this.avatarId,
-    this.height = 160,
+    this.height = 200,
     this.speed = 40,
   });
 
@@ -29,8 +29,11 @@ enum _PromenadeState { walking, turningRight, turningLeft }
 class _AvatarPromenadeState extends State<AvatarPromenade>
     with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
-  static const double _avatarWidth = 110;
-  static const double _avatarHeight = 220;
+  // Taille affichee du perso (conserve le ratio 110:220 = 1:2).
+  static const double _avatarWidth = 80;
+  static const double _avatarHeight = 160;
+  // Largeur reelle de la bande, mise a jour via LayoutBuilder.
+  double _bandWidth = 360;
 
   double _x = 20;
   int _direction = 1;
@@ -56,12 +59,11 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
     final dt = (nowMs - _lastTickMs) / 1000.0;
     _lastTickMs = nowMs;
 
-    final width = _bandWidth();
     if (_state == _PromenadeState.walking) {
       _x += _direction * widget.speed * dt;
       _walkTime += dt;
-      if (_x >= width - _avatarWidth - 10) {
-        _x = width - _avatarWidth - 10;
+      if (_x >= _bandWidth - _avatarWidth - 10) {
+        _x = _bandWidth - _avatarWidth - 10;
         _state = _PromenadeState.turningRight;
         _turnStartMs = nowMs;
       } else if (_x <= 10) {
@@ -80,11 +82,6 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
       }
     }
     if (mounted) setState(() {});
-  }
-
-  double _bandWidth() {
-    final mq = MediaQuery.maybeOf(context);
-    return mq?.size.width ?? 360;
   }
 
   /// Balancement vertical pendant la marche (3 px).
@@ -170,39 +167,47 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
     return SizedBox(
       height: widget.height,
       width: double.infinity,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            left: _x + _recoilX(),
-            bottom: 0,
-            child: Transform.translate(
-              offset: Offset(0, _bob() + _jumpY()),
-              child: Transform.scale(
-                scaleX: _scaleX(),
-                scaleY: _scaleY(),
-                alignment: Alignment.bottomCenter,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.topCenter,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/avatars/$filename',
-                      width: _avatarWidth,
-                      height: _avatarHeight,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // La bande est limitee a la largeur du parent (p.ex. ResponsiveCenter).
+          // On met a jour _bandWidth pour que les demi-tours se fassent aux vrais
+          // bords visibles, pas aux bords de l'ecran complet.
+          _bandWidth = constraints.maxWidth;
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(
+                left: _x + _recoilX(),
+                bottom: 0,
+                child: Transform.translate(
+                  offset: Offset(0, _bob() + _jumpY()),
+                  child: Transform.scale(
+                    scaleX: _scaleX(),
+                    scaleY: _scaleY(),
+                    alignment: Alignment.bottomCenter,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.topCenter,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/avatars/$filename',
+                          width: _avatarWidth,
+                          height: _avatarHeight,
+                        ),
+                        if (_showBubble())
+                          const Positioned(
+                            top: -8,
+                            right: 4,
+                            child: _ThinkBubble(),
+                          ),
+                      ],
                     ),
-                    if (_showBubble())
-                      const Positioned(
-                        top: -8,
-                        right: 8,
-                        child: _ThinkBubble(),
-                      ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
