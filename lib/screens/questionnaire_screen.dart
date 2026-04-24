@@ -163,6 +163,20 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         }
       }
 
+      // Incremente le compteur total de recherches dans user_metadata
+      // (utilise par le dashboard du profil).
+      final currentCount = (meta['total_searches'] as int?) ?? 0;
+      try {
+        await Supabase.instance.client.auth.updateUser(
+          UserAttributes(data: {
+            ...meta,
+            'total_searches': currentCount + 1,
+          }),
+        );
+      } catch (_) {
+        // Si le compteur echoue on continue quand meme la navigation.
+      }
+
       if (!mounted) return;
 
       Navigator.pushNamed(

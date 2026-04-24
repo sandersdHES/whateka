@@ -12,12 +12,16 @@ class AvatarPromenade extends StatefulWidget {
   final int avatarId;
   final double height;
   final double speed; // pixels par seconde
+  /// Appele a chaque frame avec le total de metres marches dans cette session.
+  /// Conversion : 40 px = 1 m (le perso marche a ~1 m/s).
+  final ValueChanged<double>? onMetersWalked;
 
   const AvatarPromenade({
     super.key,
     required this.avatarId,
     this.height = 200,
     this.speed = 40,
+    this.onMetersWalked,
   });
 
   @override
@@ -41,6 +45,8 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
   int _turnStartMs = 0;
   int _lastTickMs = 0;
   double _walkTime = 0;
+  double _metersWalked = 0;
+  double _lastReportedMeters = -1;
 
   @override
   void initState() {
@@ -60,8 +66,18 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
     _lastTickMs = nowMs;
 
     if (_state == _PromenadeState.walking) {
-      _x += _direction * widget.speed * dt;
+      final deltaPx = _direction * widget.speed * dt;
+      _x += deltaPx;
       _walkTime += dt;
+      // Comptabilise la distance reelle parcourue (en metres, ignore les recul).
+      _metersWalked += deltaPx.abs() / 40.0;
+      // Notifie le parent seulement quand le metre entier change (pour eviter
+      // des setState a 60 fps sur le parent).
+      final intMeters = _metersWalked.floorToDouble();
+      if (intMeters != _lastReportedMeters) {
+        _lastReportedMeters = intMeters;
+        widget.onMetersWalked?.call(_metersWalked);
+      }
       if (_x >= _bandWidth - _avatarWidth - 10) {
         _x = _bandWidth - _avatarWidth - 10;
         _state = _PromenadeState.turningRight;

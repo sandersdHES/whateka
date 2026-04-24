@@ -66,6 +66,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _locationMode = 'auto'; // 'auto' | 'manual'
   String _manualCity = 'Lausanne';
   int _avatarId = 1;
+  int _totalSearches = 0;
+  double _metersWalked = 0;
 
   @override
   void initState() {
@@ -85,6 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _locationMode = (meta['location_mode'] as String?) ?? 'auto';
         _manualCity = (meta['manual_city'] as String?) ?? 'Lausanne';
         _avatarId = (meta['avatar_id'] as int?) ?? 1;
+        _totalSearches = (meta['total_searches'] as int?) ?? 0;
       });
     }
   }
@@ -173,8 +176,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Avatar anime qui se promene dans une bande horizontale
-              AvatarPromenade(avatarId: _avatarId),
-              const SizedBox(height: 20),
+              AvatarPromenade(
+                avatarId: _avatarId,
+                onMetersWalked: (m) => setState(() => _metersWalked = m),
+              ),
+              const SizedBox(height: 16),
+
+              // Dashboard : recherches cumulees + metres marches cette session
+              Row(
+                children: [
+                  Expanded(
+                    child: _StatCard(
+                      icon: Icons.search,
+                      value: '$_totalSearches',
+                      label: _totalSearches > 1 ? 'recherches' : 'recherche',
+                      accent: AppColors.cyan,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _StatCard(
+                      icon: Icons.directions_walk,
+                      value: _metersWalked.floor().toString(),
+                      label: _metersWalked >= 2 ? 'mètres' : 'mètre',
+                      accent: AppColors.orange,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
 
               // Section Préférences
               Text(
@@ -490,6 +520,64 @@ class _ModeChoice extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+  final Color accent;
+
+  const _StatCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.line, width: 0.5),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: accent, size: 20),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        height: 1.1,
+                      ),
+                ),
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
