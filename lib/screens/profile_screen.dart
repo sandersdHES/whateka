@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -67,12 +68,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _manualCity = 'Lausanne';
   int _avatarId = 1;
   int _totalSearches = 0;
+  /// Total cumule de metres (charge de user_metadata au mount, mis a jour
+  /// a chaque tick par AvatarPromenade, sauvegarde toutes les 60s et au dispose).
   double _metersWalked = 0;
+  double _lastSavedMeters = 0;
+  Timer? _metersSaveTimer;
+  bool _profileLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _loadProfile();
+    // Sauvegarde periodique des metres marches (toutes les 60s) pour ne pas
+    // perdre les donnees en cas de crash. Sauve seulement si la valeur a
+    // change d'au moins 1 metre depuis la derniere sauvegarde.
+    _metersSaveTimer = Timer.periodic(const Duration(seconds: 60), (_) {
+      _persistMetersIfChanged();
+    });
+  }
+
+  @override
+  void dispose() {
+    _metersSaveTimer?.cancel();
+    // Sauvegarde finale quand on quitte l'ecran (navigation ou close).
+    _persistMetersIfChanged();
+    _nameController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _persistMetersIfChanged() async {
+    if ((_metersWalked - _lastSavedMeters).abs() < 1) return;
+    final savedValue = _metersWalked;
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      final meta = user?.userMetadata ?? {};
+      await Supabase.instance.client.auth.updateUser(
+        UserAttributes(data: {
+          ...meta,
+          'total_meters': savedValue,
+        }),
+      );
+      _lastSavedMeters = savedValue;
+    } catch (_) {
+      // Echec silencieux : on retentera au prochain tick.
+    }
   }
 
   Future<void> _loadProfile() async {
@@ -88,7 +128,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _manualCity = (meta['manual_city'] as String?) ?? 'Lausanne';
         _avatarId = (meta['avatar_id'] as int?) ?? 1;
         _totalSearches = (meta['total_searches'] as int?) ?? 0;
+        _metersWalked = (meta['total_meters'] as num?)?.toDouble() ?? 0;
+        _lastSavedMeters = _metersWalked;
+        _profileLoaded = true;
       });
+    } else {
+      setState(() => _profileLoaded = true);
     }
   }
 
@@ -175,11 +220,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Avatar anime qui se promene dans une bande horizontale
-              AvatarPromenade(
-                avatarId: _avatarId,
-                onMetersWalked: (m) => setState(() => _metersWalked = m),
-              ),
+              // Avatar anime qui se promene dans une bande horizontale.
+              // On attend que le profil soit charge pour monter le widget
+              // (sinon initialMeters serait 0 alors que la valeur reelle vient
+              // de charger). Placeholder pendant le chargement.
+              _profileLoaded
+                  ? AvatarPromenade(
+                      avatarId: _avatarId,
+                      initialMeters: _metersWalked,
+                      onMetersWalked: (m) =>
+                          setState(() => _metersWalked = m),
+                    )
+                  : const SizedBox(height: 200),
               const SizedBox(height: 16),
 
               // Dashboard : recherches cumulees + metres marches cette session

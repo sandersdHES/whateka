@@ -30,6 +30,9 @@ class AvatarPromenade extends StatefulWidget {
   final int avatarId;
   final double height;
   final double speed; // pixels par seconde
+  /// Total de metres deja marches cumule (charge depuis user_metadata).
+  /// Le widget continue a compter a partir de cette valeur.
+  final double initialMeters;
   final ValueChanged<double>? onMetersWalked;
 
   const AvatarPromenade({
@@ -37,6 +40,7 @@ class AvatarPromenade extends StatefulWidget {
     required this.avatarId,
     this.height = 200,
     this.speed = 40,
+    this.initialMeters = 0,
     this.onMetersWalked,
   });
 
@@ -136,6 +140,7 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
   @override
   void initState() {
     super.initState();
+    _metersWalked = widget.initialMeters;
     _ticker = createTicker(_onTick)..start();
   }
 
