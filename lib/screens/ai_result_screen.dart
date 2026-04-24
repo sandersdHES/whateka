@@ -90,6 +90,24 @@ class _AiResultScreenState extends State<AiResultScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: TextButton.icon(
+              onPressed: () => Navigator.pushReplacementNamed(
+                  context, '/quiz'),
+              icon: const Icon(Icons.refresh, size: 16),
+              label: const Text('Recommencer'),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.cyan,
+                textStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: const WhatekBottomNav(currentRoute: '/ai_result'),
       body: FutureBuilder<AiResponse>(
