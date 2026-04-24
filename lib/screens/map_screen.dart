@@ -183,12 +183,13 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ..._filteredActivities.map((activity) => Marker(
                         point: LatLng(activity.latitude, activity.longitude),
-                        width: 44,
-                        height: 54,
+                        width: 48,
+                        height: 56,
                         child: GestureDetector(
                           onTap: () => _showActivityDetail(activity),
                           child: _WhatekPin(
                             color: _markerColorFor(activity.category),
+                            icon: _markerIconFor(activity.category),
                           ),
                         ),
                       )),
@@ -307,6 +308,20 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  static IconData _markerIconFor(String? category) {
+    final c = (category ?? '').split(',').first.trim().toLowerCase();
+    switch (c) {
+      case 'culture':    return Icons.museum;
+      case 'nature':     return Icons.landscape;
+      case 'gastronomy': return Icons.restaurant;
+      case 'sport':      return Icons.directions_run;
+      case 'adventure':  return Icons.hiking;
+      case 'relax':      return Icons.spa;
+      case 'fun':        return Icons.celebration;
+      default:           return Icons.place;
+    }
+  }
+
   void _showActivityDetail(Activity activity) {
     showModalBottomSheet(
       context: context,
@@ -383,35 +398,57 @@ class _MapScreenState extends State<MapScreen> {
   }
 }
 
-/// Pin façon Mapbox — cercle coloré avec logo Whateka au centre + tige.
+/// Pin de carte — cercle solide coloré avec icône catégorielle blanche,
+/// bordure blanche + ombre portée, et petite tige façon Google Maps moderne.
 class _WhatekPin extends StatelessWidget {
   final Color color;
-  const _WhatekPin({required this.color});
+  final IconData icon;
+  const _WhatekPin({required this.color, required this.icon});
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _PinPainter(color: color),
-      child: SizedBox(
-        width: 44,
-        height: 54,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 6, 10, 18),
-          child: Image.asset(
-            'assets/images/home_icon.png',
-            fit: BoxFit.contain,
-            color: Colors.white,
-            colorBlendMode: BlendMode.srcIn,
+    return SizedBox(
+      width: 48,
+      height: 56,
+      child: Stack(
+        alignment: Alignment.topCenter,
+        clipBehavior: Clip.none,
+        children: [
+          // Tige triangulaire sous le cercle
+          Positioned(
+            top: 38,
+            child: CustomPaint(
+              size: const Size(10, 12),
+              painter: _PinTailPainter(color: color),
+            ),
           ),
-        ),
+          // Cercle principal avec icône
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.22),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: Colors.white, size: 20),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _PinPainter extends CustomPainter {
+class _PinTailPainter extends CustomPainter {
   final Color color;
-  _PinPainter({required this.color});
+  _PinTailPainter({required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -419,28 +456,15 @@ class _PinPainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.fill;
 
-    final borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final radius = size.width / 2;
-    final center = Offset(radius, radius);
-
-    // Pointe (triangle vers le bas)
     final path = Path()
-      ..moveTo(radius - 6, size.width - 2)
-      ..lineTo(radius, size.height)
-      ..lineTo(radius + 6, size.width - 2)
+      ..moveTo(0, 0)
+      ..lineTo(size.width / 2, size.height)
+      ..lineTo(size.width, 0)
       ..close();
     canvas.drawPath(path, paint);
-
-    // Cercle principal
-    canvas.drawCircle(center, radius - 2, paint);
-    canvas.drawCircle(center, radius - 2, borderPaint);
   }
 
   @override
-  bool shouldRepaint(covariant _PinPainter oldDelegate) =>
+  bool shouldRepaint(covariant _PinTailPainter oldDelegate) =>
       oldDelegate.color != color;
 }

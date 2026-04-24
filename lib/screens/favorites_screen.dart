@@ -102,11 +102,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
                 sliver: SliverGrid(
                   gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 260,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 0.78,
+                    mainAxisExtent: 200,
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
