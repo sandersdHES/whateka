@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:geolocator/geolocator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import '../models/activity.dart';
@@ -28,6 +29,11 @@ class _MapScreenState extends State<MapScreen> {
   bool _isLoading = false;
   List<Activity> _activities = [];
   String _searchQuery = '';
+  bool _locationModeManual = false;
+
+  // Zoom par defaut quand on centre sur la position utilisateur :
+  // 12 = vue de ville (assez large pour voir le canton alentour).
+  static const double _userZoom = 12.0;
 
   @override
   void didChangeDependencies() {
@@ -45,8 +51,43 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    _determinePosition();
+    // Lecture synchrone du mode de localisation depuis le profil pour que
+    // le premier rendu du MapOptions utilise deja la bonne position (evite
+    // le flash sur la position par defaut Sion).
+    final user = Supabase.instance.client.auth.currentUser;
+    final meta = user?.userMetadata ?? {};
+    final mode = (meta['location_mode'] as String?) ?? 'auto';
+    _locationModeManual = mode == 'manual';
+    if (_locationModeManual) {
+      final lat = (meta['manual_lat'] as num?)?.toDouble();
+      final lng = (meta['manual_lng'] as num?)?.toDouble();
+      if (lat != null && lng != null) {
+        _currentPosition = LatLng(lat, lng);
+        _hasLocation = true;
+      }
+    }
+    _setupUserLocation();
     _fetchActivities();
+  }
+
+  /// Applique la logique de localisation :
+  /// - Mode manuel : recentre la carte sur la ville choisie (pas de GPS).
+  /// - Mode auto : demande le GPS.
+  Future<void> _setupUserLocation() async {
+    if (_locationModeManual && _hasLocation) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          _mapController.move(
+            _targetPosition ?? _currentPosition,
+            _userZoom,
+          );
+        } catch (e) {
+          debugPrint('Map controller error: $e');
+        }
+      });
+      return;
+    }
+    _determinePosition();
   }
 
   @override
@@ -100,7 +141,10 @@ class _MapScreenState extends State<MapScreen> {
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           try {
-            _mapController.move(_targetPosition ?? _currentPosition, 13.0);
+            _mapController.move(
+              _targetPosition ?? _currentPosition,
+              _userZoom,
+            );
           } catch (e) {
             debugPrint('Map controller error: $e');
           }
@@ -111,7 +155,7 @@ class _MapScreenState extends State<MapScreen> {
       if (mounted && _targetPosition != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           try {
-            _mapController.move(_targetPosition!, 14.0);
+            _mapController.move(_targetPosition!, _userZoom);
           } catch (e) {
             debugPrint('Map controller error: $e');
           }
@@ -133,6 +177,13 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final initialCenter = _targetPosition ?? _currentPosition;
+    // Zoom de depart : si on a deja une position (manuelle connue des initState
+    // OU cible d'une activite), on zoome a _userZoom. Sinon on reste dezoome
+    // le temps que la GPS reponde.
+    final initialZoom =
+        (_locationModeManual && _hasLocation) || _targetPosition != null
+            ? _userZoom
+            : 11.0;
 
     return Scaffold(
       bottomNavigationBar: const WhatekBottomNav(currentRoute: '/map'),
@@ -142,7 +193,7 @@ class _MapScreenState extends State<MapScreen> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: initialCenter,
-              initialZoom: 11.0,
+              initialZoom: initialZoom,
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               ),
@@ -283,17 +334,28 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Bouton recentrer
+          // Bouton recentrer — en mode manuel, retour a la ville choisie ;
+          // en mode auto, relance la geoloc GPS.
           Positioned(
             bottom: 20,
             right: 24,
             child: FloatingActionButton(
               heroTag: 'recenter_fab',
-              onPressed: _determinePosition,
+              onPressed: _locationModeManual && _hasLocation
+                  ? () {
+                      try {
+                        _mapController.move(_currentPosition, _userZoom);
+                      } catch (_) {}
+                    }
+                  : _determinePosition,
               backgroundColor: Colors.white,
               foregroundColor: AppColors.ink,
               elevation: 2,
-              child: const Icon(Icons.my_location),
+              child: Icon(
+                _locationModeManual
+                    ? Icons.location_city_outlined
+                    : Icons.my_location,
+              ),
             ),
           ),
 
