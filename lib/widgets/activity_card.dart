@@ -49,19 +49,19 @@ class ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double height = switch (size) {
-      ActivityCardSize.hero    => 260,
-      ActivityCardSize.medium  => 200,
-      ActivityCardSize.compact => 96,
+      ActivityCardSize.hero    => 260.0,
+      ActivityCardSize.medium  => 200.0,
+      ActivityCardSize.compact => 96.0,
     };
     final double titleSize = switch (size) {
-      ActivityCardSize.hero    => 24,
-      ActivityCardSize.medium  => 16,
-      ActivityCardSize.compact => 14,
+      ActivityCardSize.hero    => 24.0,
+      ActivityCardSize.medium  => 16.0,
+      ActivityCardSize.compact => 14.0,
     };
     final double radius = switch (size) {
-      ActivityCardSize.hero    => 24,
-      ActivityCardSize.medium  => 20,
-      ActivityCardSize.compact => 16,
+      ActivityCardSize.hero    => 24.0,
+      ActivityCardSize.medium  => 20.0,
+      ActivityCardSize.compact => 16.0,
     };
 
     final cat = (activity.category ?? '').split(',').first.trim().toLowerCase();
