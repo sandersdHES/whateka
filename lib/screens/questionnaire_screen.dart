@@ -121,7 +121,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
       }
 
       final user = Supabase.instance.client.auth.currentUser;
-      final radiusKm = user?.userMetadata?['search_radius_km'] as int? ?? 50;
+      final meta = user?.userMetadata ?? {};
+      final radiusKm = meta['search_radius_km'] as int? ?? 50;
+      final region = (meta['search_region'] as String?) ?? '';
+      final locationMode = (meta['location_mode'] as String?) ?? 'auto';
 
       // Budget : la question supporte la multi-selection en cascade.
       // On envoie la liste exacte (price_levels) ET un price_max pour retrocompat.
@@ -143,9 +146,21 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         'price_levels': priceLevels,
         'duration': getSingleValue(4),
         'radius_km': radiusKm,
+        'region': region, // v22 : filtre canton-wide (Vaud/Valais) prioritaire
       };
 
       final contextData = await _contextService.getFullContext();
+      // Si position manuelle : on ecrase la location GPS par la ville choisie.
+      if (locationMode == 'manual') {
+        final manualLat = (meta['manual_lat'] as num?)?.toDouble();
+        final manualLng = (meta['manual_lng'] as num?)?.toDouble();
+        if (manualLat != null && manualLng != null) {
+          contextData['location'] = {
+            'latitude': manualLat,
+            'longitude': manualLng,
+          };
+        }
+      }
 
       if (!mounted) return;
 
