@@ -1,20 +1,37 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
 import '../widgets/responsive_center.dart';
 
 /// Formulaire de soumission d'activité par un utilisateur.
-/// Même modèle que le formulaire admin, mais :
-/// - insere dans `activity_submissions` (status 'pending' par défaut)
-/// - un admin doit ensuite la valider via l'interface admin
-///
-/// RLS sur `activity_submissions` : INSERT autorisé pour tout user
-/// authentifié ; SELECT/UPDATE/DELETE réservé aux admins.
+/// - Insere dans `activity_submissions` (status 'pending' par défaut).
+/// - Permet d'uploader plusieurs photos depuis l'appareil vers le bucket
+///   Supabase Storage `activity-images`, ET/OU de coller des URL distantes.
+/// - Un admin valide ensuite via l'interface admin.
 class SubmitActivityScreen extends StatefulWidget {
   const SubmitActivityScreen({super.key});
 
   @override
   State<SubmitActivityScreen> createState() => _SubmitActivityScreenState();
+}
+
+/// Un item photo : soit un fichier local pas encore uploadé ([bytes] non null),
+/// soit une URL distante déjà accessible ([url] non null).
+class _PhotoItem {
+  final Uint8List? bytes;
+  final String? url;
+  final String filename;
+  final String? mimeType;
+  const _PhotoItem({
+    this.bytes,
+    this.url,
+    required this.filename,
+    this.mimeType,
+  });
+
+  bool get isLocal => bytes != null;
 }
 
 class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
@@ -51,7 +68,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
   final _locationCtrl = TextEditingController();
   final _descriptionCtrl = TextEditingController();
   final _activityUrlCtrl = TextEditingController();
-  final _imageUrlCtrl = TextEditingController();
+  final _remoteImageUrlCtrl = TextEditingController();
   final _latCtrl = TextEditingController();
   final _lngCtrl = TextEditingController();
   final _durationHoursCtrl = TextEditingController();
@@ -64,6 +81,8 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
   bool _isIndoor = false;
   bool _isOutdoor = true;
 
+  final List<_PhotoItem> _photos = [];
+
   bool _submitting = false;
   String? _error;
 
@@ -73,11 +92,49 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     _locationCtrl.dispose();
     _descriptionCtrl.dispose();
     _activityUrlCtrl.dispose();
-    _imageUrlCtrl.dispose();
+    _remoteImageUrlCtrl.dispose();
     _latCtrl.dispose();
     _lngCtrl.dispose();
     _durationHoursCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickPhotosFromDevice() async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickMultiImage(imageQuality: 85);
+      if (picked.isEmpty) return;
+      for (final file in picked) {
+        final bytes = await file.readAsBytes();
+        _photos.add(_PhotoItem(
+          bytes: bytes,
+          filename: file.name,
+          mimeType: file.mimeType ?? 'image/jpeg',
+        ));
+      }
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _error = 'Impossible de lire les photos : $e');
+    }
+  }
+
+  void _addRemoteUrl() {
+    final url = _remoteImageUrlCtrl.text.trim();
+    if (url.isEmpty) return;
+    if (!url.startsWith('http')) {
+      setState(() => _error = 'L\'URL doit commencer par http(s)://');
+      return;
+    }
+    setState(() {
+      _photos.add(_PhotoItem(url: url, filename: url));
+      _remoteImageUrlCtrl.clear();
+      _error = null;
+    });
+  }
+
+  void _removePhoto(int index) {
+    setState(() => _photos.removeAt(index));
   }
 
   String? _validate() {
@@ -111,6 +168,59 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     return null;
   }
 
+  /// Upload tous les [_PhotoItem] locaux vers Supabase Storage et retourne
+  /// la liste finale des URLs (locaux uploadés + URLs distantes deja saisies),
+  /// dans l'ordre de l'utilisateur.
+  Future<List<String>> _uploadAllPhotos() async {
+    final client = Supabase.instance.client;
+    final user = client.auth.currentUser;
+    final uid = user?.id ?? 'anonymous';
+    final bucket = client.storage.from('activity-images');
+    final urls = <String>[];
+
+    for (var i = 0; i < _photos.length; i++) {
+      final p = _photos[i];
+      if (!p.isLocal) {
+        urls.add(p.url!);
+        continue;
+      }
+      final ext = _guessExt(p.filename, p.mimeType);
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      // Chemin : {uid}/{timestamp}-{i}.{ext}. Le prefixe par uid satisfait
+      // la policy RLS "owner = auth.uid()" pour update/delete ulterieurs.
+      final path = '$uid/$ts-$i.$ext';
+      await bucket.uploadBinary(
+        path,
+        p.bytes!,
+        fileOptions: FileOptions(
+          contentType: p.mimeType ?? 'image/jpeg',
+          upsert: false,
+        ),
+      );
+      final publicUrl = bucket.getPublicUrl(path);
+      urls.add(publicUrl);
+    }
+    return urls;
+  }
+
+  String _guessExt(String filename, String? mimeType) {
+    final lower = filename.toLowerCase();
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'jpg';
+    if (lower.endsWith('.png')) return 'png';
+    if (lower.endsWith('.webp')) return 'webp';
+    if (lower.endsWith('.heic')) return 'heic';
+    switch (mimeType) {
+      case 'image/png':
+        return 'png';
+      case 'image/webp':
+        return 'webp';
+      case 'image/heic':
+        return 'heic';
+      default:
+        return 'jpg';
+    }
+  }
+
   Future<void> _submit() async {
     final err = _validate();
     if (err != null) {
@@ -123,6 +233,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     });
 
     try {
+      final imageUrls = await _uploadAllPhotos();
       final user = Supabase.instance.client.auth.currentUser;
       final payload = {
         'title': _titleCtrl.text.trim(),
@@ -132,9 +243,9 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
         'activity_url': _activityUrlCtrl.text.trim().isEmpty
             ? null
             : _activityUrlCtrl.text.trim(),
-        'image_url': _imageUrlCtrl.text.trim().isEmpty
-            ? null
-            : _imageUrlCtrl.text.trim(),
+        // image_url = premiere photo (retrocompat avec l'app qui lit un seul URL)
+        'image_url': imageUrls.isNotEmpty ? imageUrls.first : null,
+        'image_urls': imageUrls,
         'latitude': double.parse(_latCtrl.text.trim()),
         'longitude': double.parse(_lngCtrl.text.trim()),
         'duration_minutes':
@@ -146,7 +257,6 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
         'is_indoor': _isIndoor,
         'is_outdoor': _isOutdoor,
         'submitted_by': user?.email,
-        // status defaults to 'pending' cote DB
       };
 
       await Supabase.instance.client
@@ -269,13 +379,14 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                     decoration: const InputDecoration(hintText: 'https://...'),
                   ),
                 ),
-                _Section(
-                  label: 'URL de l\'image',
-                  child: TextFormField(
-                    controller: _imageUrlCtrl,
-                    keyboardType: TextInputType.url,
-                    decoration: const InputDecoration(hintText: 'https://...'),
-                  ),
+
+                // Photos : upload depuis l'appareil + optionnellement URL distantes
+                _PhotoPicker(
+                  photos: _photos,
+                  onPickDevice: _pickPhotosFromDevice,
+                  onRemove: _removePhoto,
+                  remoteUrlCtrl: _remoteImageUrlCtrl,
+                  onAddRemoteUrl: _addRemoteUrl,
                 ),
 
                 Row(
@@ -564,6 +675,121 @@ class _ToggleCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Section photos : permet d'uploader des images depuis l'appareil
+/// (image_picker, multi-selection) ET/OU d'ajouter des URLs distantes.
+/// Affiche une grille de thumbnails avec bouton × pour supprimer.
+class _PhotoPicker extends StatelessWidget {
+  final List<_PhotoItem> photos;
+  final VoidCallback onPickDevice;
+  final void Function(int) onRemove;
+  final TextEditingController remoteUrlCtrl;
+  final VoidCallback onAddRemoteUrl;
+
+  const _PhotoPicker({
+    required this.photos,
+    required this.onPickDevice,
+    required this.onRemove,
+    required this.remoteUrlCtrl,
+    required this.onAddRemoteUrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      label: 'Photos',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Thumbnails grid (4 par ligne)
+          if (photos.isNotEmpty) ...[
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: List.generate(photos.length, (i) {
+                final p = photos[i];
+                return SizedBox(
+                  width: 84,
+                  height: 84,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: p.isLocal
+                              ? Image.memory(p.bytes!, fit: BoxFit.cover)
+                              : Image.network(
+                                  p.url!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(
+                                    color: AppColors.line,
+                                    child: const Icon(Icons.broken_image,
+                                        size: 24, color: AppColors.stone),
+                                  ),
+                                ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: GestureDetector(
+                          onTap: () => onRemove(i),
+                          child: Container(
+                            width: 22,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.7),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.close,
+                                size: 14, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 12),
+          ],
+
+          // Bouton upload depuis l'appareil
+          OutlinedButton.icon(
+            onPressed: onPickDevice,
+            icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
+            label: Text(photos.isEmpty
+                ? 'Ajouter des photos'
+                : 'Ajouter d\'autres photos'),
+          ),
+          const SizedBox(height: 12),
+
+          // OU URL distante
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: remoteUrlCtrl,
+                  keyboardType: TextInputType.url,
+                  decoration: const InputDecoration(
+                    hintText: 'Coller une URL d\'image (optionnel)',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: onAddRemoteUrl,
+                icon: const Icon(Icons.add_circle_outline),
+                color: AppColors.cyan,
+                tooltip: 'Ajouter l\'URL',
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
