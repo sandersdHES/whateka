@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
 
+/// Barre de navigation inferieure commune a tous les ecrans "logges".
+///
+/// Depuis avril 2026 :
+/// - 4 boutons au lieu de 5 (le bouton dashboard/menu a ete retire)
+/// - Ordre : Map | Logo -> /quiz | Favorites | Profile
+/// - La Map est l'ecran d'atterrissage par defaut apres connexion (via /splash)
+/// - Le logo Whateka remplit desormais le role de raccourci vers le questionnaire
 class WhatekBottomNav extends StatelessWidget {
   final String currentRoute;
 
@@ -8,8 +15,9 @@ class WhatekBottomNav extends StatelessWidget {
 
   void _navigate(BuildContext context, String route) {
     if (currentRoute == route) return;
-    if (route == '/dashboard') {
-      Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (r) => false);
+    // Depuis la refonte, /map est la "racine" de la navigation logguee.
+    if (route == '/map') {
+      Navigator.pushNamedAndRemoveUntil(context, '/map', (r) => false);
     } else {
       Navigator.pushNamed(context, route);
     }
@@ -34,26 +42,24 @@ class WhatekBottomNav extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _NavItem(
-            icon: Icons.assignment_outlined,
-            isActive: currentRoute == '/quiz',
-            onTap: () => _navigate(context, '/quiz'),
-          ),
+          // Map — ecran d'atterrissage par defaut
           _NavItem(
             icon: Icons.map_outlined,
             isActive: currentRoute == '/map',
             onTap: () => _navigate(context, '/map'),
           ),
-          // Centre : Logo Whateka = bouton Home
-          _HomeNavItem(
-            isActive: currentRoute == '/dashboard',
-            onTap: () => _navigate(context, '/dashboard'),
+          // Logo Whateka — raccourci vers le questionnaire (/quiz)
+          _LogoNavItem(
+            isActive: currentRoute == '/quiz',
+            onTap: () => _navigate(context, '/quiz'),
           ),
+          // Favorites
           _NavItem(
             icon: Icons.favorite_outline,
             isActive: currentRoute == '/favorites',
             onTap: () => _navigate(context, '/favorites'),
           ),
+          // Profile
           _NavItem(
             icon: Icons.person_outline,
             isActive: currentRoute == '/profile',
@@ -100,11 +106,13 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-class _HomeNavItem extends StatelessWidget {
+/// Bouton logo Whateka : legerement plus gros, accentue, pour signaler
+/// qu'il s'agit de l'action principale (lancer le questionnaire).
+class _LogoNavItem extends StatelessWidget {
   final bool isActive;
   final VoidCallback onTap;
 
-  const _HomeNavItem({required this.isActive, required this.onTap});
+  const _LogoNavItem({required this.isActive, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

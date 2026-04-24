@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
 import '../widgets/responsive_center.dart';
+import '../widgets/whateka_bottom_nav.dart';
 
 class HomeMenuScreen extends StatefulWidget {
   const HomeMenuScreen({super.key});
@@ -44,6 +45,8 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
+      bottomNavigationBar:
+          const WhatekBottomNav(currentRoute: '/dashboard'),
       body: Stack(
         children: [
           // Background Blobs (Decoration)

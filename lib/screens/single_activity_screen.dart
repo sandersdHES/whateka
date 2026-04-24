@@ -334,8 +334,20 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Tags features
-                  if (activity.features.isNotEmpty)
+                  // Section "Informations utiles"
+                  // (anciennement "Equipements", renommee pour refleter le
+                  // contenu attendu : reservation necessaire, parking,
+                  // horaires restreints, minimum de participants, ...)
+                  if (activity.features.isNotEmpty) ...[
+                    const Text(
+                      'Informations utiles',
+                      style: TextStyle(
+                        color: AppColors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -359,7 +371,8 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                               ))
                           .toList(),
                     ),
-                  if (activity.features.isNotEmpty) const SizedBox(height: 24),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Mini carte (cliquable → écran Map)
                   GestureDetector(
