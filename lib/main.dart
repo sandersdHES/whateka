@@ -16,7 +16,6 @@ import 'screens/activity_list_screen.dart';
 import 'screens/single_activity_screen.dart';
 import 'screens/ai_result_screen.dart';
 import 'screens/update_password_screen.dart';
-import 'screens/splash_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -227,8 +226,6 @@ class _MyAppState extends State<MyApp> {
         '/verification': (_) => const EmailVerificationScreen(),
         '/forgot_password': (_) => const ForgotPasswordScreen(),
         '/dashboard': (_) => const HomeMenuScreen(),
-        // Ecran d'intro avec logo (3s hold + 1s fade) avant d'arriver sur /map
-        '/splash': (_) => const SplashScreen(),
         '/map': (_) => const MapScreen(),
         '/profile': (_) => const ProfileScreen(),
         '/favorites': (_) => const FavoritesScreen(),

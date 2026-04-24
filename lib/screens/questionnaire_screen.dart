@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
 import '../services/context_service.dart';
-import '../widgets/whateka_bottom_nav.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
   const QuestionnaireScreen({super.key});
@@ -22,12 +21,8 @@ class _QuestionQuestionData {
   final String question;
   final List<_Option> options;
   final int maxSelections;
-  // Si true, tap sur une option inclut automatiquement toutes les options
-  // d'index inferieur (cascade), avec deselection individuelle possible.
-  // Utilise pour le budget : choisir 1-20 CHF coche aussi Gratuit.
-  final bool cascadeLowerTiers;
   const _QuestionQuestionData(this.question, this.options,
-      {this.maxSelections = 1, this.cascadeLowerTiers = false});
+      {this.maxSelections = 1});
 }
 
 class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
@@ -78,10 +73,6 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         _Option('50–100 CHF', Icons.payments, value: '4'),
         _Option('100+ CHF', Icons.diamond_outlined, value: '5'),
       ],
-      // Cascade : tap sur un budget selectionne aussi tous les budgets inferieurs.
-      // L'utilisateur peut ensuite deselectionner individuellement une case.
-      maxSelections: 5,
-      cascadeLowerTiers: true,
     ),
     _QuestionQuestionData(
       "Combien de temps ?",
@@ -130,25 +121,12 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
       final user = Supabase.instance.client.auth.currentUser;
       final radiusKm = user?.userMetadata?['search_radius_km'] as int? ?? 50;
 
-      // Budget : la question supporte desormais la multi-selection en cascade.
-      // On envoie la liste exacte des niveaux selectionnes (price_levels) ET
-      // un price_max pour retrocompatibilite avec les versions < v19 du backend.
-      final priceLevels = getMultipleValues(3)
-          .map((v) => int.tryParse(v))
-          .whereType<int>()
-          .toList()
-        ..sort();
-      final priceMax = priceLevels.isEmpty
-          ? 3
-          : priceLevels.reduce((a, b) => a > b ? a : b);
-
       final userPrefs = {
         'social': getSingleValue(0),
         'categories': getMultipleValues(1), // multi-catégories
         'category': getSingleValue(1),      // rétrocompatibilité
         'environment': getSingleValue(2),
-        'price_max': priceMax,              // 1-5, plafond (retrocompat)
-        'price_levels': priceLevels,        // liste explicite (v19+)
+        'price_max': int.tryParse(getSingleValue(3)) ?? 3, // 1-5
         'duration': getSingleValue(4),
         'radius_km': radiusKm,
       };
@@ -193,25 +171,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   void _toggleSelection(int index, int maxSelections) {
     setState(() {
-      final question = questions[currentStep];
       final selectionsForStep = selections[currentStep];
-
-      // Mode cascade (budget) : tap sur un tier ajoute tous les tiers inferieurs,
-      // deselection libre ensuite.
-      if (question.cascadeLowerTiers) {
-        if (selectionsForStep.contains(index)) {
-          // Deselection : on enleve uniquement ce tier-la
-          selectionsForStep.remove(index);
-        } else {
-          // Selection : on ajoute ce tier ET tous les tiers d'index inferieur
-          for (int i = 0; i <= index; i++) {
-            selectionsForStep.add(i);
-          }
-        }
-        return;
-      }
-
-      // Mode classique (simple ou multi-selection bornee)
       if (selectionsForStep.contains(index)) {
         selectionsForStep.remove(index);
       } else {
@@ -222,6 +182,8 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
           if (selectionsForStep.length < maxSelections) {
             selectionsForStep.add(index);
           } else {
+            // Optional: simple replace or warn. Here we just don't add.
+            // Or we could remove the first added? Let's just block > max.
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                   content: Text('Maximum $maxSelections choix possible(s)')),
@@ -248,7 +210,6 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
           onPressed: _handleBack,
         ),
       ),
-      bottomNavigationBar: const WhatekBottomNav(currentRoute: '/quiz'),
       body: Stack(
         children: [
           // Background Blobs
@@ -309,17 +270,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                                   height: 1.3,
                                 ),
                       ),
-                      if (question.cascadeLowerTiers)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            "Les budgets inférieurs sont inclus automatiquement (désélectionnables)",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: Colors.grey[600], fontSize: 13),
-                          ),
-                        )
-                      else if (question.maxSelections > 1)
+                      if (question.maxSelections > 1)
                         Text(
                           "(Choix multiple: ${question.maxSelections} max)",
                           style:
@@ -398,4 +349,71 @@ class _OptionCard extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _Option
+  const _OptionCard({
+    required this.option,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.cyan : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: selected ? AppColors.cyan : const Color(0xFFE6ECEA),
+            width: 2,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: AppColors.cyan.withValues(alpha: 0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 8),
+                  )
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  )
+                ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: selected
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : AppColors.cyan.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                option.icon,
+                color: selected ? Colors.white : AppColors.cyan,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              option.label,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: selected ? Colors.white : AppColors.black,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
