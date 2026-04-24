@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
 import '../services/context_service.dart';
 import '../widgets/responsive_center.dart';
+import '../widgets/whateka_bottom_nav.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
   const QuestionnaireScreen({super.key});
@@ -254,6 +255,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         ),
         centerTitle: true,
       ),
+      bottomNavigationBar: const WhatekBottomNav(currentRoute: '/quiz'),
       body: SafeArea(
         child: ResponsiveCenter(
           maxWidth: 560,
