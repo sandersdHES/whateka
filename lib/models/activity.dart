@@ -11,7 +11,10 @@ class Activity {
   final double latitude;
   final double longitude;
   final int priceLevel;
+  // Depuis migration 0002, une activite peut etre les deux a la fois
+  // (ex : parc aquatique avec bassins interieurs et exterieurs).
   final bool isOutdoor;
+  final bool isIndoor;
 
   // Local state only, not from DB for now
   bool isFavorite;
@@ -31,6 +34,7 @@ class Activity {
     required this.longitude,
     this.priceLevel = 1,
     this.isOutdoor = true,
+    this.isIndoor = false,
     this.isFavorite = false,
     this.aiReason,
   });
@@ -82,6 +86,7 @@ class Activity {
       longitude: (json['longitude'] as num).toDouble(),
       priceLevel: json['price_level'] as int? ?? 1,
       isOutdoor: json['is_outdoor'] as bool? ?? true,
+      isIndoor: json['is_indoor'] as bool? ?? false,
     );
   }
 }

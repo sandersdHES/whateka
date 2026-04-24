@@ -26,7 +26,9 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text.trim(),
       );
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        // Apres connexion : passage par le splash qui affiche le logo 3s
+        // puis fade sur 1s avant de debarquer l'utilisateur sur la carte.
+        Navigator.pushReplacementNamed(context, '/splash');
       }
     } on AuthException catch (e) {
       if (mounted) {

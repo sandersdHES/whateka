@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
@@ -143,9 +144,16 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             children: [
+              // Tuiles CartoDB Voyager : look moderne et colore.
+              // Gratuit avec attribution (voir RichAttributionWidget en bas).
+              // Les sous-domaines a..d repartissent la charge sur plusieurs
+              // serveurs CDN.
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate:
+                    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.example.whateka',
+                maxZoom: 19,
               ),
               MarkerLayer(
                 markers: [
@@ -188,6 +196,23 @@ class _MapScreenState extends State<MapScreen> {
                           ),
                         ),
                       )),
+                ],
+              ),
+              // Attribution legale CartoDB + OpenStreetMap (obligatoire).
+              // Affichee discretement en bas a droite, cliquable pour ouvrir
+              // les conditions d'utilisation.
+              RichAttributionWidget(
+                attributions: [
+                  TextSourceAttribution(
+                    'OpenStreetMap',
+                    onTap: () => launchUrl(
+                        Uri.parse('https://openstreetmap.org/copyright')),
+                  ),
+                  TextSourceAttribution(
+                    'CARTO',
+                    onTap: () =>
+                        launchUrl(Uri.parse('https://carto.com/attributions')),
+                  ),
                 ],
               ),
             ],

@@ -36,9 +36,9 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
               behavior: SnackBarBehavior.floating,
             ),
           );
-          // Navigate to dashboard or home, clearing stack
+          // Apres reset : passage par le splash (logo 3s + fade 1s) puis carte
           Navigator.of(context).pushNamedAndRemoveUntil(
-              '/dashboard', (Route<dynamic> route) => false);
+              '/splash', (Route<dynamic> route) => false);
         }
       }
     } on AuthException catch (e) {
