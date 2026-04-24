@@ -15,7 +15,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _emailController = TextEditingController();
   bool _isLoading = false;
 
-  // Options de rayon (km) ; 999 = tout le Valais
   static const List<_RadiusOption> _radiusOptions = [
     _RadiusOption(label: '10 km', value: 10),
     _RadiusOption(label: '25 km', value: 25),
@@ -24,7 +23,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _RadiusOption(label: 'Valais complet', value: 999),
   ];
 
-  int _selectedRadiusKm = 50; // Valeur par défaut
+  int _selectedRadiusKm = 50;
 
   @override
   void initState() {
@@ -70,7 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profil mis à jour !')),
+            const SnackBar(content: Text('Profil mis à jour')),
           );
         }
       }
@@ -92,172 +91,171 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  String _initialFromName() {
+    final name = _nameController.text.trim();
+    if (name.isNotEmpty) return name[0].toUpperCase();
+    final email = _emailController.text.trim();
+    if (email.isNotEmpty) return email[0].toUpperCase();
+    return 'W';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mon Profil'),
+        title: const Text('Mon profil'),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       bottomNavigationBar: const WhatekBottomNav(currentRoute: '/profile'),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Avatar
-              Center(
-                child: Stack(
-                  children: [
-                    const CircleAvatar(
-                      radius: 50,
-                      backgroundColor: AppColors.cyan,
-                      child: Icon(Icons.person, size: 50, color: Colors.white),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppColors.orange,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.edit,
-                            size: 20, color: Colors.white),
-                      ),
-                    ),
-                  ],
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Avatar cyan
+            Center(
+              child: Container(
+                width: 96,
+                height: 96,
+                decoration: const BoxDecoration(
+                  color: AppColors.cyan,
+                  shape: BoxShape.circle,
                 ),
-              ),
-              const SizedBox(height: 32),
-
-              // Champs nom + email
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nom d\'utilisateur / Prénom',
-                  prefixIcon: Icon(Icons.person_outline),
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email_outlined),
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 32),
-
-              // ── Rayon de recherche ──────────────────────────────────────────
-              const Text(
-                'Rayon de recherche (questionnaire)',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Les activités proposées par le questionnaire seront limitées à ce rayon autour de votre position.',
-                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _radiusOptions.map((option) {
-                  final isSelected = _selectedRadiusKm == option.value;
-                  return GestureDetector(
-                    onTap: () =>
-                        setState(() => _selectedRadiusKm = option.value),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: isSelected ? AppColors.cyan : Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppColors.cyan
-                              : Colors.grey.shade300,
-                          width: 2,
-                        ),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: AppColors.cyan.withValues(alpha: 0.25),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ]
-                            : [],
-                      ),
-                      child: Text(
-                        option.label,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.grey[700],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 36),
-
-              // Bouton sauvegarder
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _updateProfile,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.black,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                child: Center(
+                  child: Text(
+                    _initialFromName(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 40,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -1,
                     ),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Section Préférences
+            Text(
+              'Préférences',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: AppColors.line, width: 0.5),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    onChanged: (_) => setState(() {}),
+                    decoration: const InputDecoration(
+                      labelText: 'Prénom',
+                      prefixIcon: Icon(Icons.person_outline, size: 20),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email_outlined, size: 20),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    'Rayon de recherche',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Le questionnaire limitera les activités à ce rayon autour de vous.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _radiusOptions.map((option) {
+                      final isSelected = _selectedRadiusKm == option.value;
+                      return GestureDetector(
+                        onTap: () =>
+                            setState(() => _selectedRadiusKm = option.value),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppColors.ink : AppColors.paper,
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.ink
+                                  : AppColors.line,
+                              width: 0.5,
+                            ),
                           ),
-                        )
-                      : const Text('Sauvegarder les modifications'),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Bouton déconnexion
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: _signOut,
-                  icon: const Icon(Icons.logout),
-                  label: const Text('Se déconnecter'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.black,
-                    side: const BorderSide(color: AppColors.black),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                          child: Text(
+                            option.label,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.ink,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+
+            // Bouton sauvegarder (cyan pleine largeur)
+            ElevatedButton(
+              onPressed: _isLoading ? null : _updateProfile,
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('Sauvegarder'),
+            ),
+            const SizedBox(height: 12),
+
+            // Déconnexion en orange
+            TextButton.icon(
+              onPressed: _signOut,
+              icon: const Icon(Icons.logout, size: 18),
+              label: const Text('Se déconnecter'),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.orange,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                textStyle:
+                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+              ),
+            ),
+          ],
         ),
       ),
     );

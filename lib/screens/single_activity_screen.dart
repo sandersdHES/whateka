@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -5,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
-import '../widgets/whateka_bottom_nav.dart';
 import 'feedback_hot_screen.dart';
 
 class SingleActivityScreen extends StatefulWidget {
@@ -29,7 +29,6 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
         activity = args['activity'] as Activity;
         _searchesCount = (args['searches_count'] as int?) ?? 1;
       } else {
-        // Rétrocompatibilité si argument direct Activity
         activity = args as Activity;
       }
       _initialized = true;
@@ -100,32 +99,18 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(24),
           ),
-          title: const Text(
-            'Votre avis compte !',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          title: const Text('Votre avis compte'),
           content: const Text(
             'Souhaitez-vous partager votre expérience avec cette activité ?',
-            style: TextStyle(fontSize: 16),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                'Plus tard',
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: const Text('Plus tard'),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.orange,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.push(
@@ -146,351 +131,325 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
     );
   }
 
+  String _siteName() {
+    if (activity.activityUrl == null || activity.activityUrl!.isEmpty) {
+      return 'le site';
+    }
+    try {
+      final host = Uri.parse(activity.activityUrl!).host;
+      return host.replaceFirst('www.', '');
+    } catch (_) {
+      return 'le site';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFB),
-      bottomNavigationBar: const WhatekBottomNav(currentRoute: '/activity_detail'),
-      body: CustomScrollView(
-        slivers: [
-          // Image collapsible en haut
-          SliverAppBar(
-            expandedHeight: 280,
-            pinned: true,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.9),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                  ),
-                ],
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new,
-                    size: 18, color: AppColors.black),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-            actions: [
-              Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.9),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  icon: Icon(
-                    activity.isFavorite
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                    color: AppColors.orange,
-                    size: 22,
-                  ),
-                  onPressed: _toggleFavorite,
+      backgroundColor: AppColors.paper,
+      body: Stack(
+        children: [
+          CustomScrollView(
+            slivers: [
+              // Hero photo
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.42,
+                  width: double.infinity,
+                  child: activity.imageUrl != null
+                      ? Image.network(
+                          activity.imageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: AppColors.line,
+                            child: const Icon(Icons.broken_image,
+                                size: 50, color: AppColors.stone),
+                          ),
+                        )
+                      : Container(
+                          color: AppColors.line,
+                          child: const Icon(Icons.image_not_supported,
+                              size: 50, color: AppColors.stone),
+                        ),
                 ),
               ),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: activity.imageUrl != null
-                  ? Image.network(
-                      activity.imageUrl!,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                                color: AppColors.cyan),
+
+              // Panneau blanc qui overlap légèrement la photo
+              SliverToBoxAdapter(
+                child: Transform.translate(
+                  offset: const Offset(0, -28),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: AppColors.paper,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(28),
+                      ),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Catégorie
+                        if (activity.category != null) ...[
+                          Text(
+                            activity.category!.toUpperCase(),
+                            style: Theme.of(context).textTheme.labelSmall,
                           ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.broken_image,
-                            size: 50, color: Colors.grey),
-                      ),
-                    )
-                  : Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.image_not_supported,
-                          size: 50, color: Colors.grey),
-                    ),
-            ),
-          ),
-
-          // Contenu scrollable
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Badge catégorie
-                  if (activity.category != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 7),
-                      decoration: BoxDecoration(
-                        color: AppColors.orange.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Text(
-                        activity.category!.toUpperCase(),
-                        style: const TextStyle(
-                          color: AppColors.orange,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          letterSpacing: 1.1,
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 14),
-
-                  // Titre
-                  Text(
-                    activity.title,
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: AppColors.cyan,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Lieu + Durée
-                  Row(
-                    children: [
-                      const Icon(Icons.place,
-                          color: AppColors.orange, size: 18),
-                      const SizedBox(width: 6),
-                      Text(
-                        activity.location,
-                        style: const TextStyle(
-                            color: AppColors.black,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(width: 20),
-                      const Icon(Icons.schedule,
-                          color: AppColors.orange, size: 18),
-                      const SizedBox(width: 6),
-                      Text(
-                        activity.duration,
-                        style: const TextStyle(
-                            color: AppColors.black,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Section Description
-                  Text(
-                    'Description',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppColors.cyan,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                          color: AppColors.black.withValues(alpha: 0.06)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      activity.description ?? 'Aucune description disponible.',
-                      style: const TextStyle(
-                        color: AppColors.black,
-                        fontSize: 15,
-                        height: 1.6,
-                      ),
-                      textAlign: TextAlign.justify,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Section "Informations utiles"
-                  // (anciennement "Equipements", renommee pour refleter le
-                  // contenu attendu : reservation necessaire, parking,
-                  // horaires restreints, minimum de participants, ...)
-                  if (activity.features.isNotEmpty) ...[
-                    const Text(
-                      'Informations utiles',
-                      style: TextStyle(
-                        color: AppColors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: activity.features
-                          .map((feature) => Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: AppColors.cyan
-                                          .withValues(alpha: 0.4)),
-                                  borderRadius: BorderRadius.circular(16),
-                                  color:
-                                      AppColors.cyan.withValues(alpha: 0.07),
-                                ),
-                                child: Text(
-                                  feature,
-                                  style: const TextStyle(
-                                      color: AppColors.cyan, fontSize: 13),
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // Mini carte (cliquable → écran Map)
-                  GestureDetector(
-                    onTap: _goToMap,
-                    child: Container(
-                      height: 180,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
+                          const SizedBox(height: 8),
                         ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Stack(
+                        // Titre
+                        Text(
+                          activity.title,
+                          style: Theme.of(context).textTheme.displaySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        // Lieu + Durée
+                        Row(
                           children: [
-                            FlutterMap(
-                              options: MapOptions(
-                                initialCenter: LatLng(
-                                    activity.latitude, activity.longitude),
-                                initialZoom: 13.0,
-                                interactionOptions: const InteractionOptions(
-                                  flags: InteractiveFlag.none,
-                                ),
-                              ),
-                              children: [
-                                TileLayer(
-                                  urlTemplate:
-                                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                  userAgentPackageName: 'com.example.whateka',
-                                ),
-                                MarkerLayer(
-                                  markers: [
-                                    Marker(
-                                      point: LatLng(activity.latitude,
-                                          activity.longitude),
-                                      width: 40,
-                                      height: 40,
-                                      child: const Icon(
-                                        Icons.location_on,
-                                        color: AppColors.orange,
-                                        size: 36,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            const Icon(Icons.place_outlined,
+                                size: 16, color: AppColors.stone),
+                            const SizedBox(width: 6),
+                            Text(
+                              activity.location,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
-                            // Overlay "Voir sur la carte"
-                            Positioned(
-                              bottom: 12,
-                              right: 12,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 7),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.92),
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.1),
-                                      blurRadius: 6,
-                                    ),
-                                  ],
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.map_outlined,
-                                        size: 15, color: AppColors.cyan),
-                                    SizedBox(width: 5),
-                                    Text(
-                                      'Voir sur la carte',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.cyan,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            const SizedBox(width: 20),
+                            const Icon(Icons.schedule,
+                                size: 16, color: AppColors.stone),
+                            const SizedBox(width: 6),
+                            Text(
+                              activity.duration,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
+                        const SizedBox(height: 28),
 
-                  // Bouton principal
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.orange,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                        // Description
+                        Text(
+                          'Description',
+                          style: Theme.of(context).textTheme.headlineMedium,
                         ),
-                      ),
-                      onPressed: _openActivityUrl,
-                      child: const Text('Visiter le site officiel'),
+                        const SizedBox(height: 10),
+                        Text(
+                          activity.description ??
+                              'Aucune description disponible.',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          textAlign: TextAlign.start,
+                        ),
+                        const SizedBox(height: 28),
+
+                        // Informations utiles
+                        if (activity.features.isNotEmpty) ...[
+                          Text(
+                            'Informations utiles',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: activity.features
+                                .map((feature) => Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.surface,
+                                        borderRadius:
+                                            BorderRadius.circular(999),
+                                        border: Border.all(
+                                          color: AppColors.line,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        feature,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium
+                                            ?.copyWith(color: AppColors.ink),
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
+                          const SizedBox(height: 28),
+                        ],
+
+                        // Mini carte
+                        GestureDetector(
+                          onTap: _goToMap,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: SizedBox(
+                              height: 180,
+                              child: Stack(
+                                children: [
+                                  FlutterMap(
+                                    options: MapOptions(
+                                      initialCenter: LatLng(
+                                          activity.latitude,
+                                          activity.longitude),
+                                      initialZoom: 13.0,
+                                      interactionOptions:
+                                          const InteractionOptions(
+                                        flags: InteractiveFlag.none,
+                                      ),
+                                    ),
+                                    children: [
+                                      TileLayer(
+                                        urlTemplate:
+                                            'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                                        subdomains: const ['a', 'b', 'c', 'd'],
+                                        userAgentPackageName:
+                                            'com.example.whateka',
+                                      ),
+                                      MarkerLayer(
+                                        markers: [
+                                          Marker(
+                                            point: LatLng(activity.latitude,
+                                                activity.longitude),
+                                            width: 36,
+                                            height: 36,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: AppColors.orange,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Positioned(
+                                    bottom: 10,
+                                    right: 10,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 7),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black
+                                                .withValues(alpha: 0.1),
+                                            blurRadius: 6,
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.map_outlined,
+                                              size: 14,
+                                              color: AppColors.ink),
+                                          SizedBox(width: 5),
+                                          Text(
+                                            'Voir sur la carte',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.ink,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // CTA principal pleine largeur
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _openActivityUrl,
+                            child: Text('Voir sur ${_siteName()}'),
+                          ),
+                        ),
+                        const SizedBox(height: 80),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                ),
+              ),
+            ],
+          ),
+
+          // Boutons back + favori flottants en verre dépoli
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _GlassIconButton(
+                    icon: Icons.arrow_back_ios_new,
+                    onTap: () => Navigator.pop(context),
+                  ),
+                  _GlassIconButton(
+                    icon: activity.isFavorite
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    iconColor: activity.isFavorite
+                        ? AppColors.orange
+                        : AppColors.ink,
+                    onTap: _toggleFavorite,
+                  ),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _GlassIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final Color? iconColor;
+
+  const _GlassIconButton({
+    required this.icon,
+    required this.onTap,
+    this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipOval(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.8),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.black.withValues(alpha: 0.06),
+                width: 0.5,
+              ),
+            ),
+            child: Icon(icon, size: 18, color: iconColor ?? AppColors.ink),
+          ),
+        ),
       ),
     );
   }

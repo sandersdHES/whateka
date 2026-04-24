@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -7,6 +8,7 @@ import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
 import '../widgets/whateka_bottom_nav.dart';
+import '../widgets/activity_card.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -18,13 +20,14 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   final MapController _mapController = MapController();
   final ActivityService _activityService = ActivityService();
+  final TextEditingController _searchController = TextEditingController();
 
-  // Position par défaut : Sion, Suisse
   LatLng _currentPosition = const LatLng(46.22935, 7.36204);
-  LatLng? _targetPosition; // Position cible passée en argument (activité)
+  LatLng? _targetPosition;
   bool _hasLocation = false;
   bool _isLoading = false;
   List<Activity> _activities = [];
+  String _searchQuery = '';
 
   @override
   void didChangeDependencies() {
@@ -44,6 +47,12 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     _determinePosition();
     _fetchActivities();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchActivities() async {
@@ -91,7 +100,6 @@ class _MapScreenState extends State<MapScreen> {
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           try {
-            // Si une position cible est fournie, centrer dessus; sinon sur l'utilisateur
             _mapController.move(_targetPosition ?? _currentPosition, 13.0);
           } catch (e) {
             debugPrint('Map controller error: $e');
@@ -112,6 +120,16 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  List<Activity> get _filteredActivities {
+    if (_searchQuery.isEmpty) return _activities;
+    final q = _searchQuery.toLowerCase();
+    return _activities.where((a) {
+      return a.title.toLowerCase().contains(q) ||
+          a.location.toLowerCase().contains(q) ||
+          (a.category?.toLowerCase().contains(q) ?? false);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final initialCenter = _targetPosition ?? _currentPosition;
@@ -130,10 +148,6 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             children: [
-              // Tuiles CartoDB Voyager : look moderne et colore.
-              // Gratuit avec attribution (voir RichAttributionWidget en bas).
-              // Les sous-domaines a..d repartissent la charge sur plusieurs
-              // serveurs CDN.
               TileLayer(
                 urlTemplate:
                     'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
@@ -143,12 +157,11 @@ class _MapScreenState extends State<MapScreen> {
               ),
               MarkerLayer(
                 markers: [
-                  // Position utilisateur — logo Whateka
                   if (_hasLocation)
                     Marker(
                       point: _currentPosition,
-                      width: 48,
-                      height: 48,
+                      width: 44,
+                      height: 44,
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -168,25 +181,19 @@ class _MapScreenState extends State<MapScreen> {
                         ),
                       ),
                     ),
-                  // Marqueurs d'activités
-                  ..._activities.map((activity) => Marker(
+                  ..._filteredActivities.map((activity) => Marker(
                         point: LatLng(activity.latitude, activity.longitude),
-                        width: 50,
-                        height: 50,
+                        width: 44,
+                        height: 54,
                         child: GestureDetector(
                           onTap: () => _showActivityDetail(activity),
-                          child: const Icon(
-                            Icons.location_on,
-                            color: AppColors.orange,
-                            size: 40,
+                          child: _WhatekPin(
+                            color: _markerColorFor(activity.category),
                           ),
                         ),
                       )),
                 ],
               ),
-              // Attribution legale CartoDB + OpenStreetMap (obligatoire).
-              // Affichee discretement en bas a droite, cliquable pour ouvrir
-              // les conditions d'utilisation.
               RichAttributionWidget(
                 attributions: [
                   TextSourceAttribution(
@@ -204,18 +211,74 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
 
-          // Bouton recentrer sur ma position
-          Positioned(
-            bottom: 16,
-            right: 24,
-            child: FloatingActionButton(
-              onPressed: _determinePosition,
-              backgroundColor: AppColors.cyan,
-              child: const Icon(Icons.my_location, color: Colors.white),
+          // Barre de recherche flottante en haut (verre dépoli)
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.black.withValues(alpha: 0.06),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 16),
+                        const Icon(Icons.search,
+                            size: 20, color: AppColors.stone),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: (v) =>
+                                setState(() => _searchQuery = v),
+                            decoration: const InputDecoration(
+                              hintText: 'Rechercher une activité',
+                              border: InputBorder.none,
+                              filled: false,
+                              contentPadding:
+                                  EdgeInsets.symmetric(vertical: 14),
+                              isDense: true,
+                            ),
+                          ),
+                        ),
+                        if (_searchQuery.isNotEmpty)
+                          IconButton(
+                            icon: const Icon(Icons.close, size: 18),
+                            color: AppColors.stone,
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
 
-          // Indicateur de chargement
+          // Bouton recentrer
+          Positioned(
+            bottom: 20,
+            right: 24,
+            child: FloatingActionButton(
+              onPressed: _determinePosition,
+              backgroundColor: Colors.white,
+              foregroundColor: AppColors.ink,
+              elevation: 2,
+              child: const Icon(Icons.my_location),
+            ),
+          ),
+
           if (_isLoading)
             const Positioned(
               top: 100,
@@ -230,174 +293,86 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  static Color _markerColorFor(String? category) {
+    final c = (category ?? '').split(',').first.trim().toLowerCase();
+    switch (c) {
+      case 'culture':    return AppColors.brown;
+      case 'nature':     return AppColors.green;
+      case 'gastronomy': return AppColors.orange;
+      case 'sport':      return AppColors.cyan;
+      case 'adventure':  return AppColors.yellow;
+      case 'relax':      return const Color(0xFFB8A1D9);
+      case 'fun':        return AppColors.yellow;
+      default:           return AppColors.orange;
+    }
+  }
+
   void _showActivityDetail(Activity activity) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => Container(
-        height: 450,
         margin: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(32),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              flex: 3,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(32)),
-                    child: activity.imageUrl != null
-                        ? Image.network(
-                            activity.imageUrl!,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.broken_image,
-                                  size: 50, color: Colors.grey),
-                            ),
-                          )
-                        : Container(
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.image_not_supported,
-                                size: 50, color: Colors.grey),
-                          ),
-                  ),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(
-                          context,
-                          '/activity_detail',
-                          arguments: {
-                            'activity': activity,
-                            'searches_count': 1,
-                          },
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.open_in_full,
-                            size: 20, color: AppColors.black),
-                      ),
-                    ),
-                  ),
-                ],
+            // Drag handle
+            Container(
+              margin: const EdgeInsets.only(top: 10),
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.line,
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if (activity.category != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColors.orange.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              activity.category!,
-                              style: const TextStyle(
-                                color: AppColors.orange,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        Row(
-                          children: [
-                            const Icon(Icons.place,
-                                size: 16, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Text(
-                              activity.location,
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      activity.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: AppColors.black,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Spacer(),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.black,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(
-                            context,
-                            '/activity_detail',
-                            arguments: {
-                              'activity': activity,
-                              'searches_count': 1,
-                            },
-                          );
-                        },
-                        child: const Text('Voir les détails'),
-                      ),
-                    ),
-                  ],
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ActivityCard(
+                activity: activity,
+                size: ActivityCardSize.medium,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(
+                    context,
+                    '/activity_detail',
+                    arguments: {
+                      'activity': activity,
+                      'searches_count': 1,
+                    },
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(
+                      context,
+                      '/activity_detail',
+                      arguments: {
+                        'activity': activity,
+                        'searches_count': 1,
+                      },
+                    );
+                  },
+                  child: const Text('Voir les détails'),
                 ),
               ),
             ),
@@ -406,4 +381,66 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
+}
+
+/// Pin façon Mapbox — cercle coloré avec logo Whateka au centre + tige.
+class _WhatekPin extends StatelessWidget {
+  final Color color;
+  const _WhatekPin({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _PinPainter(color: color),
+      child: SizedBox(
+        width: 44,
+        height: 54,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 6, 10, 18),
+          child: Image.asset(
+            'assets/images/home_icon.png',
+            fit: BoxFit.contain,
+            color: Colors.white,
+            colorBlendMode: BlendMode.srcIn,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PinPainter extends CustomPainter {
+  final Color color;
+  _PinPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    final radius = size.width / 2;
+    final center = Offset(radius, radius);
+
+    // Pointe (triangle vers le bas)
+    final path = Path()
+      ..moveTo(radius - 6, size.width - 2)
+      ..lineTo(radius, size.height)
+      ..lineTo(radius + 6, size.width - 2)
+      ..close();
+    canvas.drawPath(path, paint);
+
+    // Cercle principal
+    canvas.drawCircle(center, radius - 2, paint);
+    canvas.drawCircle(center, radius - 2, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _PinPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

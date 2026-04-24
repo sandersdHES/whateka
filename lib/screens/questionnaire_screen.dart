@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
 import '../services/context_service.dart';
-import '../widgets/whateka_bottom_nav.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
   const QuestionnaireScreen({super.key});
@@ -14,7 +13,7 @@ class QuestionnaireScreen extends StatefulWidget {
 class _Option {
   final String label;
   final IconData icon;
-  final String? value; // For logic checks (like 'outdoor')
+  final String? value;
   const _Option(this.label, this.icon, {this.value});
 }
 
@@ -35,7 +34,6 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   bool _isLoading = false;
   final ContextService _contextService = ContextService();
 
-  // Use Set<int> for multiple selections per step
   final List<Set<int>> selections = [{}, {}, {}, {}, {}, {}];
 
   final List<_QuestionQuestionData> questions = const [
@@ -78,8 +76,6 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         _Option('50–100 CHF', Icons.payments, value: '4'),
         _Option('100+ CHF', Icons.diamond_outlined, value: '5'),
       ],
-      // Cascade : tap sur un budget selectionne aussi tous les budgets inferieurs.
-      // L'utilisateur peut ensuite deselectionner individuellement une case.
       maxSelections: 5,
       cascadeLowerTiers: true,
     ),
@@ -94,14 +90,13 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   ];
 
   void _nextStep() {
-    if (selections[currentStep].isEmpty) return; // Prevent empty step if needed
+    if (selections[currentStep].isEmpty) return;
 
     if (currentStep < questions.length - 1) {
       setState(() {
         currentStep++;
       });
     } else {
-      // Final step: Fetch context and navigate
       _finishQuestionnaire();
     }
   }
@@ -112,13 +107,11 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     });
 
     try {
-      // Extract user preferences from questionnaire responses
       String getSingleValue(int stepIndex) {
         final selectedIndex = selections[stepIndex].first;
         return questions[stepIndex].options[selectedIndex].value ?? '';
       }
 
-      // Support multi-selection for categories (step 1)
       List<String> getMultipleValues(int stepIndex) {
         return selections[stepIndex]
             .map((i) => questions[stepIndex].options[i].value ?? '')
@@ -126,13 +119,11 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
             .toList();
       }
 
-      // Lire le rayon de recherche depuis les métadonnées utilisateur
       final user = Supabase.instance.client.auth.currentUser;
       final radiusKm = user?.userMetadata?['search_radius_km'] as int? ?? 50;
 
-      // Budget : la question supporte desormais la multi-selection en cascade.
-      // On envoie la liste exacte des niveaux selectionnes (price_levels) ET
-      // un price_max pour retrocompatibilite avec les versions < v19 du backend.
+      // Budget : la question supporte la multi-selection en cascade.
+      // On envoie la liste exacte (price_levels) ET un price_max pour retrocompat.
       final priceLevels = getMultipleValues(3)
           .map((v) => int.tryParse(v))
           .whereType<int>()
@@ -144,27 +135,25 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
       final userPrefs = {
         'social': getSingleValue(0),
-        'categories': getMultipleValues(1), // multi-catégories
-        'category': getSingleValue(1),      // rétrocompatibilité
+        'categories': getMultipleValues(1),
+        'category': getSingleValue(1),
         'environment': getSingleValue(2),
-        'price_max': priceMax,              // 1-5, plafond (retrocompat)
-        'price_levels': priceLevels,        // liste explicite (v19+)
+        'price_max': priceMax,
+        'price_levels': priceLevels,
         'duration': getSingleValue(4),
         'radius_km': radiusKm,
       };
 
-      // Get real context data
       final contextData = await _contextService.getFullContext();
 
       if (!mounted) return;
 
-      // Navigate to AI result screen
       Navigator.pushNamed(
         context,
         '/ai_result',
         arguments: {
           'prefs': userPrefs,
-          'context': contextData, // Real data passed here
+          'context': contextData,
         },
       );
     } catch (e) {
@@ -196,14 +185,11 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
       final question = questions[currentStep];
       final selectionsForStep = selections[currentStep];
 
-      // Mode cascade (budget) : tap sur un tier ajoute tous les tiers inferieurs,
-      // deselection libre ensuite.
+      // Mode cascade (budget) : tap sur un tier ajoute tous les tiers inferieurs.
       if (question.cascadeLowerTiers) {
         if (selectionsForStep.contains(index)) {
-          // Deselection : on enleve uniquement ce tier-la
           selectionsForStep.remove(index);
         } else {
-          // Selection : on ajoute ce tier ET tous les tiers d'index inferieur
           for (int i = 0; i <= index; i++) {
             selectionsForStep.add(i);
           }
@@ -211,7 +197,6 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         return;
       }
 
-      // Mode classique (simple ou multi-selection bornee)
       if (selectionsForStep.contains(index)) {
         selectionsForStep.remove(index);
       } else {
@@ -239,155 +224,115 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     final canProceed = selections[currentStep].isNotEmpty;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: Text('Étape ${currentStep + 1}/${questions.length}'),
-        centerTitle: true,
+        backgroundColor: AppColors.paper,
+        surfaceTintColor: AppColors.paper,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
           onPressed: _handleBack,
         ),
+        title: Text(
+          '${currentStep + 1} / ${questions.length}',
+          style: Theme.of(context).textTheme.labelMedium,
+        ),
+        centerTitle: true,
       ),
-      bottomNavigationBar: const WhatekBottomNav(currentRoute: '/quiz'),
-      body: Stack(
-        children: [
-          // Background Blobs
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.cyan.withValues(alpha: 0.05),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Progress bar fine cyan
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(2),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 4,
+                  color: AppColors.cyan,
+                  backgroundColor: AppColors.line,
+                ),
               ),
             ),
-          ),
-          Positioned(
-            bottom: 100,
-            left: -80,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.orange.withValues(alpha: 0.03),
+            const SizedBox(height: 40),
+
+            // Question (grande typo Display)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    question.question,
+                    style: Theme.of(context).textTheme.displayMedium,
+                  ),
+                  const SizedBox(height: 10),
+                  if (question.cascadeLowerTiers)
+                    Text(
+                      'Les budgets inférieurs sont inclus automatiquement (désélectionnables).',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    )
+                  else if (question.maxSelections > 1)
+                    Text(
+                      'Jusqu\'à ${question.maxSelections} choix',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                ],
               ),
             ),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                // Progress Bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 12,
-                      color: AppColors.cyan,
-                      backgroundColor: AppColors.cyan.withValues(alpha: 0.1),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
-                // Question Title
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        question.question,
-                        textAlign: TextAlign.center,
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.black,
-                                  height: 1.3,
-                                ),
-                      ),
-                      if (question.cascadeLowerTiers)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            "Les budgets inférieurs sont inclus automatiquement (désélectionnables)",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: Colors.grey[600], fontSize: 13),
-                          ),
-                        )
-                      else if (question.maxSelections > 1)
-                        Text(
-                          "(Choix multiple: ${question.maxSelections} max)",
-                          style:
-                              TextStyle(color: Colors.grey[600], fontSize: 13),
-                        ),
-                    ],
-                  ),
+            // Grille d'options
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                itemCount: question.options.length,
+                gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.15,
                 ),
-                const SizedBox(height: 32),
-
-                // Options Grid
-                Expanded(
-                  child: GridView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    itemCount: question.options.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 1.1,
-                    ),
-                    itemBuilder: (context, index) {
-                      final isSelected =
-                          selections[currentStep].contains(index);
-                      return _OptionCard(
-                        option: question.options[index],
-                        selected: isSelected,
-                        onTap: () =>
-                            _toggleSelection(index, question.maxSelections),
-                      );
-                    },
-                  ),
-                ),
-
-                // Bottom Button
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        offset: const Offset(0, -4),
-                        blurRadius: 16,
-                      ),
-                    ],
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: (canProceed && !_isLoading) ? _nextStep : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            canProceed ? AppColors.orange : Colors.grey[300],
-                      ),
-                      child: Text(
-                        currentStep == questions.length - 1
-                            ? (_isLoading ? 'Chargement...' : 'Terminer')
-                            : 'Continuer',
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+                itemBuilder: (context, index) {
+                  final isSelected =
+                      selections[currentStep].contains(index);
+                  return _OptionCard(
+                    option: question.options[index],
+                    selected: isSelected,
+                    onTap: () =>
+                        _toggleSelection(index, question.maxSelections),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+
+            // Bouton continuer
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: (canProceed && !_isLoading) ? _nextStep : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: canProceed
+                        ? AppColors.cyan
+                        : AppColors.line,
+                    foregroundColor:
+                        canProceed ? Colors.white : AppColors.stone,
+                    disabledBackgroundColor: AppColors.line,
+                    disabledForegroundColor: AppColors.stone,
+                  ),
+                  child: Text(
+                    currentStep == questions.length - 1
+                        ? (_isLoading ? 'Chargement...' : 'Terminer')
+                        : 'Continuer',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -406,60 +351,60 @@ class _OptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
-          color: selected ? AppColors.cyan : Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          color: selected ? AppColors.ink : AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? AppColors.cyan : const Color(0xFFE6ECEA),
-            width: 2,
+            color: selected ? AppColors.ink : AppColors.line,
+            width: 0.5,
           ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: AppColors.cyan.withValues(alpha: 0.4),
-                    blurRadius: 12,
-                    offset: const Offset(0, 8),
-                  )
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  )
-                ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: selected
-                    ? Colors.white.withValues(alpha: 0.2)
-                    : AppColors.cyan.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                option.icon,
-                color: selected ? Colors.white : AppColors.cyan,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              option.label,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: selected ? Colors.white : AppColors.black,
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    option.icon,
+                    color: selected ? AppColors.cyan : AppColors.ink,
+                    size: 32,
                   ),
+                  const SizedBox(height: 12),
+                  Text(
+                    option.label,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color:
+                              selected ? Colors.white : AppColors.ink,
+                        ),
+                  ),
+                ],
+              ),
             ),
+            if (selected)
+              Positioned(
+                top: 10,
+                right: 10,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: const BoxDecoration(
+                    color: AppColors.cyan,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
