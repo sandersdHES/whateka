@@ -4,16 +4,32 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../main.dart';
 
-/// Affiche le personnage choisi par l'utilisateur qui se promene en boucle
-/// dans une bande horizontale. Deux animations de demi-tour :
-/// - Bord droit : ludique (stop, bulle "?", saut + flip) ~750 ms
-/// - Bord gauche : sobre (saut vertical + flip horizontal) ~500 ms
+/// Palette de couleurs par avatar pour dessiner les membres animes
+/// (bras et jambes) dans le meme style que le corps SVG statique.
+class _Palette {
+  final Color sleeve; // couleur du bras (manche ou peau si bras nus)
+  final Color pants; // couleur de la jambe
+  final Color shoe; // couleur du pied/chaussure
+  final Color skin; // couleur de la main
+  const _Palette({
+    required this.sleeve,
+    required this.pants,
+    required this.shoe,
+    required this.skin,
+  });
+}
+
+/// Affiche le personnage choisi qui se promene en boucle dans une bande
+/// horizontale, avec animation realiste des bras et jambes (inspiree GTA).
+///
+/// Implementation paper-doll : le fichier SVG `XX_name_body.svg` ne contient
+/// que le torse, la tete et les accessoires (bras et jambes retires). Les
+/// bras et jambes sont redessines en Flutter par-dessus/dessous avec une
+/// rotation sinusoidale pour simuler la demarche.
 class AvatarPromenade extends StatefulWidget {
   final int avatarId;
   final double height;
   final double speed; // pixels par seconde
-  /// Appele a chaque frame avec le total de metres marches dans cette session.
-  /// Conversion : 40 px = 1 m (le perso marche a ~1 m/s).
   final ValueChanged<double>? onMetersWalked;
 
   const AvatarPromenade({
@@ -33,10 +49,79 @@ enum _PromenadeState { walking, turningRight, turningLeft }
 class _AvatarPromenadeState extends State<AvatarPromenade>
     with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
-  // Taille affichee du perso (conserve le ratio 110:220 = 1:2).
-  static const double _avatarWidth = 80;
-  static const double _avatarHeight = 160;
-  // Largeur reelle de la bande, mise a jour via LayoutBuilder.
+
+  // Taille intrinseque du personnage composite (meme que SVG source).
+  static const double _svgWidth = 110;
+  static const double _svgHeight = 220;
+  // Taille d'affichage finale (scale = 80/110 = 0.727).
+  static const double _displayWidth = 80;
+  static const double _displayHeight = 160;
+  static const double _scale = _displayWidth / _svgWidth;
+
+  // Palettes par avatar (extraites des SVG originaux).
+  static const Map<int, _Palette> _palettes = {
+    1: _Palette( // Sam : hoodie cyan + pantalon navy
+      sleeve: Color(0xFF00B8D9),
+      pants: Color(0xFF1C2A3A),
+      shoe: Color(0xFF0A0A0B),
+      skin: Color(0xFFF0C99A),
+    ),
+    2: _Palette( // Max : cardigan beige + pantalon brun
+      sleeve: Color(0xFFE8DCC0),
+      pants: Color(0xFF6B4423),
+      shoe: Color(0xFF3D2817),
+      skin: Color(0xFFE0AE7B),
+    ),
+    3: _Palette( // Lina : bras nus + jambes nues + sandales
+      sleeve: Color(0xFFF0C99A),
+      pants: Color(0xFFF0C99A),
+      shoe: Color(0xFF8B6F47),
+      skin: Color(0xFFF0C99A),
+    ),
+    4: _Palette( // Amadou : sweat noir + pantalon gris + baskets cyan
+      sleeve: Color(0xFF1A1A1A),
+      pants: Color(0xFF2D2D2D),
+      shoe: Color(0xFF00B8D9),
+      skin: Color(0xFF5D3D28),
+    ),
+    5: _Palette( // Theo : bras nus + short blanc + chaussettes blanches
+      sleeve: Color(0xFFE0AE7B),
+      pants: Color(0xFFF0F0F0),
+      shoe: Color(0xFFFFFFFF),
+      skin: Color(0xFFE0AE7B),
+    ),
+    6: _Palette( // Chloe : blouse blanche + jupe lavande + sandales
+      sleeve: Color(0xFFFFFFFF),
+      pants: Color(0xFFC7B3E0),
+      shoe: Color(0xFF8B6F47),
+      skin: Color(0xFFF0C99A),
+    ),
+    7: _Palette( // Lucas : chemise rouge + jean + bottes marron
+      sleeve: Color(0xFF992D2D),
+      pants: Color(0xFF1C2A3A),
+      shoe: Color(0xFF3D2817),
+      skin: Color(0xFFE0AE7B),
+    ),
+    8: _Palette( // Yuki : dress vert + jambes nues + sandales
+      sleeve: Color(0xFF97C45F),
+      pants: Color(0xFFE8B88B),
+      shoe: Color(0xFF3D2817),
+      skin: Color(0xFFE8B88B),
+    ),
+    9: _Palette( // Emma : veste jean bleu + jean noir + baskets blanches
+      sleeve: Color(0xFF3E5D7E),
+      pants: Color(0xFF0A0A0B),
+      shoe: Color(0xFFFFFFFF),
+      skin: Color(0xFFF0C99A),
+    ),
+    10: _Palette( // Nathan : polo jaune + chino + baskets blanches
+      sleeve: Color(0xFFF6AE2D),
+      pants: Color(0xFFC8A878),
+      shoe: Color(0xFFFFFFFF),
+      skin: Color(0xFFE0AE7B),
+    ),
+  };
+
   double _bandWidth = 360;
 
   double _x = 20;
@@ -69,17 +154,14 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
       final deltaPx = _direction * widget.speed * dt;
       _x += deltaPx;
       _walkTime += dt;
-      // Comptabilise la distance reelle parcourue (en metres, ignore les recul).
       _metersWalked += deltaPx.abs() / 40.0;
-      // Notifie le parent seulement quand le metre entier change (pour eviter
-      // des setState a 60 fps sur le parent).
       final intMeters = _metersWalked.floorToDouble();
       if (intMeters != _lastReportedMeters) {
         _lastReportedMeters = intMeters;
         widget.onMetersWalked?.call(_metersWalked);
       }
-      if (_x >= _bandWidth - _avatarWidth - 10) {
-        _x = _bandWidth - _avatarWidth - 10;
+      if (_x >= _bandWidth - _displayWidth - 10) {
+        _x = _bandWidth - _displayWidth - 10;
         _state = _PromenadeState.turningRight;
         _turnStartMs = nowMs;
       } else if (_x <= 10) {
@@ -100,13 +182,18 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
     if (mounted) setState(() {});
   }
 
-  /// Balancement vertical pendant la marche (3 px).
-  double _bob() {
+  /// Phase de marche : sinusoide en ±1, 0.8 Hz (cycle de ~1.25 s par pas).
+  double get _walkPhase {
     if (_state != _PromenadeState.walking) return 0;
-    return math.sin(_walkTime * 8) * 3;
+    return math.sin(_walkTime * 5);
   }
 
-  /// Recul de 8 px au debut du demi-tour a droite.
+  double _bob() {
+    if (_state != _PromenadeState.walking) return 0;
+    // Bob vertical : 2x la frequence de la marche (chaque appui de pied).
+    return math.sin(_walkTime * 10).abs() * -3;
+  }
+
   double _recoilX() {
     if (_state != _PromenadeState.turningRight) return 0;
     final dur = _lastTickMs - _turnStartMs;
@@ -117,7 +204,6 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
     return -8;
   }
 
-  /// Offset vertical selon l'animation en cours.
   double _jumpY() {
     final dur = _lastTickMs - _turnStartMs;
     if (_state == _PromenadeState.turningLeft) {
@@ -135,7 +221,6 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
     return 0;
   }
 
-  /// ScaleX selon l'animation (1 = regarde a droite, -1 = a gauche).
   double _scaleX() {
     final dur = _lastTickMs - _turnStartMs;
     final base = _direction.toDouble();
@@ -158,7 +243,6 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
     return base;
   }
 
-  /// Leger squash-stretch pendant le saut gauche.
   double _scaleY() {
     if (_state != _PromenadeState.turningLeft) return 1.0;
     final dur = _lastTickMs - _turnStartMs;
@@ -167,7 +251,6 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
     return 1.0;
   }
 
-  /// Affiche la bulle "?" pendant la phase reflexion du demi-tour droit.
   bool _showBubble() {
     if (_state != _PromenadeState.turningRight) return false;
     final dur = _lastTickMs - _turnStartMs;
@@ -178,16 +261,18 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
 
   @override
   Widget build(BuildContext context) {
-    final filename = _avatarFilename(widget.avatarId);
+    final palette = _palettes[widget.avatarId] ?? _palettes[1]!;
+    final bodyAsset = _bodyAsset(widget.avatarId);
+    final phase = _walkPhase;
+    // Amplitude des rotations de membres (en radians). ~28° max.
+    final armSwing = phase * 0.5;
+    final legSwing = phase * 0.4;
 
     return SizedBox(
       height: widget.height,
       width: double.infinity,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // La bande est limitee a la largeur du parent (p.ex. ResponsiveCenter).
-          // On met a jour _bandWidth pour que les demi-tours se fassent aux vrais
-          // bords visibles, pas aux bords de l'ecran complet.
           _bandWidth = constraints.maxWidth;
           return Stack(
             clipBehavior: Clip.none,
@@ -201,22 +286,72 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
                     scaleX: _scaleX(),
                     scaleY: _scaleY(),
                     alignment: Alignment.bottomCenter,
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.topCenter,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/avatars/$filename',
-                          width: _avatarWidth,
-                          height: _avatarHeight,
-                        ),
-                        if (_showBubble())
-                          const Positioned(
-                            top: -8,
-                            right: 4,
-                            child: _ThinkBubble(),
+                    child: SizedBox(
+                      width: _displayWidth,
+                      height: _displayHeight,
+                      child: Transform.scale(
+                        scale: _scale,
+                        alignment: Alignment.topLeft,
+                        child: SizedBox(
+                          width: _svgWidth,
+                          height: _svgHeight,
+                          // On construit en coordonnees SVG natives (110x220)
+                          // puis on scale l'ensemble pour l'affichage.
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              // Ombre au sol (reste statique dans le SVG)
+                              // Jambe arriere (dessinee avant pour etre derriere
+                              // les jambes avant, la distinction gauche/droite
+                              // depend de la phase de marche).
+                              _Leg(
+                                hipX: 42,
+                                hipY: 118,
+                                // Jambe "droite" (index 0) : decalage phase 0.
+                                angle: legSwing,
+                                pants: palette.pants,
+                                shoe: palette.shoe,
+                              ),
+                              _Leg(
+                                hipX: 56,
+                                hipY: 118,
+                                angle: -legSwing,
+                                pants: palette.pants,
+                                shoe: palette.shoe,
+                              ),
+                              // Bras arriere (derriere le torse).
+                              _Arm(
+                                shoulderX: 28,
+                                shoulderY: 58,
+                                // Bras "droit" (index 0) : phase opposee a la jambe droite.
+                                angle: -armSwing,
+                                sleeve: palette.sleeve,
+                                skin: palette.skin,
+                              ),
+                              // Corps stripped : torse + tete + accessoires.
+                              SvgPicture.asset(
+                                bodyAsset,
+                                width: _svgWidth,
+                                height: _svgHeight,
+                              ),
+                              // Bras avant (devant le torse).
+                              _Arm(
+                                shoulderX: 82,
+                                shoulderY: 58,
+                                angle: armSwing,
+                                sleeve: palette.sleeve,
+                                skin: palette.skin,
+                              ),
+                              if (_showBubble())
+                                const Positioned(
+                                  top: -8,
+                                  right: 8,
+                                  child: _ThinkBubble(),
+                                ),
+                            ],
                           ),
-                      ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -228,20 +363,131 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
     );
   }
 
-  static String _avatarFilename(int id) {
-    const names = {
-      1: '01_sam.svg',
-      2: '02_max.svg',
-      3: '03_lina.svg',
-      4: '04_amadou.svg',
-      5: '05_theo.svg',
-      6: '06_chloe.svg',
-      7: '07_lucas.svg',
-      8: '08_yuki.svg',
-      9: '09_emma.svg',
-      10: '10_nathan.svg',
-    };
-    return names[id] ?? '01_sam.svg';
+  static String _bodyAsset(int id) {
+    final name = WhatekaAvatar.byId(id).filename.replaceAll('.svg', '_body.svg');
+    return 'assets/avatars/$name';
+  }
+}
+
+/// Jambe animee qui pivote autour de la hanche.
+class _Leg extends StatelessWidget {
+  final double hipX;
+  final double hipY;
+  final double angle; // radians
+  final Color pants;
+  final Color shoe;
+
+  const _Leg({
+    required this.hipX,
+    required this.hipY,
+    required this.angle,
+    required this.pants,
+    required this.shoe,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const legWidth = 14.0;
+    const legHeight = 80.0;
+    return Positioned(
+      left: hipX - legWidth / 2,
+      top: hipY,
+      child: Transform.rotate(
+        angle: angle,
+        alignment: Alignment.topCenter,
+        child: SizedBox(
+          width: legWidth,
+          height: legHeight + 6,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.topCenter,
+            children: [
+              // Pantalon
+              Container(
+                width: legWidth,
+                height: legHeight,
+                decoration: BoxDecoration(
+                  color: pants,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              // Pied/chaussure
+              Positioned(
+                top: legHeight - 6,
+                child: Container(
+                  width: legWidth + 6,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: shoe,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bras anime qui pivote autour de l'epaule.
+class _Arm extends StatelessWidget {
+  final double shoulderX;
+  final double shoulderY;
+  final double angle;
+  final Color sleeve;
+  final Color skin;
+
+  const _Arm({
+    required this.shoulderX,
+    required this.shoulderY,
+    required this.angle,
+    required this.sleeve,
+    required this.skin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const armWidth = 12.0;
+    const armHeight = 60.0;
+    return Positioned(
+      left: shoulderX - armWidth / 2,
+      top: shoulderY,
+      child: Transform.rotate(
+        angle: angle,
+        alignment: Alignment.topCenter,
+        child: SizedBox(
+          width: armWidth,
+          height: armHeight + 5,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.topCenter,
+            children: [
+              Container(
+                width: armWidth,
+                height: armHeight,
+                decoration: BoxDecoration(
+                  color: sleeve,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+              Positioned(
+                top: armHeight - 4,
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: skin,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
