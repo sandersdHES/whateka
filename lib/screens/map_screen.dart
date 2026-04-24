@@ -117,21 +117,7 @@ class _MapScreenState extends State<MapScreen> {
     final initialCenter = _targetPosition ?? _currentPosition;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
       bottomNavigationBar: const WhatekBottomNav(currentRoute: '/map'),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CircleAvatar(
-            backgroundColor: Colors.white,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppColors.black),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-        ),
-      ),
       body: Stack(
         children: [
           FlutterMap(
