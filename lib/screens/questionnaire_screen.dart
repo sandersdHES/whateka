@@ -360,10 +360,10 @@ class _OptionCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
-          color: selected ? AppColors.ink : AppColors.surface,
+          color: selected ? AppColors.orange : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? AppColors.ink : AppColors.line,
+            color: selected ? AppColors.orange : AppColors.line,
             width: 0.5,
           ),
         ),
@@ -376,7 +376,7 @@ class _OptionCard extends StatelessWidget {
                 children: [
                   Icon(
                     option.icon,
-                    color: selected ? AppColors.cyan : AppColors.ink,
+                    color: selected ? Colors.white : AppColors.ink,
                     size: 32,
                   ),
                   const SizedBox(height: 12),
@@ -398,13 +398,15 @@ class _OptionCard extends StatelessWidget {
                 child: Container(
                   width: 20,
                   height: 20,
-                  decoration: const BoxDecoration(
-                    color: AppColors.cyan,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
                     shape: BoxShape.circle,
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.9), width: 1),
                   ),
                   child: const Icon(
                     Icons.check,
-                    color: Colors.white,
+                    color: AppColors.orange,
                     size: 14,
                   ),
                 ),
