@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
+import '../widgets/avatar_promenade.dart';
 import '../widgets/responsive_center.dart';
 import '../widgets/whateka_bottom_nav.dart';
 
@@ -63,6 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _selectedRegion = ''; // '' | 'vaud' | 'valais'
   String _locationMode = 'auto'; // 'auto' | 'manual'
   String _manualCity = 'Lausanne';
+  int _avatarId = 1;
 
   @override
   void initState() {
@@ -81,6 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _selectedRegion = (meta['search_region'] as String?) ?? '';
         _locationMode = (meta['location_mode'] as String?) ?? 'auto';
         _manualCity = (meta['manual_city'] as String?) ?? 'Lausanne';
+        _avatarId = (meta['avatar_id'] as int?) ?? 1;
       });
     }
   }
@@ -103,6 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'manual_city': _manualCity,
           'manual_lat': city.lat,
           'manual_lng': city.lng,
+          'avatar_id': _avatarId,
         }),
       );
 
@@ -144,14 +149,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  String _initialFromName() {
-    final name = _nameController.text.trim();
-    if (name.isNotEmpty) return name[0].toUpperCase();
-    final email = _emailController.text.trim();
-    if (email.isNotEmpty) return email[0].toUpperCase();
-    return 'W';
-  }
-
   bool _isRadiusSelected(_RadiusOption o) {
     return _selectedRadiusKm == o.radiusKm && _selectedRegion == o.region;
   }
@@ -175,29 +172,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Avatar cyan
-              Center(
-                child: Container(
-                  width: 96,
-                  height: 96,
-                  decoration: const BoxDecoration(
-                    color: AppColors.cyan,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      _initialFromName(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 40,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -1,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
+              // Avatar anime qui se promene dans une bande horizontale
+              AvatarPromenade(avatarId: _avatarId),
+              const SizedBox(height: 20),
 
               // Section Préférences
               Text(
@@ -217,7 +194,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     TextFormField(
                       controller: _nameController,
-                      onChanged: (_) => setState(() {}),
                       decoration: const InputDecoration(
                         labelText: 'Prénom',
                         prefixIcon: Icon(Icons.person_outline, size: 20),
@@ -231,6 +207,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         prefixIcon: Icon(Icons.email_outlined, size: 20),
                       ),
                       keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 14),
+                    // Selecteur d'avatar : dropdown avec preview SVG du
+                    // personnage actuellement selectionne.
+                    DropdownButtonFormField<int>(
+                      initialValue: _avatarId,
+                      isExpanded: true,
+                      items: WhatekaAvatar.all
+                          .map((a) => DropdownMenuItem<int>(
+                                value: a.id,
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 28,
+                                      height: 40,
+                                      child: SvgPicture.asset(
+                                        'assets/avatars/${a.filename}',
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(a.name),
+                                  ],
+                                ),
+                              ))
+                          .toList(),
+                      onChanged: (v) {
+                        if (v != null) setState(() => _avatarId = v);
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Personnage',
+                        prefixIcon: Icon(Icons.face_outlined, size: 20),
+                      ),
                     ),
                   ],
                 ),
