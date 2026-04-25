@@ -16,6 +16,13 @@ class Activity {
   final bool isOutdoor;
   final bool isIndoor;
 
+  // Contraintes temporelles (v26 algo) — utilisees pour le filtre Live/Tout
+  final String? recurrenceType; // 'one_off' | 'weekly' | 'seasonal' | null
+  final DateTime? dateStart;
+  final DateTime? dateEnd;
+  final List<int>? seasonalMonths;
+  final List<int>? weeklyDays;
+
   // Local state only, not from DB for now
   bool isFavorite;
   String? aiReason; // AI-generated personalized explanation
@@ -35,9 +42,50 @@ class Activity {
     this.priceLevel = 1,
     this.isOutdoor = true,
     this.isIndoor = false,
+    this.recurrenceType,
+    this.dateStart,
+    this.dateEnd,
+    this.seasonalMonths,
+    this.weeklyDays,
     this.isFavorite = false,
     this.aiReason,
   });
+
+  /// Logique miroir de l'algo recommend-activity v26 :
+  /// retourne true si l'activite est proposable a la date `now`.
+  bool isProposableAt(DateTime now) {
+    if (recurrenceType == null) return true;
+    final hasWeekly = weeklyDays != null && weeklyDays!.isNotEmpty;
+    final hasSeasonal = seasonalMonths != null && seasonalMonths!.isNotEmpty;
+    final hasOneOff = recurrenceType == 'one_off' && dateStart != null && dateEnd != null;
+
+    if (hasWeekly && !weeklyDays!.contains(now.weekday % 7)) return false;
+    if (hasSeasonal && !seasonalMonths!.contains(now.month)) return false;
+    if (hasOneOff) {
+      final start = dateStart!;
+      final end = DateTime(dateEnd!.year, dateEnd!.month, dateEnd!.day, 23, 59, 59);
+      if (now.isAfter(end)) return false;
+      final dur = end.difference(start).inDays + 1;
+      if (dur <= 7) {
+        final win = end.subtract(const Duration(days: 21));
+        if (now.isBefore(win)) return false;
+      } else if (dur < 30) {
+        final win = start.subtract(const Duration(days: 21));
+        if (now.isBefore(win)) return false;
+      } else {
+        if (now.isBefore(start)) return false;
+      }
+    }
+    if (recurrenceType == 'seasonal' && !hasSeasonal) return false;
+    return true;
+  }
+
+  /// Retourne true si l'activite est echue (one_off avec date_end < now).
+  bool isExpiredAt(DateTime now) {
+    if (recurrenceType != 'one_off' || dateEnd == null) return false;
+    final end = DateTime(dateEnd!.year, dateEnd!.month, dateEnd!.day, 23, 59, 59);
+    return now.isAfter(end);
+  }
 
   /// Format duration_minutes into a human-readable string in hours
   static String _formatDuration(int minutes) {
@@ -87,6 +135,15 @@ class Activity {
       priceLevel: json['price_level'] as int? ?? 1,
       isOutdoor: json['is_outdoor'] as bool? ?? true,
       isIndoor: json['is_indoor'] as bool? ?? false,
+      recurrenceType: json['recurrence_type'] as String?,
+      dateStart: json['date_start'] != null ? DateTime.tryParse(json['date_start'] as String) : null,
+      dateEnd: json['date_end'] != null ? DateTime.tryParse(json['date_end'] as String) : null,
+      seasonalMonths: (json['seasonal_months'] as List<dynamic>?)
+          ?.map((e) => e as int)
+          .toList(),
+      weeklyDays: (json['weekly_days'] as List<dynamic>?)
+          ?.map((e) => e as int)
+          .toList(),
     );
   }
 }

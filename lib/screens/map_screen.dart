@@ -30,6 +30,10 @@ class _MapScreenState extends State<MapScreen> {
   List<Activity> _activities = [];
   String _searchQuery = '';
   bool _locationModeManual = false;
+  // Mode d'affichage des marqueurs :
+  // false (Tout)  = toutes sauf échues
+  // true  (Live)  = uniquement celles proposables maintenant (algo v26)
+  bool _liveMode = false;
 
   // Zoom par defaut quand on centre sur la position utilisateur :
   // 12 = vue de ville (assez large pour voir le canton alentour).
@@ -165,12 +169,20 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   List<Activity> get _filteredActivities {
-    if (_searchQuery.isEmpty) return _activities;
+    final now = DateTime.now();
     final q = _searchQuery.toLowerCase();
     return _activities.where((a) {
-      return a.title.toLowerCase().contains(q) ||
-          a.location.toLowerCase().contains(q) ||
-          (a.category?.toLowerCase().contains(q) ?? false);
+      // Toujours exclure les échues
+      if (a.isExpiredAt(now)) return false;
+      // En mode Live : seulement les proposables maintenant
+      if (_liveMode && !a.isProposableAt(now)) return false;
+      if (_searchQuery.isNotEmpty) {
+        final matchSearch = a.title.toLowerCase().contains(q) ||
+            a.location.toLowerCase().contains(q) ||
+            (a.category?.toLowerCase().contains(q) ?? false);
+        if (!matchSearch) return false;
+      }
+      return true;
     }).toList();
   }
 
@@ -263,57 +275,98 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
 
-          // Barre de recherche flottante en haut (verre dépoli)
+          // Barre de recherche + toggle Live/Tout flottants en haut
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 16),
-                        const Icon(Icons.search,
-                            size: 20, color: AppColors.stone),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (v) =>
-                                setState(() => _searchQuery = v),
-                            decoration: const InputDecoration(
-                              hintText: 'Rechercher une activité',
-                              border: InputBorder.none,
-                              filled: false,
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 14),
-                              isDense: true,
-                            ),
+              child: Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            width: 0.5,
                           ),
                         ),
-                        if (_searchQuery.isNotEmpty)
-                          IconButton(
-                            icon: const Icon(Icons.close, size: 18),
-                            color: AppColors.stone,
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _searchQuery = '');
-                            },
-                          ),
-                      ],
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 16),
+                            const Icon(Icons.search,
+                                size: 20, color: AppColors.stone),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (v) =>
+                                    setState(() => _searchQuery = v),
+                                decoration: const InputDecoration(
+                                  hintText: 'Rechercher une activité',
+                                  border: InputBorder.none,
+                                  filled: false,
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 14),
+                                  isDense: true,
+                                ),
+                              ),
+                            ),
+                            if (_searchQuery.isNotEmpty)
+                              IconButton(
+                                icon: const Icon(Icons.close, size: 18),
+                                color: AppColors.stone,
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() => _searchQuery = '');
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  // Toggle Live / Tout
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            width: 0.5,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildModeChip(
+                              label: 'Tout',
+                              icon: Icons.public,
+                              selected: !_liveMode,
+                              onTap: () => setState(() => _liveMode = false),
+                            ),
+                            const SizedBox(width: 4),
+                            _buildModeChip(
+                              label: 'Live',
+                              icon: Icons.bolt,
+                              selected: _liveMode,
+                              onTap: () => setState(() => _liveMode = true),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -369,6 +422,42 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildModeChip({
+    required String label,
+    required IconData icon,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.cyan : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon,
+                size: 16,
+                color: selected ? Colors.white : AppColors.ink),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: selected ? Colors.white : AppColors.ink,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
