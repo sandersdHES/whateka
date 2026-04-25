@@ -130,12 +130,17 @@ class ActivityService {
       final userId = _supabase.auth.currentUser?.id;
 
       // 1. Call Supabase Edge Function
+      // Locale courante (fr/en) pour que Gemini genere match_reason et
+      // global_comment dans la bonne langue.
+      final user = _supabase.auth.currentUser;
+      final locale = (user?.userMetadata?['locale'] as String?) ?? 'fr';
       final response = await _supabase.functions.invoke(
         'recommend-activity',
         body: {
           "user_id": userId,
           "user_prefs": userPrefs,
           "context": context,
+          "locale": locale,
         },
       );
 
@@ -145,7 +150,9 @@ class ActivityService {
       if (data == null || data['recommendations'] == null) {
         return AiResponse(
           activities: [],
-          globalComment: "Aucune suggestion trouvée pour ces critères.",
+          globalComment: locale == 'en'
+              ? "No suggestions found for these criteria."
+              : "Aucune suggestion trouvée pour ces critères.",
         );
       }
 

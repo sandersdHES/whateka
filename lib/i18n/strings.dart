@@ -144,6 +144,37 @@ class _Strings {
   final String featureRestrictedHours;
   final String featureMinParticipants;
 
+  // Profil locations & radius
+  final String profileLocationGps;
+  final String profileLocationChooseCity;
+  final String profileLocationChooseCityLabel;
+  final String profileRadius;
+  final String profileRadiusInfo;
+  final String profileRadiusVaud;
+  final String profileRadiusValais;
+  final String profileSaveBtn;
+  final String profileLocationModeAuto;
+  final String profileLocationModeManual;
+
+  // Submit activity additional
+  final String submitNamePlaceholder;
+  final String submitLocationPlaceholder;
+  final String submitDescriptionPlaceholder;
+  final String submitActivityUrlLabel;
+  final String submitAddPhotos;
+  final String submitTakePhoto;
+  final String submitOrAddUrl;
+  final String submitImageUrlPlaceholder;
+  final String submitAdd;
+
+  // AI result
+  final String resultSuggestionsLabel;
+  final String resultPeriodMorning;
+  final String resultPeriodAfternoon;
+  final String resultPeriodEvening;
+  final String resultPeriodNight;
+  final String resultRetake;
+
   const _Strings({
     required this.appTagline,
     required this.comingSoonTitle,
@@ -257,6 +288,31 @@ class _Strings {
     required this.featureParking,
     required this.featureRestrictedHours,
     required this.featureMinParticipants,
+    required this.profileLocationGps,
+    required this.profileLocationChooseCity,
+    required this.profileLocationChooseCityLabel,
+    required this.profileRadius,
+    required this.profileRadiusInfo,
+    required this.profileRadiusVaud,
+    required this.profileRadiusValais,
+    required this.profileSaveBtn,
+    required this.profileLocationModeAuto,
+    required this.profileLocationModeManual,
+    required this.submitNamePlaceholder,
+    required this.submitLocationPlaceholder,
+    required this.submitDescriptionPlaceholder,
+    required this.submitActivityUrlLabel,
+    required this.submitAddPhotos,
+    required this.submitTakePhoto,
+    required this.submitOrAddUrl,
+    required this.submitImageUrlPlaceholder,
+    required this.submitAdd,
+    required this.resultSuggestionsLabel,
+    required this.resultPeriodMorning,
+    required this.resultPeriodAfternoon,
+    required this.resultPeriodEvening,
+    required this.resultPeriodNight,
+    required this.resultRetake,
   });
 }
 
@@ -373,6 +429,31 @@ const _Strings _fr = _Strings(
   featureParking: "Parking",
   featureRestrictedHours: "Horaires restreints",
   featureMinParticipants: "Minimum de participants",
+  profileLocationGps: "GPS",
+  profileLocationChooseCity: "Choisir une ville",
+  profileLocationChooseCityLabel: "Choisissez votre ville",
+  profileRadius: "Rayon de recherche",
+  profileRadiusInfo: "Le questionnaire limitera les activités à cette zone.",
+  profileRadiusVaud: "Vaud complet",
+  profileRadiusValais: "Valais complet",
+  profileSaveBtn: "Sauvegarder",
+  profileLocationModeAuto: "Automatique",
+  profileLocationModeManual: "Manuelle",
+  submitNamePlaceholder: "Ex : Bains thermaux de Saillon",
+  submitLocationPlaceholder: "Ex : Saillon",
+  submitDescriptionPlaceholder: "Décrivez l'activité en quelques phrases...",
+  submitActivityUrlLabel: "URL de l'activité",
+  submitAddPhotos: "Ajouter des photos",
+  submitTakePhoto: "Prendre une photo",
+  submitOrAddUrl: "Ou coller une URL d'image",
+  submitImageUrlPlaceholder: "https://exemple.ch/photo.jpg",
+  submitAdd: "Ajouter",
+  resultSuggestionsLabel: "suggestions",
+  resultPeriodMorning: "ce matin",
+  resultPeriodAfternoon: "cet après-midi",
+  resultPeriodEvening: "ce soir",
+  resultPeriodNight: "cette nuit",
+  resultRetake: "Refaire le quiz",
 );
 
 const _Strings _en = _Strings(
@@ -488,6 +569,31 @@ const _Strings _en = _Strings(
   featureParking: "Parking",
   featureRestrictedHours: "Restricted hours",
   featureMinParticipants: "Minimum participants",
+  profileLocationGps: "GPS",
+  profileLocationChooseCity: "Choose a city",
+  profileLocationChooseCityLabel: "Choose your city",
+  profileRadius: "Search radius",
+  profileRadiusInfo: "The quiz will only show activities in this area.",
+  profileRadiusVaud: "All Vaud",
+  profileRadiusValais: "All Valais",
+  profileSaveBtn: "Save",
+  profileLocationModeAuto: "Automatic",
+  profileLocationModeManual: "Manual",
+  submitNamePlaceholder: "e.g. Bains thermaux de Saillon",
+  submitLocationPlaceholder: "e.g. Saillon",
+  submitDescriptionPlaceholder: "Describe the activity in a few sentences...",
+  submitActivityUrlLabel: "Activity URL",
+  submitAddPhotos: "Add photos",
+  submitTakePhoto: "Take a photo",
+  submitOrAddUrl: "Or paste an image URL",
+  submitImageUrlPlaceholder: "https://example.com/photo.jpg",
+  submitAdd: "Add",
+  resultSuggestionsLabel: "picks",
+  resultPeriodMorning: "this morning",
+  resultPeriodAfternoon: "this afternoon",
+  resultPeriodEvening: "this evening",
+  resultPeriodNight: "tonight",
+  resultRetake: "Retake quiz",
 );
 
 /// Provider de locale (notifie les widgets quand la langue change).

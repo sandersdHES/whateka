@@ -43,9 +43,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _RadiusOption('25 km', 25),
     _RadiusOption('50 km', 50),
     _RadiusOption('100 km', 100),
-    _RadiusOption('Vaud complet', 999, region: 'vaud'),
-    _RadiusOption('Valais complet', 999, region: 'valais'),
+    // Les labels des regions sont remplaces dynamiquement via S.current
+    // dans le rendu (cf. _radiusLabel ci-dessous).
+    _RadiusOption('vaud_full', 999, region: 'vaud'),
+    _RadiusOption('valais_full', 999, region: 'valais'),
   ];
+
+  /// Retourne le label affiche pour une option de rayon (traduit si region).
+  String _radiusLabel(_RadiusOption opt) {
+    if (opt.region == 'vaud') return S.current.profileRadiusVaud;
+    if (opt.region == 'valais') return S.current.profileRadiusValais;
+    return opt.label;
+  }
 
   // Villes pre-definies pour le mode manuel (coordonnees centre-ville).
   static const List<_City> _manualCities = [
@@ -357,7 +366,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     if (_locationMode == 'manual') ...[
                       const SizedBox(height: 14),
                       Text(
-                        'Choisissez votre ville',
+                        s.profileLocationChooseCityLabel,
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                       const SizedBox(height: 8),
@@ -380,7 +389,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ] else ...[
                       const SizedBox(height: 6),
                       Text(
-                        'L\'app utilise votre position GPS automatiquement.',
+                        LocaleProvider.instance.isEn
+                            ? 'The app uses your GPS location automatically.'
+                            : 'L\'app utilise votre position GPS automatiquement.',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -391,7 +402,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               // Section Rayon
               Text(
-                'Rayon de recherche',
+                s.profileRadius,
                 style: Theme.of(context).textTheme.labelSmall,
               ),
               const SizedBox(height: 10),
@@ -406,7 +417,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Le questionnaire limitera les activités à cette zone.',
+                      s.profileRadiusInfo,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 12),
@@ -437,7 +448,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             child: Text(
-                              option.label,
+                              _radiusLabel(option),
                               style: Theme.of(context)
                                   .textTheme
                                   .labelMedium
@@ -469,7 +480,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Sauvegarder'),
+                    : Text(s.profileSaveBtn),
               ),
               const SizedBox(height: 12),
 
@@ -524,8 +535,8 @@ class _LocationModeToggle extends StatelessWidget {
       children: [
         Expanded(
           child: _ModeChoice(
-            label: s.profileLocationAuto,
-            subtitle: 'GPS',
+            label: s.profileLocationModeAuto,
+            subtitle: s.profileLocationGps,
             icon: Icons.gps_fixed,
             selected: mode == 'auto',
             onTap: () => onChanged('auto'),
@@ -534,8 +545,8 @@ class _LocationModeToggle extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _ModeChoice(
-            label: s.profileLocationManual,
-            subtitle: 'Choisir une ville',
+            label: s.profileLocationModeManual,
+            subtitle: s.profileLocationChooseCity,
             icon: Icons.edit_location_alt_outlined,
             selected: mode == 'manual',
             onTap: () => onChanged('manual'),

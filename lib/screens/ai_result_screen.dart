@@ -81,6 +81,16 @@ class _AiResultScreenState extends State<AiResultScreen> {
     );
   }
 
+  /// Label du moment de la journée selon l'heure courante (locale-aware).
+  String _periodLabel(BuildContext context) {
+    final hour = DateTime.now().hour;
+    final s = S.of(context);
+    if (hour < 12) return s.resultPeriodMorning;
+    if (hour < 18) return s.resultPeriodAfternoon;
+    if (hour < 23) return s.resultPeriodEvening;
+    return s.resultPeriodNight;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -152,7 +162,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
                   Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 20),
                     child: Text(
-                      '${response.activities.length} suggestions · cet après-midi',
+                      '${response.activities.length} ${S.of(context).resultSuggestionsLabel} · ${_periodLabel(context)}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),

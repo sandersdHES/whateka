@@ -38,16 +38,26 @@ class _PhotoItem {
 }
 
 class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
-  static const _categories = [
-    ('nature', 'Nature'),
-    ('culture', 'Culture'),
-    ('gastronomy', 'Gastronomie'),
-    ('sport', 'Sport'),
-    ('adventure', 'Aventure'),
-    ('relax', 'Détente'),
-    ('fun', 'Fun'),
-    ('event', 'Événement'),
+  // Liste des catégories (clés FR fixes pour la DB, labels traduits via getter).
+  static const _categoryKeys = [
+    'nature', 'culture', 'gastronomy', 'sport',
+    'adventure', 'relax', 'fun', 'event',
   ];
+
+  /// Retourne la liste des catégories avec labels traduits.
+  List<(String, String)> get _categories {
+    final s = S.current;
+    return [
+      ('nature', s.quizCatNature),
+      ('culture', s.quizCatCulture),
+      ('gastronomy', s.quizCatGastronomy),
+      ('sport', s.quizCatSport),
+      ('adventure', s.quizCatAdventure),
+      ('relax', s.quizCatRelax),
+      ('fun', s.quizCatFun),
+      ('event', s.quizCatEvent),
+    ];
+  }
 
   // Liste des features stockées en DB (clés FR fixes — la traduction se fait
   // à l'affichage via _featuresLabels).
@@ -435,8 +445,8 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   label: '${s.submitName} *',
                   child: TextFormField(
                     controller: _titleCtrl,
-                    decoration: const InputDecoration(
-                      hintText: 'Ex : Bains thermaux de Saillon',
+                    decoration: InputDecoration(
+                      hintText: s.submitNamePlaceholder,
                     ),
                   ),
                 ),
@@ -444,8 +454,8 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   label: '${s.submitLocation} *',
                   child: TextFormField(
                     controller: _locationCtrl,
-                    decoration: const InputDecoration(
-                      hintText: 'Ex : Saillon',
+                    decoration: InputDecoration(
+                      hintText: s.submitLocationPlaceholder,
                     ),
                   ),
                 ),
@@ -467,13 +477,13 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   child: TextFormField(
                     controller: _descriptionCtrl,
                     maxLines: 4,
-                    decoration: const InputDecoration(
-                      hintText: 'Décrivez l\'activité en quelques phrases...',
+                    decoration: InputDecoration(
+                      hintText: s.submitDescriptionPlaceholder,
                     ),
                   ),
                 ),
                 _Section(
-                  label: 'URL de l\'activité',
+                  label: s.submitActivityUrlLabel,
                   child: TextFormField(
                     controller: _activityUrlCtrl,
                     keyboardType: TextInputType.url,
@@ -986,8 +996,10 @@ class _PhotoPicker extends StatelessWidget {
             onPressed: onPickDevice,
             icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
             label: Text(photos.isEmpty
-                ? 'Ajouter des photos'
-                : 'Ajouter d\'autres photos'),
+                ? S.current.submitAddPhotos
+                : (LocaleProvider.instance.isEn
+                    ? 'Add more photos'
+                    : 'Ajouter d\'autres photos')),
           ),
           const SizedBox(height: 12),
 
@@ -998,8 +1010,8 @@ class _PhotoPicker extends StatelessWidget {
                 child: TextFormField(
                   controller: remoteUrlCtrl,
                   keyboardType: TextInputType.url,
-                  decoration: const InputDecoration(
-                    hintText: 'Coller une URL d\'image (optionnel)',
+                  decoration: InputDecoration(
+                    hintText: S.current.submitOrAddUrl,
                   ),
                 ),
               ),
@@ -1008,7 +1020,7 @@ class _PhotoPicker extends StatelessWidget {
                 onPressed: onAddRemoteUrl,
                 icon: const Icon(Icons.add_circle_outline),
                 color: AppColors.cyan,
-                tooltip: 'Ajouter l\'URL',
+                tooltip: S.current.submitAdd,
               ),
             ],
           ),
