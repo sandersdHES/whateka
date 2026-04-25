@@ -66,7 +66,11 @@ class Activity {
       final end = DateTime(dateEnd!.year, dateEnd!.month, dateEnd!.day, 23, 59, 59);
       if (now.isAfter(end)) return false;
       final dur = end.difference(start).inDays + 1;
-      if (dur <= 7) {
+      if (dur <= 1) {
+        // v27 : 1-jour -> 5 jours avant + jour J
+        final win = end.subtract(const Duration(days: 5));
+        if (now.isBefore(win)) return false;
+      } else if (dur <= 7) {
         final win = end.subtract(const Duration(days: 21));
         if (now.isBefore(win)) return false;
       } else if (dur < 30) {
