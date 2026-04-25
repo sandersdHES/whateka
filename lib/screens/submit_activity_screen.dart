@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -124,32 +122,6 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     return lat != null && lng != null;
   }
 
-  /// Nettoie le titre pour Nominatim (retire prefixes type "Visite du", coupe
-  /// au tiret pour ne garder que la partie principale).
-  String _cleanTitle(String t) {
-    var cleaned = t.trim();
-    const prefixes = [
-      'Visite guidée du ', 'Visite guidée des ', 'Visite guidée de ',
-      'Visite du ', 'Visite de la ', 'Visite des ', 'Visite de ',
-      'Découverte du ', 'Découverte de ', 'Découverte des ',
-      'Balade au ', 'Balade en ', 'Balade dans ',
-      'Randonnée au ', 'Randonnée à ', 'Randonnée vers ',
-    ];
-    for (final p in prefixes) {
-      if (cleaned.toLowerCase().startsWith(p.toLowerCase())) {
-        cleaned = cleaned.substring(p.length).trim();
-        break;
-      }
-    }
-    for (final sep in [' - ', ' — ', ' – ', ' | ']) {
-      if (cleaned.contains(sep)) {
-        cleaned = cleaned.split(sep).first.trim();
-        break;
-      }
-    }
-    return cleaned;
-  }
-
   Future<void> _autoGeocode() async {
     final title = _titleCtrl.text.trim();
     final loc = _locationCtrl.text.trim();
@@ -164,33 +136,22 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
       _geocodeInfo = null;
     });
 
-    final cleaned = _cleanTitle(title);
-    final candidates = <String>[
-      if (cleaned.isNotEmpty && loc.isNotEmpty) '$cleaned, $loc, Suisse',
-      if (cleaned.isNotEmpty) '$cleaned, Suisse',
-      if (loc.isNotEmpty) '$loc, Suisse',
-    ];
+    // Construit la requete : titre + lieu, plus precis quand les deux sont
+    // donnes. L'edge function appelle Google Places API (New).
+    final query = [title, loc].where((s) => s.isNotEmpty).join(', ');
 
     try {
-      for (final q in candidates) {
-        final url = Uri.https('nominatim.openstreetmap.org', '/search', {
-          'q': q,
-          'format': 'json',
-          'limit': '1',
-          'countrycodes': 'ch',
-        });
-        final resp = await http.get(url, headers: {
-          'User-Agent': 'WhatekaApp/1.0 (whateka.ch)',
-        });
-        if (resp.statusCode != 200) continue;
-        final data = jsonDecode(resp.body) as List;
-        if (data.isEmpty) continue;
-        final first = data.first as Map;
-        final lat = double.tryParse(first['lat'].toString());
-        final lng = double.tryParse(first['lon'].toString());
-        final name = (first['display_name'] as String? ?? '');
-        if (lat == null || lng == null) continue;
-        if (mounted) {
+      final invoke = await Supabase.instance.client.functions.invoke(
+        'geocode-place',
+        body: {'query': query},
+      );
+      if (invoke.status >= 200 && invoke.status < 300 &&
+          invoke.data is Map) {
+        final data = invoke.data as Map;
+        final lat = (data['lat'] as num?)?.toDouble();
+        final lng = (data['lng'] as num?)?.toDouble();
+        final name = data['display_name']?.toString() ?? '';
+        if (lat != null && lng != null && mounted) {
           setState(() {
             _latCtrl.text = lat.toStringAsFixed(6);
             _lngCtrl.text = lng.toStringAsFixed(6);
@@ -198,16 +159,19 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 ? '${name.substring(0, 80)}...'
                 : name;
           });
-          // Recentre la mini-carte
           try {
-            _mapController.move(LatLng(lat, lng), 14);
+            _mapController.move(LatLng(lat, lng), 15);
           } catch (_) {}
+          return;
         }
-        return;
       }
+      // Reponse non OK : extraire le message si possible
+      final errMsg = invoke.data is Map
+          ? (invoke.data as Map)['error']?.toString() ?? 'Aucun lieu trouvé'
+          : 'Aucun lieu trouvé';
       if (mounted) {
         setState(() => _error =
-            'Aucune adresse trouvée pour "$title" à "$loc". Saisis manuellement ou tape sur la carte.');
+            '$errMsg. Saisis manuellement ou tape sur la carte.');
       }
     } catch (e) {
       if (mounted) {
