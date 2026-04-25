@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../widgets/responsive_center.dart';
 import '../widgets/whateka_bottom_nav.dart';
@@ -14,7 +15,7 @@ class HomeMenuScreen extends StatefulWidget {
 }
 
 class _HomeMenuScreenState extends State<HomeMenuScreen> {
-  String _userName = 'Voyageur';
+  String? _userName;
 
   @override
   void initState() {
@@ -43,7 +44,12 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        final displayName = _userName ?? s.homeMenuDefaultUserName;
+        return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
       bottomNavigationBar:
           const WhatekBottomNav(currentRoute: '/dashboard'),
@@ -96,7 +102,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                                     color: AppColors.cyan, size: 28),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Bonjour $_userName',
+                                  '${s.homeMenuGreeting} $displayName',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -110,7 +116,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                           icon: Icons.logout,
                           color: AppColors.black,
                           onPressed: _signOut,
-                          tooltip: 'Se déconnecter',
+                          tooltip: s.homeMenuSignOutTooltip,
                         ),
                       ],
                     ),
@@ -125,7 +131,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
-                        'Commence à explorer avec WHATEKA !',
+                        s.homeMenuExploreTitle,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(
                           fontSize: 24,
@@ -140,21 +146,21 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
 
                     // Bottom Buttons
                     _MenuButton(
-                      label: 'Trouver mon activité du jour !',
+                      label: s.homeMenuFindActivity,
                       icon: Icons.assignment,
                       color: AppColors.orange,
                       onTap: () => Navigator.pushNamed(context, '/quiz'),
                     ),
                     const SizedBox(height: 16),
                     _MenuButton(
-                      label: 'Carte',
+                      label: s.homeMenuMap,
                       icon: Icons.map,
                       color: AppColors.cyan,
                       onTap: () => Navigator.pushNamed(context, '/map'),
                     ),
                     const SizedBox(height: 16),
                     _MenuButton(
-                      label: 'Activités likées',
+                      label: s.homeMenuFavorites,
                       icon: Icons.favorite,
                       color: AppColors.green,
                       onTap: () => Navigator.pushNamed(context, '/favorites'),
@@ -167,6 +173,8 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

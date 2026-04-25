@@ -1,60 +1,68 @@
 import 'package:flutter/material.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 
 class FunLoadingWidget extends StatelessWidget {
-  final String message;
+  /// Si null, utilise [S.current.loadingFunMessage] (locale-aware).
+  final String? message;
   const FunLoadingWidget({
     super.key,
-    this.message = "Nous concoctons votre sélection...",
+    this.message,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Animated Icons Row
-            Row(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final displayMessage = message ?? S.of(context).loadingFunMessage;
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: Center(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const _BouncingIcon(
-                  icon: Icons.map,
-                  color: AppColors.cyan,
-                  delayMs: 0,
+                // Animated Icons Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const _BouncingIcon(
+                      icon: Icons.map,
+                      color: AppColors.cyan,
+                      delayMs: 0,
+                    ),
+                    const SizedBox(width: 20),
+                    const _BouncingIcon(
+                      icon: Icons.favorite,
+                      color: AppColors.orange,
+                      delayMs: 200,
+                    ),
+                    const SizedBox(width: 20),
+                    const _BouncingIcon(
+                      icon: Icons.explore,
+                      color: AppColors.green,
+                      delayMs: 400,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 20),
-                const _BouncingIcon(
-                  icon: Icons.favorite,
-                  color: AppColors.orange,
-                  delayMs: 200,
-                ),
-                const SizedBox(width: 20),
-                const _BouncingIcon(
-                  icon: Icons.explore,
-                  color: AppColors.green,
-                  delayMs: 400,
+                const SizedBox(height: 48),
+                // Message
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                  child: Text(
+                    displayMessage,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 48),
-            // Message
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: Text(
-                message,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: AppColors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -220,7 +220,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text(
-                        'D\'autres idées',
+                        s.moreIdeasBtn,
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                     ),
@@ -251,7 +251,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
                             )
                           : const Icon(Icons.refresh, size: 18),
                       label: Text(
-                          _isLoadingMore ? s.loading : 'Plus d\'idées'),
+                          _isLoadingMore ? s.loading : s.moreIdeasBtn),
                     ),
                   ),
                 ],
@@ -333,7 +333,10 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isOverload = error.contains('surchargé');
+    final s = S.of(context);
+    // 'surchargé' / 'overloaded' depending on locale
+    final isOverload =
+        error.contains('surchargé') || error.toLowerCase().contains('overload');
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -347,7 +350,7 @@ class _ErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              isOverload ? 'Forte affluence' : 'Une erreur est survenue',
+              isOverload ? s.errorOverloadTitle : s.errorGeneric,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),
@@ -362,7 +365,7 @@ class _ErrorState extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Réessayer'),
+              label: Text(s.retry),
             ),
           ],
         ),
@@ -376,6 +379,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -384,11 +388,11 @@ class _EmptyState extends StatelessWidget {
           children: [
             const Icon(Icons.search_off, size: 56, color: AppColors.stone),
             const SizedBox(height: 16),
-            Text('Aucune activité trouvée',
+            Text(s.emptyNoActivities,
                 style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              'Essayez de modifier vos critères de recherche',
+              s.emptyNoActivitiesHint,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.stone,
@@ -398,7 +402,7 @@ class _EmptyState extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back, size: 18),
-              label: Text(S.of(context).resultRetry),
+              label: Text(s.resultRetry),
             ),
           ],
         ),

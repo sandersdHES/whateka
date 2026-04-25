@@ -175,6 +175,155 @@ class _Strings {
   final String resultPeriodNight;
   final String resultRetake;
 
+  // Empty / error states
+  final String emptyNoActivities;
+  final String emptyNoActivitiesHint;
+  final String emptyNoFavorites;
+  final String emptyNoFavoritesHint;
+  final String errorOverloadTitle;
+  final String errorGeneric;
+  final String errorRemovingFavorite;
+  final String errorWithDetails; // "Erreur: {0}"
+  final String moreActivitiesBtn;
+  final String moreIdeasBtn;
+
+  // Login / signup validation
+  final String validationRequired;
+  final String validationEmailInvalid;
+  final String validationMinChars;
+  final String validationPasswordsMismatch;
+
+  // Forgot password
+  final String forgotPasswordPrompt;
+  final String forgotPasswordEmailSent;
+  final String forgotPasswordTooManyAttempts;
+  final String forgotPasswordUnexpectedError;
+
+  // Update password
+  final String updatePasswordTitle;
+  final String updatePasswordSubtitle;
+  final String updatePasswordNewLabel;
+  final String updatePasswordConfirmLabel;
+  final String updatePasswordSuccess;
+  final String updatePasswordCta;
+
+  // Email verification
+  final String verificationTitle;
+  final String verificationHeading;
+  final String verificationDescription;
+  final String verificationBackToLogin;
+
+  // Profile
+  final String profileSection;
+  final String profileFirstNameLabel;
+  final String profileEmailLabel;
+  final String profileCharacterLabel;
+  final String profileEmailChangeNotice;
+  final String profileUpdated;
+  final String profileLocationAutoHint;
+
+  // Quiz
+  final String quizMaxChoicesError;
+  final String quizContextError;
+  final String quizBudgetCascadeHint;
+
+  // Map
+  // (already covered)
+
+  // Single activity
+  final String activityFeedbackPromptTitle;
+  final String activityFeedbackPromptBody;
+  final String activityFeedbackLater;
+  final String activityFeedbackGive;
+  final String activityNoUrl;
+  final String activityCannotOpenUrl;
+  final String activityOpenError;
+  final String activityViewOnSite;
+  final String activitySite;
+
+  // Submit activity
+  final String submitGeolocating;
+  final String submitGeolocateError;
+  final String submitNoPlaceFound;
+  final String submitGeolocatePrompt;
+  final String submitMapPreviewLabel;
+  final String submitLatitudeLabel;
+  final String submitLongitudeLabel;
+  final String submitSeasonsLabel;
+  final String submitSocialTagsLabel;
+  final String submitTypeLabel;
+  final String submitSeasonSpring;
+  final String submitSeasonSummer;
+  final String submitSeasonAutumn;
+  final String submitSeasonWinter;
+  final String submitSocialFamily;
+  final String submitSocialCouple;
+  final String submitSocialFriends;
+  final String submitSocialSolo;
+  final String submitIndoor;
+  final String submitOutdoor;
+  final String submitPriceFree;
+  final String submitTitleRequired;
+  final String submitLocationRequired;
+  final String submitCategoryRequired;
+  final String submitDescriptionRequired;
+  final String submitLatitudeInvalid;
+  final String submitLongitudeInvalid;
+  final String submitDurationInvalid;
+  final String submitSeasonRequired;
+  final String submitSocialRequired;
+  final String submitIndoorOutdoorRequired;
+  final String submitPhotoReadError;
+  final String submitUrlMustStartWithHttp;
+  final String submitSubmitError;
+  final String submitDurationHint;
+  final String submitAdminReviewNotice;
+  final String submitAddMorePhotos;
+
+  // Favorites
+  final String favoritesCountSingle;
+  final String favoritesCountPlural;
+  final String favoriteRemoveError;
+
+  // Feedback hot
+  final String feedbackTitle;
+  final String feedbackHeader;
+  final String feedbackThanks;
+  final String feedbackSendError;
+  final String feedbackNoQuestionsActive;
+  final String feedbackQuestionnaireLoadError;
+  final String feedbackRetry;
+  final String feedbackSkip;
+  final String feedbackSubmit;
+  final String feedbackRatingNotAtAll;
+  final String feedbackRatingFully;
+  final String feedbackPlsAnswer;
+  final String feedbackTextHint;
+  final String feedbackNoOptions;
+
+  // Home menu
+  final String homeMenuGreeting; // "Bonjour {0}"
+  final String homeMenuSignOutTooltip;
+  final String homeMenuExploreTitle;
+  final String homeMenuFindActivity;
+  final String homeMenuMap;
+  final String homeMenuFavorites;
+  final String homeMenuDefaultUserName;
+
+  // Loading widget
+  final String loadingFunMessage;
+
+  // AI service
+  final String aiNoSuggestionsFound;
+  final String aiServerOverloaded;
+  final String aiUnknownError;
+  final String aiErrorPrefix; // "Erreur IA"
+  final String aiFetchError;
+
+  // Maintenance
+  final String maintenanceCodeIncorrect;
+  final String maintenanceOrSeparator;
+
   const _Strings({
     required this.appTagline,
     required this.comingSoonTitle,
@@ -313,6 +462,122 @@ class _Strings {
     required this.resultPeriodEvening,
     required this.resultPeriodNight,
     required this.resultRetake,
+    required this.emptyNoActivities,
+    required this.emptyNoActivitiesHint,
+    required this.emptyNoFavorites,
+    required this.emptyNoFavoritesHint,
+    required this.errorOverloadTitle,
+    required this.errorGeneric,
+    required this.errorRemovingFavorite,
+    required this.errorWithDetails,
+    required this.moreActivitiesBtn,
+    required this.moreIdeasBtn,
+    required this.validationRequired,
+    required this.validationEmailInvalid,
+    required this.validationMinChars,
+    required this.validationPasswordsMismatch,
+    required this.forgotPasswordPrompt,
+    required this.forgotPasswordEmailSent,
+    required this.forgotPasswordTooManyAttempts,
+    required this.forgotPasswordUnexpectedError,
+    required this.updatePasswordTitle,
+    required this.updatePasswordSubtitle,
+    required this.updatePasswordNewLabel,
+    required this.updatePasswordConfirmLabel,
+    required this.updatePasswordSuccess,
+    required this.updatePasswordCta,
+    required this.verificationTitle,
+    required this.verificationHeading,
+    required this.verificationDescription,
+    required this.verificationBackToLogin,
+    required this.profileSection,
+    required this.profileFirstNameLabel,
+    required this.profileEmailLabel,
+    required this.profileCharacterLabel,
+    required this.profileEmailChangeNotice,
+    required this.profileUpdated,
+    required this.profileLocationAutoHint,
+    required this.quizMaxChoicesError,
+    required this.quizContextError,
+    required this.quizBudgetCascadeHint,
+    required this.activityFeedbackPromptTitle,
+    required this.activityFeedbackPromptBody,
+    required this.activityFeedbackLater,
+    required this.activityFeedbackGive,
+    required this.activityNoUrl,
+    required this.activityCannotOpenUrl,
+    required this.activityOpenError,
+    required this.activityViewOnSite,
+    required this.activitySite,
+    required this.submitGeolocating,
+    required this.submitGeolocateError,
+    required this.submitNoPlaceFound,
+    required this.submitGeolocatePrompt,
+    required this.submitMapPreviewLabel,
+    required this.submitLatitudeLabel,
+    required this.submitLongitudeLabel,
+    required this.submitSeasonsLabel,
+    required this.submitSocialTagsLabel,
+    required this.submitTypeLabel,
+    required this.submitSeasonSpring,
+    required this.submitSeasonSummer,
+    required this.submitSeasonAutumn,
+    required this.submitSeasonWinter,
+    required this.submitSocialFamily,
+    required this.submitSocialCouple,
+    required this.submitSocialFriends,
+    required this.submitSocialSolo,
+    required this.submitIndoor,
+    required this.submitOutdoor,
+    required this.submitPriceFree,
+    required this.submitTitleRequired,
+    required this.submitLocationRequired,
+    required this.submitCategoryRequired,
+    required this.submitDescriptionRequired,
+    required this.submitLatitudeInvalid,
+    required this.submitLongitudeInvalid,
+    required this.submitDurationInvalid,
+    required this.submitSeasonRequired,
+    required this.submitSocialRequired,
+    required this.submitIndoorOutdoorRequired,
+    required this.submitPhotoReadError,
+    required this.submitUrlMustStartWithHttp,
+    required this.submitSubmitError,
+    required this.submitDurationHint,
+    required this.submitAdminReviewNotice,
+    required this.submitAddMorePhotos,
+    required this.favoritesCountSingle,
+    required this.favoritesCountPlural,
+    required this.favoriteRemoveError,
+    required this.feedbackTitle,
+    required this.feedbackHeader,
+    required this.feedbackThanks,
+    required this.feedbackSendError,
+    required this.feedbackNoQuestionsActive,
+    required this.feedbackQuestionnaireLoadError,
+    required this.feedbackRetry,
+    required this.feedbackSkip,
+    required this.feedbackSubmit,
+    required this.feedbackRatingNotAtAll,
+    required this.feedbackRatingFully,
+    required this.feedbackPlsAnswer,
+    required this.feedbackTextHint,
+    required this.feedbackNoOptions,
+    required this.homeMenuGreeting,
+    required this.homeMenuSignOutTooltip,
+    required this.homeMenuExploreTitle,
+    required this.homeMenuFindActivity,
+    required this.homeMenuMap,
+    required this.homeMenuFavorites,
+    required this.homeMenuDefaultUserName,
+    required this.loadingFunMessage,
+    required this.aiNoSuggestionsFound,
+    required this.aiServerOverloaded,
+    required this.aiUnknownError,
+    required this.aiErrorPrefix,
+    required this.aiFetchError,
+    required this.maintenanceCodeIncorrect,
+    required this.maintenanceOrSeparator,
   });
 }
 
@@ -454,6 +719,122 @@ const _Strings _fr = _Strings(
   resultPeriodEvening: "ce soir",
   resultPeriodNight: "cette nuit",
   resultRetake: "Refaire le quiz",
+  emptyNoActivities: "Aucune activité trouvée",
+  emptyNoActivitiesHint: "Essayez de modifier vos critères de recherche",
+  emptyNoFavorites: "Aucun favori pour le moment",
+  emptyNoFavoritesHint: "Tapez sur le cœur d'une activité pour la retrouver ici.",
+  errorOverloadTitle: "Forte affluence",
+  errorGeneric: "Une erreur est survenue",
+  errorRemovingFavorite: "Erreur lors de la suppression",
+  errorWithDetails: "Erreur",
+  moreActivitiesBtn: "Plus d'activités",
+  moreIdeasBtn: "Plus d'idées",
+  validationRequired: "Requis",
+  validationEmailInvalid: "Email invalide",
+  validationMinChars: "Min 6 caractères",
+  validationPasswordsMismatch: "Les mots de passe ne correspondent pas",
+  forgotPasswordPrompt: "Entrez votre email pour recevoir un lien de réinitialisation.",
+  forgotPasswordEmailSent: "Email de réinitialisation envoyé",
+  forgotPasswordTooManyAttempts: "Trop de tentatives. Veuillez patienter.",
+  forgotPasswordUnexpectedError: "Erreur inattendue",
+  updatePasswordTitle: "Nouveau mot de passe",
+  updatePasswordSubtitle: "Définissez votre nouveau mot de passe",
+  updatePasswordNewLabel: "Nouveau mot de passe",
+  updatePasswordConfirmLabel: "Confirmer le mot de passe",
+  updatePasswordSuccess: "Mot de passe mis à jour avec succès",
+  updatePasswordCta: "Mettre à jour",
+  verificationTitle: "Vérification",
+  verificationHeading: "Vérifiez votre email",
+  verificationDescription: "Un lien de confirmation a été envoyé à votre adresse email. Veuillez cliquer dessus pour activer votre compte.",
+  verificationBackToLogin: "Retour à la connexion",
+  profileSection: "Préférences",
+  profileFirstNameLabel: "Prénom",
+  profileEmailLabel: "Email",
+  profileCharacterLabel: "Personnage",
+  profileEmailChangeNotice: "Un email de vérification a été envoyé pour le changement d'adresse.",
+  profileUpdated: "Profil mis à jour",
+  profileLocationAutoHint: "L'app utilise votre position GPS automatiquement.",
+  quizMaxChoicesError: "Maximum {0} choix possible(s)",
+  quizContextError: "Erreur lors de la récupération du contexte",
+  quizBudgetCascadeHint: "Les budgets inférieurs sont inclus automatiquement (désélectionnables).",
+  activityFeedbackPromptTitle: "Votre avis compte",
+  activityFeedbackPromptBody: "Souhaitez-vous partager votre expérience avec cette activité ?",
+  activityFeedbackLater: "Plus tard",
+  activityFeedbackGive: "Donner mon avis",
+  activityNoUrl: "Aucune URL disponible pour cette activité",
+  activityCannotOpenUrl: "Impossible d'ouvrir l'URL",
+  activityOpenError: "Erreur lors de l'ouverture du lien",
+  activityViewOnSite: "Voir sur",
+  activitySite: "le site",
+  submitGeolocating: "Localisation...",
+  submitGeolocateError: "Erreur géolocalisation",
+  submitNoPlaceFound: "Aucun lieu trouvé",
+  submitGeolocatePrompt: "Remplis au moins le titre et le lieu pour la localisation auto.",
+  submitMapPreviewLabel: "Aperçu sur la carte (tape pour ajuster)",
+  submitLatitudeLabel: "Latitude",
+  submitLongitudeLabel: "Longitude",
+  submitSeasonsLabel: "Saisons",
+  submitSocialTagsLabel: "Tags sociaux",
+  submitTypeLabel: "Type (Indoor / Outdoor — au moins un)",
+  submitSeasonSpring: "Printemps",
+  submitSeasonSummer: "Été",
+  submitSeasonAutumn: "Automne",
+  submitSeasonWinter: "Hiver",
+  submitSocialFamily: "Famille",
+  submitSocialCouple: "Couple",
+  submitSocialFriends: "Amis",
+  submitSocialSolo: "Solo",
+  submitIndoor: "Indoor",
+  submitOutdoor: "Outdoor",
+  submitPriceFree: "Gratuit",
+  submitTitleRequired: "Le titre est requis.",
+  submitLocationRequired: "Le lieu est requis.",
+  submitCategoryRequired: "Sélectionne au moins une catégorie.",
+  submitDescriptionRequired: "La description est requise.",
+  submitLatitudeInvalid: "Latitude invalide (-90 à 90).",
+  submitLongitudeInvalid: "Longitude invalide (-180 à 180).",
+  submitDurationInvalid: "Durée invalide.",
+  submitSeasonRequired: "Sélectionne au moins une saison.",
+  submitSocialRequired: "Sélectionne au moins un tag social.",
+  submitIndoorOutdoorRequired: "Indoor ou Outdoor doit être coché.",
+  submitPhotoReadError: "Impossible de lire les photos",
+  submitUrlMustStartWithHttp: "L'URL doit commencer par http(s)://",
+  submitSubmitError: "Erreur lors de la soumission",
+  submitDurationHint: "Ex : 2.5",
+  submitAdminReviewNotice: "Votre proposition sera vérifiée par un administrateur avant publication.",
+  submitAddMorePhotos: "Ajouter d'autres photos",
+  favoritesCountSingle: "activité",
+  favoritesCountPlural: "activités",
+  favoriteRemoveError: "Erreur lors de la suppression",
+  feedbackTitle: "Votre avis compte !",
+  feedbackHeader: "Merci de prendre quelques instants pour nous donner votre avis !",
+  feedbackThanks: "Merci pour votre feedback !",
+  feedbackSendError: "Erreur lors de l'envoi du feedback",
+  feedbackNoQuestionsActive: "Aucune question de feedback n'est active pour le moment. Merci !",
+  feedbackQuestionnaireLoadError: "Impossible de charger le questionnaire.",
+  feedbackRetry: "Réessayer",
+  feedbackSkip: "Passer",
+  feedbackSubmit: "Envoyer",
+  feedbackRatingNotAtAll: "Pas du tout",
+  feedbackRatingFully: "Tout à fait",
+  feedbackPlsAnswer: "Merci de répondre à",
+  feedbackTextHint: "Votre réponse...",
+  feedbackNoOptions: "(Aucune option configurée)",
+  homeMenuGreeting: "Bonjour",
+  homeMenuSignOutTooltip: "Se déconnecter",
+  homeMenuExploreTitle: "Commence à explorer avec WHATEKA !",
+  homeMenuFindActivity: "Trouver mon activité du jour !",
+  homeMenuMap: "Carte",
+  homeMenuFavorites: "Activités likées",
+  homeMenuDefaultUserName: "Voyageur",
+  loadingFunMessage: "Nous concoctons votre sélection...",
+  aiNoSuggestionsFound: "Aucune suggestion trouvée pour ces critères.",
+  aiServerOverloaded: "Le serveur IA est actuellement surchargé. Veuillez réessayer dans quelques instants.",
+  aiUnknownError: "Erreur inconnue",
+  aiErrorPrefix: "Erreur IA",
+  aiFetchError: "Erreur lors de la récupération des recommandations IA",
+  maintenanceCodeIncorrect: "Code incorrect",
+  maintenanceOrSeparator: "ou",
 );
 
 const _Strings _en = _Strings(
@@ -594,6 +975,122 @@ const _Strings _en = _Strings(
   resultPeriodEvening: "this evening",
   resultPeriodNight: "tonight",
   resultRetake: "Retake quiz",
+  emptyNoActivities: "No activities found",
+  emptyNoActivitiesHint: "Try adjusting your search criteria",
+  emptyNoFavorites: "No favorites yet",
+  emptyNoFavoritesHint: "Tap the heart on an activity to find it here.",
+  errorOverloadTitle: "High traffic",
+  errorGeneric: "Something went wrong",
+  errorRemovingFavorite: "Error removing favorite",
+  errorWithDetails: "Error",
+  moreActivitiesBtn: "More activities",
+  moreIdeasBtn: "More ideas",
+  validationRequired: "Required",
+  validationEmailInvalid: "Invalid email",
+  validationMinChars: "Min 6 characters",
+  validationPasswordsMismatch: "Passwords do not match",
+  forgotPasswordPrompt: "Enter your email to receive a reset link.",
+  forgotPasswordEmailSent: "Reset email sent",
+  forgotPasswordTooManyAttempts: "Too many attempts. Please wait.",
+  forgotPasswordUnexpectedError: "Unexpected error",
+  updatePasswordTitle: "New password",
+  updatePasswordSubtitle: "Set your new password",
+  updatePasswordNewLabel: "New password",
+  updatePasswordConfirmLabel: "Confirm password",
+  updatePasswordSuccess: "Password updated successfully",
+  updatePasswordCta: "Update",
+  verificationTitle: "Verification",
+  verificationHeading: "Check your email",
+  verificationDescription: "A confirmation link has been sent to your email address. Please click it to activate your account.",
+  verificationBackToLogin: "Back to login",
+  profileSection: "Preferences",
+  profileFirstNameLabel: "First name",
+  profileEmailLabel: "Email",
+  profileCharacterLabel: "Character",
+  profileEmailChangeNotice: "A verification email has been sent to confirm your new address.",
+  profileUpdated: "Profile updated",
+  profileLocationAutoHint: "The app uses your GPS location automatically.",
+  quizMaxChoicesError: "Maximum {0} choice(s) allowed",
+  quizContextError: "Error fetching context",
+  quizBudgetCascadeHint: "Lower budgets are included automatically (deselectable).",
+  activityFeedbackPromptTitle: "Your opinion matters",
+  activityFeedbackPromptBody: "Would you like to share your experience with this activity?",
+  activityFeedbackLater: "Later",
+  activityFeedbackGive: "Give my feedback",
+  activityNoUrl: "No URL available for this activity",
+  activityCannotOpenUrl: "Could not open the URL",
+  activityOpenError: "Error opening link",
+  activityViewOnSite: "View on",
+  activitySite: "the site",
+  submitGeolocating: "Locating...",
+  submitGeolocateError: "Geolocation error",
+  submitNoPlaceFound: "No place found",
+  submitGeolocatePrompt: "Fill at least the title and place for auto location.",
+  submitMapPreviewLabel: "Map preview (tap to adjust)",
+  submitLatitudeLabel: "Latitude",
+  submitLongitudeLabel: "Longitude",
+  submitSeasonsLabel: "Seasons",
+  submitSocialTagsLabel: "Social tags",
+  submitTypeLabel: "Type (Indoor / Outdoor — at least one)",
+  submitSeasonSpring: "Spring",
+  submitSeasonSummer: "Summer",
+  submitSeasonAutumn: "Autumn",
+  submitSeasonWinter: "Winter",
+  submitSocialFamily: "Family",
+  submitSocialCouple: "Couple",
+  submitSocialFriends: "Friends",
+  submitSocialSolo: "Solo",
+  submitIndoor: "Indoor",
+  submitOutdoor: "Outdoor",
+  submitPriceFree: "Free",
+  submitTitleRequired: "Title is required.",
+  submitLocationRequired: "Location is required.",
+  submitCategoryRequired: "Select at least one category.",
+  submitDescriptionRequired: "Description is required.",
+  submitLatitudeInvalid: "Invalid latitude (-90 to 90).",
+  submitLongitudeInvalid: "Invalid longitude (-180 to 180).",
+  submitDurationInvalid: "Invalid duration.",
+  submitSeasonRequired: "Select at least one season.",
+  submitSocialRequired: "Select at least one social tag.",
+  submitIndoorOutdoorRequired: "Indoor or Outdoor must be checked.",
+  submitPhotoReadError: "Cannot read photos",
+  submitUrlMustStartWithHttp: "URL must start with http(s)://",
+  submitSubmitError: "Submission error",
+  submitDurationHint: "e.g. 2.5",
+  submitAdminReviewNotice: "Your submission will be reviewed by an admin before publication.",
+  submitAddMorePhotos: "Add more photos",
+  favoritesCountSingle: "activity",
+  favoritesCountPlural: "activities",
+  favoriteRemoveError: "Error removing favorite",
+  feedbackTitle: "Your opinion matters!",
+  feedbackHeader: "Please take a moment to share your feedback!",
+  feedbackThanks: "Thanks for your feedback!",
+  feedbackSendError: "Error sending feedback",
+  feedbackNoQuestionsActive: "No feedback question is active right now. Thanks!",
+  feedbackQuestionnaireLoadError: "Could not load the questionnaire.",
+  feedbackRetry: "Retry",
+  feedbackSkip: "Skip",
+  feedbackSubmit: "Send",
+  feedbackRatingNotAtAll: "Not at all",
+  feedbackRatingFully: "Absolutely",
+  feedbackPlsAnswer: "Please answer",
+  feedbackTextHint: "Your answer...",
+  feedbackNoOptions: "(No option configured)",
+  homeMenuGreeting: "Hello",
+  homeMenuSignOutTooltip: "Sign out",
+  homeMenuExploreTitle: "Start exploring with WHATEKA!",
+  homeMenuFindActivity: "Find my activity for the day!",
+  homeMenuMap: "Map",
+  homeMenuFavorites: "Liked activities",
+  homeMenuDefaultUserName: "Traveler",
+  loadingFunMessage: "Cooking up your selection...",
+  aiNoSuggestionsFound: "No suggestions found for these criteria.",
+  aiServerOverloaded: "The AI server is currently overloaded. Please try again in a few moments.",
+  aiUnknownError: "Unknown error",
+  aiErrorPrefix: "AI Error",
+  aiFetchError: "Error fetching AI recommendations",
+  maintenanceCodeIncorrect: "Incorrect code",
+  maintenanceOrSeparator: "or",
 );
 
 /// Provider de locale (notifie les widgets quand la langue change).

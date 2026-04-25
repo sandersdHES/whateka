@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               keyboardType: TextInputType.emailAddress,
                               validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Requis'
+                                  ? s.validationRequired
                                   : null,
                             ),
                             const SizedBox(height: 16),
@@ -122,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               obscureText: true,
                               validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Requis'
+                                  ? s.validationRequired
                                   : null,
                             ),
                             Align(

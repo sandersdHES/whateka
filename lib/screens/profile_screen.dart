@@ -177,23 +177,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                  'Un email de vérification a été envoyé pour le changement d\'adresse.'),
+            SnackBar(
+              content: Text(S.current.profileEmailChangeNotice),
             ),
           );
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profil mis à jour')),
+            SnackBar(content: Text(S.current.profileUpdated)),
           );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: ${e.toString()}')),
+          SnackBar(content: Text('${S.current.errorWithDetails}: ${e.toString()}')),
         );
       }
     } finally {
@@ -275,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               // Section Préférences
               Text(
-                'Préférences',
+                s.profileSection,
                 style: Theme.of(context).textTheme.labelSmall,
               ),
               const SizedBox(height: 10),
@@ -291,17 +290,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     TextFormField(
                       controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Prénom',
-                        prefixIcon: Icon(Icons.person_outline, size: 20),
+                      decoration: InputDecoration(
+                        labelText: s.profileFirstNameLabel,
+                        prefixIcon: const Icon(Icons.person_outline, size: 20),
                       ),
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined, size: 20),
+                      decoration: InputDecoration(
+                        labelText: s.profileEmailLabel,
+                        prefixIcon: const Icon(Icons.email_outlined, size: 20),
                       ),
                       keyboardType: TextInputType.emailAddress,
                     ),
@@ -333,9 +332,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onChanged: (v) {
                         if (v != null) setState(() => _avatarId = v);
                       },
-                      decoration: const InputDecoration(
-                        labelText: 'Personnage',
-                        prefixIcon: Icon(Icons.face_outlined, size: 20),
+                      decoration: InputDecoration(
+                        labelText: s.profileCharacterLabel,
+                        prefixIcon: const Icon(Icons.face_outlined, size: 20),
                       ),
                     ),
                   ],
@@ -389,9 +388,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ] else ...[
                       const SizedBox(height: 6),
                       Text(
-                        LocaleProvider.instance.isEn
-                            ? 'The app uses your GPS location automatically.'
-                            : 'L\'app utilise votre position GPS automatiquement.',
+                        s.profileLocationAutoHint,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],

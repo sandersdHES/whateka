@@ -79,16 +79,44 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     ];
   }
 
-  static const _seasons = ['Printemps', 'Été', 'Automne', 'Hiver'];
-  static const _socialTags = ['Famille', 'Couple', 'Amis', 'Solo'];
+  // Clés DB fixes (ne pas traduire)
+  static const _seasonsKeys = ['Printemps', 'Été', 'Automne', 'Hiver'];
+  static const _socialTagsKeys = ['Famille', 'Couple', 'Amis', 'Solo'];
 
-  static const _priceLevels = [
-    (1, 'Gratuit'),
-    (2, '1-20 CHF'),
-    (3, '20-50 CHF'),
-    (4, '50-100 CHF'),
-    (5, '100+ CHF'),
-  ];
+  /// Labels traduits pour les saisons (même ordre que _seasonsKeys).
+  List<String> get _seasonsLabels {
+    final s = S.current;
+    return [
+      s.submitSeasonSpring,
+      s.submitSeasonSummer,
+      s.submitSeasonAutumn,
+      s.submitSeasonWinter,
+    ];
+  }
+
+  /// Labels traduits pour les social tags.
+  List<String> get _socialTagsLabels {
+    final s = S.current;
+    return [
+      s.submitSocialFamily,
+      s.submitSocialCouple,
+      s.submitSocialFriends,
+      s.submitSocialSolo,
+    ];
+  }
+
+  /// Couples (level, label) pour les prix — label traduit pour 'Gratuit', le
+  /// reste reste affichable (CHF reste universel).
+  List<(int, String)> get _priceLevels {
+    final s = S.current;
+    return [
+      (1, s.submitPriceFree),
+      (2, '1-20 CHF'),
+      (3, '20-50 CHF'),
+      (4, '50-100 CHF'),
+      (5, '100+ CHF'),
+    ];
+  }
 
   final _formKey = GlobalKey<FormState>();
   final _titleCtrl = TextEditingController();
@@ -151,8 +179,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     final title = _titleCtrl.text.trim();
     final loc = _locationCtrl.text.trim();
     if (title.isEmpty && loc.isEmpty) {
-      setState(() => _error =
-          'Remplis au moins le titre et le lieu pour la localisation auto.');
+      setState(() => _error = S.current.submitGeolocatePrompt);
       return;
     }
     setState(() {
@@ -192,15 +219,15 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
       }
       // Reponse non OK : extraire le message si possible
       final errMsg = invoke.data is Map
-          ? (invoke.data as Map)['error']?.toString() ?? 'Aucun lieu trouvé'
-          : 'Aucun lieu trouvé';
+          ? (invoke.data as Map)['error']?.toString() ??
+              S.current.submitNoPlaceFound
+          : S.current.submitNoPlaceFound;
       if (mounted) {
-        setState(() => _error =
-            '$errMsg. Saisis manuellement ou tape sur la carte.');
+        setState(() => _error = errMsg);
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _error = 'Erreur géolocalisation : $e');
+        setState(() => _error = '${S.current.submitGeolocateError} : $e');
       }
     } finally {
       if (mounted) setState(() => _geocoding = false);
@@ -223,7 +250,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
       setState(() {});
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = 'Impossible de lire les photos : $e');
+      setState(() => _error = '${S.current.submitPhotoReadError} : $e');
     }
   }
 
@@ -231,7 +258,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     final url = _remoteImageUrlCtrl.text.trim();
     if (url.isEmpty) return;
     if (!url.startsWith('http')) {
-      setState(() => _error = 'L\'URL doit commencer par http(s)://');
+      setState(() => _error = S.current.submitUrlMustStartWithHttp);
       return;
     }
     setState(() {
@@ -246,32 +273,33 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
   }
 
   String? _validate() {
-    if (_titleCtrl.text.trim().isEmpty) return 'Le titre est requis.';
-    if (_locationCtrl.text.trim().isEmpty) return 'Le lieu est requis.';
+    final s = S.current;
+    if (_titleCtrl.text.trim().isEmpty) return s.submitTitleRequired;
+    if (_locationCtrl.text.trim().isEmpty) return s.submitLocationRequired;
     if (_selectedCategories.isEmpty) {
-      return 'Sélectionne au moins une catégorie.';
+      return s.submitCategoryRequired;
     }
     if (_descriptionCtrl.text.trim().isEmpty) {
-      return 'La description est requise.';
+      return s.submitDescriptionRequired;
     }
     final lat = double.tryParse(_latCtrl.text.trim());
     if (lat == null || lat < -90 || lat > 90) {
-      return 'Latitude invalide (-90 à 90).';
+      return s.submitLatitudeInvalid;
     }
     final lng = double.tryParse(_lngCtrl.text.trim());
     if (lng == null || lng < -180 || lng > 180) {
-      return 'Longitude invalide (-180 à 180).';
+      return s.submitLongitudeInvalid;
     }
     final dur = double.tryParse(_durationHoursCtrl.text.trim());
-    if (dur == null || dur <= 0) return 'Durée invalide.';
+    if (dur == null || dur <= 0) return s.submitDurationInvalid;
     if (_selectedSeasons.isEmpty) {
-      return 'Sélectionne au moins une saison.';
+      return s.submitSeasonRequired;
     }
     if (_selectedSocialTags.isEmpty) {
-      return 'Sélectionne au moins un tag social.';
+      return s.submitSocialRequired;
     }
     if (!_isIndoor && !_isOutdoor) {
-      return 'Indoor ou Outdoor doit être coché.';
+      return s.submitIndoorOutdoorRequired;
     }
     return null;
   }
@@ -382,7 +410,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = 'Erreur lors de la soumission: $e');
+      setState(() => _error = '${S.current.submitSubmitError}: $e');
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -520,7 +548,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                             )
                           : const Icon(Icons.my_location, size: 18),
                       label: Text(_geocoding
-                          ? 'Localisation...'
+                          ? s.submitGeolocating
                           : s.submitGeolocate),
                     ),
                   ),
@@ -550,7 +578,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   children: [
                     Expanded(
                       child: _Section(
-                        label: 'Latitude *',
+                        label: '${s.submitLatitudeLabel} *',
                         child: TextFormField(
                           controller: _latCtrl,
                           keyboardType:
@@ -564,7 +592,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _Section(
-                        label: 'Longitude *',
+                        label: '${s.submitLongitudeLabel} *',
                         child: TextFormField(
                           controller: _lngCtrl,
                           keyboardType:
@@ -582,7 +610,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 // les coordonnees. Le marqueur orange montre la position
                 // actuellement saisie.
                 _Section(
-                  label: 'Aperçu sur la carte (tape pour ajuster)',
+                  label: s.submitMapPreviewLabel,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: SizedBox(
@@ -655,7 +683,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                     controller: _durationHoursCtrl,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(hintText: 'Ex : 2.5'),
+                    decoration: InputDecoration(hintText: s.submitDurationHint),
                   ),
                 ),
                 _Section(
@@ -711,10 +739,10 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   ),
                 ),
                 _Section(
-                  label: 'Saisons *',
+                  label: '${s.submitSeasonsLabel} *',
                   child: _ChipSelector(
-                    options: _seasons,
-                    values: _seasons,
+                    options: _seasonsLabels,
+                    values: _seasonsKeys,
                     selected: _selectedSeasons,
                     onToggle: (v) => setState(() {
                       _selectedSeasons.contains(v)
@@ -724,10 +752,10 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   ),
                 ),
                 _Section(
-                  label: 'Tags sociaux *',
+                  label: '${s.submitSocialTagsLabel} *',
                   child: _ChipSelector(
-                    options: _socialTags,
-                    values: _socialTags,
+                    options: _socialTagsLabels,
+                    values: _socialTagsKeys,
                     selected: _selectedSocialTags,
                     onToggle: (v) => setState(() {
                       _selectedSocialTags.contains(v)
@@ -737,12 +765,12 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   ),
                 ),
                 _Section(
-                  label: 'Type (Indoor / Outdoor — au moins un) *',
+                  label: '${s.submitTypeLabel} *',
                   child: Row(
                     children: [
                       Expanded(
                         child: _ToggleCard(
-                          label: 'Indoor',
+                          label: s.submitIndoor,
                           icon: Icons.home_outlined,
                           selected: _isIndoor,
                           onTap: () =>
@@ -752,7 +780,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: _ToggleCard(
-                          label: 'Outdoor',
+                          label: s.submitOutdoor,
                           icon: Icons.wb_sunny_outlined,
                           selected: _isOutdoor,
                           onTap: () =>
@@ -779,7 +807,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Votre proposition sera vérifiée par un administrateur avant publication.',
+                  s.submitAdminReviewNotice,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
@@ -997,9 +1025,7 @@ class _PhotoPicker extends StatelessWidget {
             icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
             label: Text(photos.isEmpty
                 ? S.current.submitAddPhotos
-                : (LocaleProvider.instance.isEn
-                    ? 'Add more photos'
-                    : 'Ajouter d\'autres photos')),
+                : S.current.submitAddMorePhotos),
           ),
           const SizedBox(height: 12),
 

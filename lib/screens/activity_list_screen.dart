@@ -75,124 +75,130 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(body: FunLoadingWidget());
-    }
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        if (_isLoading) {
+          return const Scaffold(body: FunLoadingWidget());
+        }
 
-    if (_error != null) {
-      return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(
-              'Une erreur est survenue : $_error',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-        ),
-        bottomNavigationBar: const WhatekBottomNav(currentRoute: '/activity'),
-      );
-    }
-
-    final activities = _activities;
-    if (activities == null || activities.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        body: const Center(child: Text('Aucune activité trouvée.')),
-        bottomNavigationBar: const WhatekBottomNav(currentRoute: '/activity'),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(S.of(context).resultTitle),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      bottomNavigationBar: const WhatekBottomNav(currentRoute: '/activity'),
-      body: ResponsiveCenter(
-        maxWidth: 560,
-        child: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
-              child: Text(
-                '${activities.length} activités',
-                style: Theme.of(context).textTheme.bodySmall,
+        if (_error != null) {
+          return Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 260,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                mainAxisExtent: 200,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final activity = activities[index];
-                  return ActivityCard(
-                    activity: activity,
-                    size: ActivityCardSize.medium,
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/activity_detail',
-                        arguments: {
-                          'activity': activity,
-                          'searches_count': _searchesCount,
-                        },
-                      ).then((_) => setState(() {}));
-                    },
-                  );
-                },
-                childCount: activities.length,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-              child: SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: _isLoadingMore ? null : _loadMore,
-                  icon: _isLoadingMore
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: AppColors.cyan),
-                        )
-                      : const Icon(Icons.add, size: 18),
-                  label: Text(
-                      _isLoadingMore ? S.of(context).loading : 'Plus d\'activités'),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  '${s.errorGeneric} : $_error',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
             ),
+            bottomNavigationBar: const WhatekBottomNav(currentRoute: '/activity'),
+          );
+        }
+
+        final activities = _activities;
+        if (activities == null || activities.isEmpty) {
+          return Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            body: Center(child: Text(s.emptyNoActivities)),
+            bottomNavigationBar: const WhatekBottomNav(currentRoute: '/activity'),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(s.resultTitle),
+            centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
-        ],
-        ),
-      ),
+          bottomNavigationBar: const WhatekBottomNav(currentRoute: '/activity'),
+          body: ResponsiveCenter(
+            maxWidth: 560,
+            child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+                  child: Text(
+                    '${activities.length} ${s.favoritesCountPlural}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 260,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    mainAxisExtent: 200,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final activity = activities[index];
+                      return ActivityCard(
+                        activity: activity,
+                        size: ActivityCardSize.medium,
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/activity_detail',
+                            arguments: {
+                              'activity': activity,
+                              'searches_count': _searchesCount,
+                            },
+                          ).then((_) => setState(() {}));
+                        },
+                      );
+                    },
+                    childCount: activities.length,
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _isLoadingMore ? null : _loadMore,
+                      icon: _isLoadingMore
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: AppColors.cyan),
+                            )
+                          : const Icon(Icons.add, size: 18),
+                      label: Text(
+                          _isLoadingMore ? s.loading : s.moreActivitiesBtn),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

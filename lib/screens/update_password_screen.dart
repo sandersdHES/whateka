@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../widgets/responsive_center.dart';
 
@@ -30,8 +31,8 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
       if (mounted) {
         if (res.user != null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Mot de passe mis à jour avec succès'),
+            SnackBar(
+              content: Text(S.current.updatePasswordSuccess),
               backgroundColor: AppColors.green,
               behavior: SnackBarBehavior.floating,
             ),
@@ -55,7 +56,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Une erreur est survenue'),
+            content: Text(S.current.errorGeneric),
             backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -75,14 +76,18 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Nouveau mot de passe'),
+        title: Text(s.updatePasswordTitle),
       ),
       body: Stack(
         children: [
@@ -124,7 +129,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                           size: 64, color: AppColors.cyan),
                       const SizedBox(height: 24),
                       Text(
-                        'Définissez votre nouveau mot de passe',
+                        s.updatePasswordSubtitle,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: AppColors.black.withValues(alpha: 0.6),
@@ -141,29 +146,29 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                               children: [
                                 TextFormField(
                                   controller: _passwordController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Nouveau mot de passe',
-                                    prefixIcon: Icon(Icons.lock_outline),
+                                  decoration: InputDecoration(
+                                    labelText: s.updatePasswordNewLabel,
+                                    prefixIcon: const Icon(Icons.lock_outline),
                                   ),
                                   obscureText: true,
                                   validator: (v) => (v != null && v.length >= 6)
                                       ? null
-                                      : 'Min 6 caractères',
+                                      : s.validationMinChars,
                                 ),
                                 const SizedBox(height: 20),
                                 TextFormField(
                                   controller: _confirmPasswordController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Confirmer le mot de passe',
-                                    prefixIcon: Icon(Icons.lock_outline),
+                                  decoration: InputDecoration(
+                                    labelText: s.updatePasswordConfirmLabel,
+                                    prefixIcon: const Icon(Icons.lock_outline),
                                   ),
                                   obscureText: true,
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
-                                      return 'Requis';
+                                      return s.validationRequired;
                                     }
                                     if (v != _passwordController.text) {
-                                      return 'Les mots de passe ne correspondent pas';
+                                      return s.validationPasswordsMismatch;
                                     }
                                     return null;
                                   },
@@ -175,7 +180,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                                 else
                                   ElevatedButton(
                                     onPressed: _updatePassword,
-                                    child: const Text('Mettre à jour'),
+                                    child: Text(s.updatePasswordCta),
                                   ),
                               ],
                             ),
@@ -190,6 +195,8 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

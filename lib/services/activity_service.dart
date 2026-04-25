@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../i18n/strings.dart';
 import '../models/activity.dart';
 import '../models/ai_response.dart';
 
@@ -150,9 +151,7 @@ class ActivityService {
       if (data == null || data['recommendations'] == null) {
         return AiResponse(
           activities: [],
-          globalComment: locale == 'en'
-              ? "No suggestions found for these criteria."
-              : "Aucune suggestion trouvée pour ces critères.",
+          globalComment: S.current.aiNoSuggestionsFound,
         );
       }
 
@@ -198,18 +197,15 @@ class ActivityService {
     } on FunctionException catch (e) {
       if (e.status == 429 ||
           (e.details != null && e.details.toString().contains('429'))) {
-        throw Exception(
-            "Le serveur IA est actuellement surchargé. Veuillez réessayer dans quelques instants.");
+        throw Exception(S.current.aiServerOverloaded);
       }
       throw Exception(
-          'Erreur IA (${e.status}): ${e.reasonPhrase ?? e.details ?? "Erreur inconnue"}');
+          '${S.current.aiErrorPrefix} (${e.status}): ${e.reasonPhrase ?? e.details ?? S.current.aiUnknownError}');
     } catch (e) {
       if (e.toString().contains('429')) {
-        throw Exception(
-            "Le serveur IA est actuellement surchargé. Veuillez réessayer dans quelques instants.");
+        throw Exception(S.current.aiServerOverloaded);
       }
-      throw Exception(
-          'Erreur lors de la récupération des recommandations IA: $e');
+      throw Exception('${S.current.aiFetchError}: $e');
     }
   }
 }

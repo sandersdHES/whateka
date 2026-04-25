@@ -49,7 +49,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
           activity.isFavorite = !activity.isFavorite;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
+          SnackBar(content: Text('${S.current.errorWithDetails}: $e')),
         );
       }
     }
@@ -59,8 +59,8 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
     if (activity.activityUrl == null || activity.activityUrl!.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Aucune URL disponible pour cette activité')),
+          SnackBar(
+              content: Text(S.current.activityNoUrl)),
         );
       }
       return;
@@ -69,7 +69,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
     final Uri url = Uri.parse(activity.activityUrl!);
     try {
       if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-        throw Exception('Impossible d\'ouvrir l\'URL');
+        throw Exception(S.current.activityCannotOpenUrl);
       }
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted) _showFeedbackDialog();
@@ -77,7 +77,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de l\'ouverture du lien: $e')),
+          SnackBar(content: Text('${S.current.activityOpenError}: $e')),
         );
       }
     }
@@ -99,18 +99,19 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
+        final s = S.of(context);
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
-          title: const Text('Votre avis compte'),
-          content: const Text(
-            'Souhaitez-vous partager votre expérience avec cette activité ?',
+          title: Text(s.activityFeedbackPromptTitle),
+          content: Text(
+            s.activityFeedbackPromptBody,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Plus tard'),
+              child: Text(s.activityFeedbackLater),
             ),
             ElevatedButton(
               onPressed: () {
@@ -125,7 +126,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                   ),
                 );
               },
-              child: const Text('Donner mon avis'),
+              child: Text(s.activityFeedbackGive),
             ),
           ],
         );
@@ -135,13 +136,13 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
 
   String _siteName() {
     if (activity.activityUrl == null || activity.activityUrl!.isEmpty) {
-      return 'le site';
+      return S.current.activitySite;
     }
     try {
       final host = Uri.parse(activity.activityUrl!).host;
       return host.replaceFirst('www.', '');
     } catch (_) {
-      return 'le site';
+      return S.current.activitySite;
     }
   }
 
@@ -384,7 +385,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: _openActivityUrl,
-                            child: Text('Voir sur ${_siteName()}'),
+                            child: Text('${s.activityViewOnSite} ${_siteName()}'),
                           ),
                         ),
                         const SizedBox(height: 80),

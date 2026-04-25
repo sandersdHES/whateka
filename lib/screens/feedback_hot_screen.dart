@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../models/feedback_question.dart';
@@ -78,7 +79,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              'Merci de repondre a : ${missing.first}${missing.length > 1 ? " (+${missing.length - 1} autre(s))" : ""}'),
+              '${S.current.feedbackPlsAnswer} : ${missing.first}${missing.length > 1 ? " (+${missing.length - 1})" : ""}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -99,16 +100,16 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Merci pour votre feedback !'),
+        SnackBar(
+          content: Text(S.current.feedbackThanks),
           backgroundColor: Colors.green,
         ),
       );
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Erreur lors de l'envoi du feedback"),
+        SnackBar(
+          content: Text(S.current.feedbackSendError),
           backgroundColor: Colors.red,
         ),
       );
@@ -169,7 +170,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Oui'),
+            child: Text(S.current.yes),
           ),
         ),
         const SizedBox(width: 12),
@@ -186,7 +187,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Non'),
+            child: Text(S.current.no),
           ),
         ),
       ],
@@ -200,7 +201,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
       controller: controller,
       maxLines: 4,
       decoration: InputDecoration(
-        hintText: 'Votre reponse...',
+        hintText: S.current.feedbackTextHint,
         border:
             OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         filled: true,
@@ -211,9 +212,9 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
 
   Widget _buildMultiChoice(FeedbackAnswerDraft draft) {
     if (draft.question.choices.isEmpty) {
-      return const Text(
-        '(Aucune option configuree)',
-        style: TextStyle(color: Colors.red),
+      return Text(
+        S.current.feedbackNoOptions,
+        style: const TextStyle(color: Colors.red),
       );
     }
     return Wrap(
@@ -246,10 +247,10 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Pas du tout',
+                Text(S.current.feedbackRatingNotAtAll,
                     style:
                         TextStyle(fontSize: 12, color: Colors.grey[600])),
-                Text('Tout à fait',
+                Text(S.current.feedbackRatingFully,
                     style:
                         TextStyle(fontSize: 12, color: Colors.grey[600])),
               ],
@@ -284,159 +285,165 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Votre avis compte !'),
-        backgroundColor: AppColors.orange,
-        foregroundColor: Colors.white,
-      ),
-      bottomNavigationBar:
-          const WhatekBottomNav(currentRoute: '/feedback_hot'),
-      body: FutureBuilder<List<FeedbackAnswerDraft>>(
-        future: _draftsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(s.feedbackTitle),
+            backgroundColor: AppColors.orange,
+            foregroundColor: Colors.white,
+          ),
+          bottomNavigationBar:
+              const WhatekBottomNav(currentRoute: '/feedback_hot'),
+          body: FutureBuilder<List<FeedbackAnswerDraft>>(
+            future: _draftsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline,
+                            size: 64, color: Colors.red),
+                        const SizedBox(height: 16),
+                        Text(
+                          s.feedbackQuestionnaireLoadError,
+                          style: Theme.of(context).textTheme.titleMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          snapshot.error.toString(),
+                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () => setState(() {
+                            _draftsFuture = _loadDrafts();
+                          }),
+                          icon: const Icon(Icons.refresh),
+                          label: Text(s.feedbackRetry),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              final drafts = snapshot.data ?? [];
+              if (drafts.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      s.feedbackNoQuestionsActive,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.error_outline,
-                        size: 64, color: Colors.red),
+                    // En-tete activite
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.cyan.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color: AppColors.cyan.withValues(alpha: 0.2)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.activity.title,
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            s.feedbackHeader,
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.black87),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Questions dynamiques
+                    ...drafts.map((draft) => Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: _buildQuestion(draft),
+                        )),
+
+                    // Boutons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: _isSubmitting
+                                ? null
+                                : () => Navigator.of(context).pop(),
+                            style: OutlinedButton.styleFrom(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16),
+                              side: const BorderSide(color: AppColors.cyan),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: Text(s.feedbackSkip,
+                                style: const TextStyle(color: AppColors.cyan)),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: ElevatedButton(
+                            onPressed: _isSubmitting
+                                ? null
+                                : () => _submitFeedback(drafts),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.orange,
+                              foregroundColor: Colors.white,
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: _isSubmitting
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white, strokeWidth: 2),
+                                  )
+                                : Text(s.feedbackSubmit),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 16),
-                    Text(
-                      'Impossible de charger le questionnaire.',
-                      style: Theme.of(context).textTheme.titleMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      snapshot.error.toString(),
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: () => setState(() {
-                        _draftsFuture = _loadDrafts();
-                      }),
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Reessayer'),
-                    ),
                   ],
                 ),
-              ),
-            );
-          }
-
-          final drafts = snapshot.data ?? [];
-          if (drafts.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  "Aucune question de feedback n'est active pour le moment. Merci !",
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            );
-          }
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // En-tete activite
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.cyan.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                        color: AppColors.cyan.withValues(alpha: 0.2)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.activity.title,
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Merci de prendre quelques instants pour nous donner votre avis !',
-                        style:
-                            TextStyle(fontSize: 14, color: Colors.black87),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Questions dynamiques
-                ...drafts.map((draft) => Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: _buildQuestion(draft),
-                    )),
-
-                // Boutons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _isSubmitting
-                            ? null
-                            : () => Navigator.of(context).pop(),
-                        style: OutlinedButton.styleFrom(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 16),
-                          side: const BorderSide(color: AppColors.cyan),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                        ),
-                        child: const Text('Passer',
-                            style: TextStyle(color: AppColors.cyan)),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton(
-                        onPressed: _isSubmitting
-                            ? null
-                            : () => _submitFeedback(drafts),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.orange,
-                          foregroundColor: Colors.white,
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                        ),
-                        child: _isSubmitting
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                    color: Colors.white, strokeWidth: 2),
-                              )
-                            : const Text('Envoyer'),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          );
-        },
-      ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

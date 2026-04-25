@@ -55,7 +55,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
     } else {
       setState(() {
         _isValidating = false;
-        _error = 'Code incorrect';
+        _error = S.current.maintenanceCodeIncorrect;
         _shake = true;
       });
       Future.delayed(const Duration(milliseconds: 400), () {
@@ -201,7 +201,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                       const Expanded(child: Divider(color: AppColors.line)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text('ou',
+                        child: Text(s.maintenanceOrSeparator,
                             style: theme.textTheme.bodySmall?.copyWith(color: AppColors.stone)),
                       ),
                       const Expanded(child: Divider(color: AppColors.line)),

@@ -57,7 +57,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text(
-                  'Erreur: ${snapshot.error}',
+                  '${s.errorWithDetails}: ${snapshot.error}',
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -74,12 +74,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         size: 56, color: AppColors.stone),
                     const SizedBox(height: 16),
                     Text(
-                      'Aucun favori pour le moment',
+                      s.emptyNoFavorites,
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Tapez sur le cœur d\'une activité pour la retrouver ici.',
+                      s.emptyNoFavoritesHint,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: AppColors.stone,
@@ -101,7 +101,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
                   child: Text(
-                    '${favorites.length} ${favorites.length > 1 ? "activités" : "activité"}',
+                    '${favorites.length} ${favorites.length > 1 ? s.favoritesCountPlural : s.favoritesCountSingle}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
@@ -151,9 +151,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                   _refreshFavorites();
                                   if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                         content: Text(
-                                            'Erreur lors de la suppression')),
+                                            S.current.favoriteRemoveError)),
                                   );
                                 }
                               },

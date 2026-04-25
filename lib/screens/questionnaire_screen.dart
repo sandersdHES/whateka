@@ -197,7 +197,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('Erreur lors de la récupération du contexte: $e')),
+            content: Text('${S.current.quizContextError}: $e')),
       );
     } finally {
       if (mounted) {
@@ -247,7 +247,8 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                  content: Text('Maximum $maxSelections choix possible(s)')),
+                  content: Text(S.current.quizMaxChoicesError
+                      .replaceAll('{0}', '$maxSelections'))),
             );
           }
         }
@@ -314,7 +315,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                   const SizedBox(height: 10),
                   if (question.cascadeLowerTiers)
                     Text(
-                      'Les budgets inférieurs sont inclus automatiquement (désélectionnables).',
+                      s.quizBudgetCascadeHint,
                       style: Theme.of(context).textTheme.bodySmall,
                     )
                   else if (question.maxSelections > 1)

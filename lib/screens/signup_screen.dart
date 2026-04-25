@@ -103,8 +103,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 prefixIcon: const Icon(Icons.person_outline,
                                     size: 20),
                               ),
-                              validator: (v) =>
-                                  (v != null && v.isNotEmpty) ? null : 'Requis',
+                              validator: (v) => (v != null && v.isNotEmpty)
+                                  ? null
+                                  : s.validationRequired,
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
@@ -117,7 +118,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               keyboardType: TextInputType.emailAddress,
                               validator: (v) => (v != null && v.contains('@'))
                                   ? null
-                                  : 'Email invalide',
+                                  : s.validationEmailInvalid,
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
@@ -130,7 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               obscureText: true,
                               validator: (v) => (v != null && v.length >= 6)
                                   ? null
-                                  : 'Min 6 caractères',
+                                  : s.validationMinChars,
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
@@ -142,9 +143,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                               obscureText: true,
                               validator: (v) {
-                                if (v == null || v.isEmpty) return 'Requis';
+                                if (v == null || v.isEmpty) return s.validationRequired;
                                 if (v != _passwordController.text) {
-                                  return 'Les mots de passe ne correspondent pas';
+                                  return s.validationPasswordsMismatch;
                                 }
                                 return null;
                               },

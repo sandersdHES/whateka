@@ -27,8 +27,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email de réinitialisation envoyé'),
+          SnackBar(
+            content: Text(S.current.forgotPasswordEmailSent),
             backgroundColor: AppColors.green,
             behavior: SnackBarBehavior.floating,
           ),
@@ -39,7 +39,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (mounted) {
         String message = e.message;
         if (e.code == 'over_email_send_rate_limit') {
-          message = 'Trop de tentatives. Veuillez patienter.';
+          message = S.current.forgotPasswordTooManyAttempts;
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -53,7 +53,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur inattendue: $e'),
+            content: Text('${S.current.forgotPasswordUnexpectedError}: $e'),
             backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -133,7 +133,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Entrez votre email pour recevoir un lien de réinitialisation.',
+                    s.forgotPasswordPrompt,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: AppColors.black.withValues(alpha: 0.6),
@@ -156,7 +156,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               ),
                               validator: (v) => (v != null && v.contains('@'))
                                   ? null
-                                  : 'Email invalide',
+                                  : s.validationEmailInvalid,
                             ),
                             const SizedBox(height: 24),
                             SizedBox(
