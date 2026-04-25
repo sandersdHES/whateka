@@ -1,3 +1,5 @@
+import '../i18n/strings.dart';
+
 class Activity {
   final int id;
   final String title;
@@ -111,20 +113,22 @@ class Activity {
   }
 
   /// Returns a human-readable price label for the given price level
+  /// (locale-aware via S.current).
   static String priceLevelLabel(int level) {
+    final s = S.current;
     switch (level) {
       case 1:
-        return 'Gratuit';
+        return s.quizPriceFree; // Gratuit / Free
       case 2:
-        return '1–20 CHF';
+        return s.quizPriceLow; // 1-20 CHF
       case 3:
-        return '20–50 CHF';
+        return s.quizPriceMid; // 20-50 CHF
       case 4:
-        return '50–100 CHF';
+        return s.quizPriceHigh; // 50-100 CHF
       case 5:
-        return '100 CHF et plus';
+        return s.quizPriceVeryHigh; // 100+ CHF
       default:
-        return 'Gratuit';
+        return s.quizPriceFree;
     }
   }
 
