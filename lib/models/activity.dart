@@ -61,9 +61,15 @@ class Activity {
     this.aiReason,
   });
 
-  /// Logique miroir de l'algo recommend-activity v26 :
+  /// Logique miroir de l'algo recommend-activity v29 :
   /// retourne true si l'activite est proposable a la date `now`.
   bool isProposableAt(DateTime now) {
+    // v29 : un event sans date_start est une fiche template (club, institution
+    // sans match planifie) - pas recommandable.
+    final cats = (category ?? '').split(',').map((c) => c.trim().toLowerCase()).toList();
+    final isEvent = cats.contains('event');
+    if (isEvent && (dateStart == null || dateEnd == null)) return false;
+
     if (recurrenceType == null) return true;
     final hasWeekly = weeklyDays != null && weeklyDays!.isNotEmpty;
     final hasSeasonal = seasonalMonths != null && seasonalMonths!.isNotEmpty;

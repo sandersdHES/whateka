@@ -51,16 +51,16 @@ class _AiResultScreenState extends State<AiResultScreen> {
         ..._extraActivities.map((a) => a.id),
       };
 
+      // Use excludeIds (côté serveur) pour avoir TOUJOURS 3 nouvelles
+      // activités non encore vues, peu importe leur position.
       final more = await _activityService.getActivities(
         limit: 3,
-        offset: _extraActivities.length,
+        excludeIds: _shownIds.toList(),
       );
-
-      final filtered = more.where((a) => !_shownIds.contains(a.id)).toList();
 
       if (mounted) {
         setState(() {
-          _extraActivities.addAll(filtered);
+          _extraActivities.addAll(more);
           _searchesCount++;
           _isLoadingMore = false;
         });

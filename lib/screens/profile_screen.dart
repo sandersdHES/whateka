@@ -132,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final meta = user.userMetadata ?? {};
       setState(() {
         _emailController.text = user.email ?? '';
-        _nameController.text = meta['first_name'] ?? '';
+        _nameController.text = (meta['first_name'] is String ? meta['first_name'] : '') as String;
         _selectedRadiusKm = (meta['search_radius_km'] as int?) ?? 50;
         _selectedRegion = (meta['search_region'] as String?) ?? '';
         _locationMode = (meta['location_mode'] as String?) ?? 'auto';

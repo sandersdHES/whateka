@@ -10,11 +10,13 @@ class ActivityService {
     try {
       final userId = _supabase.auth.currentUser?.id;
 
-      // 1. Fetch activities
-      var query = _supabase
-          .from('activities')
-          .select()
-          .order('created_at', ascending: false);
+      // 1. Fetch activities (exclut les ids deja affiches cote serveur pour
+      //    eviter d'avoir un offset cassé et des doublons en pagination).
+      var filter = _supabase.from('activities').select();
+      if (excludeIds.isNotEmpty) {
+        filter = filter.not('id', 'in', '(${excludeIds.join(',')})');
+      }
+      var query = filter.order('created_at', ascending: false);
 
       if (limit != null) {
         query = query.range(offset, offset + limit - 1);

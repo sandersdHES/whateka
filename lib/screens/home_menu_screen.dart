@@ -26,8 +26,11 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
   Future<void> _loadProfile() async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null && user.userMetadata != null) {
-      final firstName = user.userMetadata?['first_name'];
-      if (firstName != null) {
+      // Cast safe : si first_name n'est pas un String (corrompu, ancien
+      // format), on tombe sur null plutôt que crash runtime.
+      final raw = user.userMetadata?['first_name'];
+      final firstName = raw is String ? raw : null;
+      if (firstName != null && firstName.isNotEmpty) {
         setState(() {
           _userName = firstName;
         });
