@@ -17,6 +17,7 @@ import 'screens/single_activity_screen.dart';
 import 'screens/ai_result_screen.dart';
 import 'screens/update_password_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/maintenance_screen.dart';
 import 'screens/submit_activity_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -208,6 +209,8 @@ class _MyAppState extends State<MyApp> {
         '/dashboard': (_) => const HomeMenuScreen(),
         // Ecran d'intro avec logo (3s hold + 1s fade) avant d'arriver sur /map
         '/splash': (_) => const SplashScreen(),
+        '/maintenance': (_) => const MaintenanceScreen(),
+        '/access_success': (_) => const AccessSuccessScreen(),
         '/map': (_) => const MapScreen(),
         '/profile': (_) => const ProfileScreen(),
         '/favorites': (_) => const FavoritesScreen(),
