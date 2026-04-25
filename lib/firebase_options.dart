@@ -69,4 +69,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'whateka.firebasestorage.app',
     iosBundleId: 'com.shz.whateka',
   );
+
 }
