@@ -16,6 +16,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
   Future<void> _resetPassword() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);

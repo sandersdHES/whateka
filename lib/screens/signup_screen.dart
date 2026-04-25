@@ -20,6 +20,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _firstnameController.dispose();
+    super.dispose();
+  }
+
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);

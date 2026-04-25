@@ -36,8 +36,20 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
 
   Future<void> _openInstagram() async {
     final url = Uri.parse('https://www.instagram.com/whateka.ch/');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
+    bool opened = false;
+    try {
+      opened = await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      opened = false;
+    }
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(LocaleProvider.instance.isEn
+              ? 'Could not open Instagram'
+              : "Impossible d'ouvrir Instagram"),
+        ),
+      );
     }
   }
 

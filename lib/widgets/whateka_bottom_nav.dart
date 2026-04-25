@@ -17,10 +17,13 @@ class WhatekBottomNav extends StatelessWidget {
 
   void _navigate(BuildContext context, String route) {
     if (currentRoute == route) return;
+    // pushReplacementNamed evite que la stack gonfle a chaque clic d'onglet.
+    // Avant : naviguer entre Map -> Quiz -> Profil -> Favoris empilait 4 ecrans.
+    // /map reste avec pushNamedAndRemoveUntil pour garantir d'y retomber au back.
     if (route == '/map') {
       Navigator.pushNamedAndRemoveUntil(context, '/map', (r) => false);
     } else {
-      Navigator.pushNamed(context, route);
+      Navigator.pushReplacementNamed(context, route);
     }
   }
 

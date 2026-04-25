@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/feedback_question.dart';
 import '../models/feedback_submission.dart';
@@ -62,7 +63,7 @@ class FeedbackService {
       return true;
     } catch (e) {
       // ignore: avoid_print
-      print('Error submitting feedback: $e');
+      debugPrint('Error submitting feedback: $e');
       return false;
     }
   }

@@ -146,6 +146,25 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
     }
   }
 
+  /// Traduit la première catégorie (DB key -> label affiché localisé).
+  String _translateCategory(String csv) {
+    final s = S.current;
+    final cats = csv.split(',').map((c) => c.trim().toLowerCase()).where((c) => c.isNotEmpty).toList();
+    final c = cats.contains('event') ? 'event' : (cats.isNotEmpty ? cats.first : '');
+    switch (c) {
+      case 'culture':    return s.quizCatCulture;
+      case 'nature':     return s.quizCatNature;
+      case 'gastronomy': return s.quizCatGastronomy;
+      case 'sport':      return s.quizCatSport;
+      case 'adventure':  return s.quizCatAdventure;
+      case 'relax':      return s.quizCatRelax;
+      case 'fun':        return s.quizCatFun;
+      case 'event':      return s.quizCatEvent;
+      case 'institution':return s.quizCatEvent;
+      default:           return c;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -198,10 +217,10 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Catégorie
+                        // Catégorie (traduite)
                         if (activity.category != null) ...[
                           Text(
-                            activity.category!.toUpperCase(),
+                            _translateCategory(activity.category!).toUpperCase(),
                             style: Theme.of(context).textTheme.labelSmall,
                           ),
                           const SizedBox(height: 8),

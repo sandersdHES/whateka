@@ -369,7 +369,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.activity.title,
+                            pickLocalized(widget.activity.title, widget.activity.titleEn),
                             style: const TextStyle(
                                 fontSize: 20, fontWeight: FontWeight.bold),
                           ),
