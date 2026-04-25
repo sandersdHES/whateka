@@ -26,10 +26,14 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Whateka utilise l'appareil photo pour vous permettre d'ajouter des photos lors de la soumission d'une activité.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app needs access to location to provide a better user experience.</string>
+	<string>Whateka utilise votre position pour afficher les activités proches de vous et personnaliser les recommandations.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to location when open to show your current position on the map.</string>
+	<string>Whateka utilise votre position pour afficher les activités proches de vous et personnaliser les recommandations.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Whateka accède à votre bibliothèque de photos pour vous permettre d'ajouter des images lors de la soumission d'une activité.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
