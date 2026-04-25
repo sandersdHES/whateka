@@ -73,8 +73,8 @@ class ActivityCard extends StatelessWidget {
         .map((s) => s.trim().toLowerCase())
         .where((s) => s.isNotEmpty)
         .toList();
-    // 'event' a la priorité visuelle pour distinguer les événements ponctuels.
-    final cat = allCats.contains('event')
+    // 'event' (et 'institution' qui est automatiquement event) a la priorité.
+    final cat = (allCats.contains('event') || allCats.contains('institution'))
         ? 'event'
         : (allCats.isNotEmpty ? allCats.first : '');
     final chipColor = _categoryColors[cat] ?? AppColors.stone;
