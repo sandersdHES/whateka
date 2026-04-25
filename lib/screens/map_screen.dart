@@ -374,7 +374,10 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   static Color _markerColorFor(String? category) {
-    final c = (category ?? '').split(',').first.trim().toLowerCase();
+    final cats = (category ?? '').split(',').map((s) => s.trim().toLowerCase()).toList();
+    // 'event' a la priorité visuelle (rouge) pour distinguer les événements ponctuels.
+    if (cats.contains('event')) return const Color(0xFFDC2626);
+    final c = cats.isNotEmpty ? cats.first : '';
     switch (c) {
       case 'culture':    return AppColors.brown;
       case 'nature':     return AppColors.green;
@@ -388,7 +391,9 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   static IconData _markerIconFor(String? category) {
-    final c = (category ?? '').split(',').first.trim().toLowerCase();
+    final cats = (category ?? '').split(',').map((s) => s.trim().toLowerCase()).toList();
+    if (cats.contains('event')) return Icons.event;
+    final c = cats.isNotEmpty ? cats.first : '';
     switch (c) {
       case 'culture':    return Icons.museum;
       case 'nature':     return Icons.landscape;

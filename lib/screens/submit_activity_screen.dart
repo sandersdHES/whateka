@@ -45,6 +45,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     ('adventure', 'Aventure'),
     ('relax', 'Détente'),
     ('fun', 'Fun'),
+    ('event', 'Événement'),
   ];
 
   static const _features = [

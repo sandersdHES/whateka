@@ -31,6 +31,7 @@ class ActivityCard extends StatelessWidget {
     'adventure':   AppColors.yellow,
     'relax':       Color(0xFFB8A1D9), // lavande douce
     'fun':         AppColors.yellow,
+    'event':       Color(0xFFDC2626), // rouge événement
   };
 
   static String _categoryLabel(String c) {
@@ -42,6 +43,7 @@ class ActivityCard extends StatelessWidget {
       case 'adventure':  return 'Aventure';
       case 'relax':      return 'Détente';
       case 'fun':        return 'Fun';
+      case 'event':      return 'Événement';
       default:           return c;
     }
   }
@@ -64,7 +66,15 @@ class ActivityCard extends StatelessWidget {
       ActivityCardSize.compact => 16.0,
     };
 
-    final cat = (activity.category ?? '').split(',').first.trim().toLowerCase();
+    final allCats = (activity.category ?? '')
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    // 'event' a la priorité visuelle pour distinguer les événements ponctuels.
+    final cat = allCats.contains('event')
+        ? 'event'
+        : (allCats.isNotEmpty ? allCats.first : '');
     final chipColor = _categoryColors[cat] ?? AppColors.stone;
     // Fallback coloré par catégorie (teinte foncée) quand la photo est
     // absente ou en erreur — plus cohérent visuellement que du gris.

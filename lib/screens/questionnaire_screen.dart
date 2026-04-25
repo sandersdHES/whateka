@@ -58,6 +58,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         _Option('Gourmandise', Icons.restaurant, value: 'gastronomy'),
         _Option('Aventure', Icons.explore_off, value: 'adventure'),
         _Option('Fun', Icons.celebration, value: 'fun'),
+        _Option('Événement', Icons.event, value: 'event'),
       ],
       maxSelections: 3,
     ),
