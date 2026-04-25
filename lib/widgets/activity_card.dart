@@ -32,6 +32,7 @@ class ActivityCard extends StatelessWidget {
     'relax':       Color(0xFFB8A1D9), // lavande douce
     'fun':         AppColors.yellow,
     'event':       Color(0xFFDC2626), // rouge événement
+    'institution': Color(0xFF475569), // gris foncé institution
   };
 
   static String _categoryLabel(String c) {
@@ -44,6 +45,7 @@ class ActivityCard extends StatelessWidget {
       case 'relax':      return 'Détente';
       case 'fun':        return 'Fun';
       case 'event':      return 'Événement';
+      case 'institution':return 'Institution';
       default:           return c;
     }
   }
