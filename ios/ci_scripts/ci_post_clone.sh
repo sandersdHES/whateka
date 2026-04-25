@@ -17,6 +17,9 @@ flutter doctor -v
 echo "📦 Installing Dependencies..."
 flutter pub get
 
+echo "⚙️ Precaching iOS artifacts..."
+flutter precache --ios
+
 echo "🍎 Installing CocoaPods..."
 cd ios
 pod install
