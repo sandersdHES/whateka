@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:url_launcher/url_launcher.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
@@ -146,7 +147,11 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        return Scaffold(
       backgroundColor: AppColors.paper,
       body: ResponsiveCenter(
         maxWidth: 560,
@@ -202,7 +207,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                         ],
                         // Titre
                         Text(
-                          activity.title,
+                          pickLocalized(activity.title, activity.titleEn),
                           style: Theme.of(context).textTheme.displaySmall,
                         ),
                         const SizedBox(height: 12),
@@ -230,13 +235,13 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
 
                         // Description
                         Text(
-                          'Description',
+                          s.activityDescription,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          activity.description ??
-                              'Aucune description disponible.',
+                          pickLocalized(
+                              activity.description, activity.descriptionEn),
                           style: Theme.of(context).textTheme.bodyLarge,
                           textAlign: TextAlign.start,
                         ),
@@ -245,7 +250,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                         // Informations utiles
                         if (activity.features.isNotEmpty) ...[
                           Text(
-                            'Informations utiles',
+                            s.submitFeatures,
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                           const SizedBox(height: 12),
@@ -348,16 +353,16 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                                           ),
                                         ],
                                       ),
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.map_outlined,
+                                          const Icon(Icons.map_outlined,
                                               size: 14,
                                               color: AppColors.ink),
-                                          SizedBox(width: 5),
+                                          const SizedBox(width: 5),
                                           Text(
-                                            'Voir sur la carte',
-                                            style: TextStyle(
+                                            s.activityViewMap,
+                                            style: const TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
                                               color: AppColors.ink,
@@ -418,6 +423,8 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
         ],
         ),
       ),
+    );
+      },
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart' hide Path;
 import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
@@ -188,6 +189,10 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+    final s = S.of(context);
     final initialCenter = _targetPosition ?? _currentPosition;
     // Zoom de depart : si on a deja une position (manuelle connue des initState
     // OU cible d'une activite), on zoome a _userZoom. Sinon on reste dezoome
@@ -305,12 +310,12 @@ class _MapScreenState extends State<MapScreen> {
                                 controller: _searchController,
                                 onChanged: (v) =>
                                     setState(() => _searchQuery = v),
-                                decoration: const InputDecoration(
-                                  hintText: 'Rechercher une activité',
+                                decoration: InputDecoration(
+                                  hintText: s.mapSearchPlaceholder,
                                   border: InputBorder.none,
                                   filled: false,
                                   contentPadding:
-                                      EdgeInsets.symmetric(vertical: 14),
+                                      const EdgeInsets.symmetric(vertical: 14),
                                   isDense: true,
                                 ),
                               ),
@@ -349,14 +354,14 @@ class _MapScreenState extends State<MapScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             _buildModeChip(
-                              label: 'Tout',
+                              label: s.mapToggleAll,
                               icon: Icons.public,
                               selected: !_liveMode,
                               onTap: () => setState(() => _liveMode = false),
                             ),
                             const SizedBox(width: 4),
                             _buildModeChip(
-                              label: 'Live',
+                              label: s.mapToggleLive,
                               icon: Icons.bolt,
                               selected: _liveMode,
                               onTap: () => setState(() => _liveMode = true),
@@ -382,7 +387,7 @@ class _MapScreenState extends State<MapScreen> {
               backgroundColor: AppColors.orange,
               foregroundColor: Colors.white,
               elevation: 3,
-              tooltip: 'Proposer une activité',
+              tooltip: s.mapSubmitTooltip,
               child: const Icon(Icons.add, size: 28),
             ),
           ),
@@ -423,6 +428,8 @@ class _MapScreenState extends State<MapScreen> {
             ),
         ],
       ),
+    );
+      },
     );
   }
 
@@ -563,7 +570,7 @@ class _MapScreenState extends State<MapScreen> {
                       },
                     );
                   },
-                  child: const Text('Voir les détails'),
+                  child: Text(S.current.activityViewMap),
                 ),
               ),
             ),

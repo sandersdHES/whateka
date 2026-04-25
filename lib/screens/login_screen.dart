@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../widgets/responsive_center.dart';
 
@@ -44,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Une erreur est survenue'),
+            content: Text(S.current.error),
             backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -64,123 +65,125 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.paper,
-      body: SafeArea(
-        child: ResponsiveCenter(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-                    onPressed: () => Navigator.pop(context),
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        return Scaffold(
+          backgroundColor: AppColors.paper,
+          body: SafeArea(
+            child: ResponsiveCenter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(28, 24, 28, 24),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(28, 24, 28, 24),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              s.loginTitle,
+                              style: Theme.of(context).textTheme.displayLarge,
+                            ),
+                            const SizedBox(height: 40),
+
+                            TextFormField(
+                              controller: _emailController,
+                              decoration: InputDecoration(
+                                labelText: s.loginEmailPlaceholder,
+                                prefixIcon: const Icon(Icons.email_outlined,
+                                    size: 20),
+                              ),
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Requis'
+                                  : null,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _passwordController,
+                              decoration: InputDecoration(
+                                labelText: s.loginPasswordPlaceholder,
+                                prefixIcon: const Icon(Icons.lock_outline,
+                                    size: 20),
+                              ),
+                              obscureText: true,
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Requis'
+                                  : null,
+                            ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: () => Navigator.pushNamed(
+                                    context, '/forgot_password'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.cyan,
+                                ),
+                                child: Text(s.loginForgotPassword),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+
+                            if (_isLoading)
+                              const Center(
+                                  child: CircularProgressIndicator(
+                                      color: AppColors.cyan))
+                            else
+                              ElevatedButton(
+                                onPressed: _signIn,
+                                child: Text(s.btnLogin),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Bonjour',
-                          style: Theme.of(context).textTheme.displayLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Content de vous revoir.',
+                          s.loginNoAccount,
                           style: Theme.of(context)
                               .textTheme
-                              .bodyLarge
+                              .bodyMedium
                               ?.copyWith(color: AppColors.stone),
                         ),
-                        const SizedBox(height: 40),
-
-                        TextFormField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            prefixIcon: Icon(Icons.email_outlined, size: 20),
+                        TextButton(
+                          onPressed: () => Navigator.pushReplacementNamed(
+                              context, '/signup'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.cyan,
                           ),
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (val) =>
-                              (val == null || val.isEmpty) ? 'Requis' : null,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _passwordController,
-                          decoration: const InputDecoration(
-                            labelText: 'Mot de passe',
-                            prefixIcon: Icon(Icons.lock_outline, size: 20),
-                          ),
-                          obscureText: true,
-                          validator: (val) =>
-                              (val == null || val.isEmpty) ? 'Requis' : null,
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () => Navigator.pushNamed(
-                                context, '/forgot_password'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: AppColors.cyan,
-                            ),
-                            child: const Text('Mot de passe oublié ?'),
+                          child: Text(
+                            s.btnSignup,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
-                        const SizedBox(height: 24),
-
-                        if (_isLoading)
-                          const Center(
-                              child: CircularProgressIndicator(
-                                  color: AppColors.cyan))
-                        else
-                          ElevatedButton(
-                            onPressed: _signIn,
-                            child: const Text('Se connecter'),
-                          ),
                       ],
                     ),
                   ),
-                ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Pas encore de compte ?',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: AppColors.stone),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pushReplacementNamed(
-                          context, '/signup'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.cyan,
-                      ),
-                      child: const Text(
-                        'S\'inscrire',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -65,7 +66,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
@@ -119,7 +124,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Réinitialisation',
+                    s.forgotPasswordTitle,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
@@ -145,9 +150,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
-                                prefixIcon: Icon(Icons.email_outlined),
+                              decoration: InputDecoration(
+                                labelText: s.loginEmailPlaceholder,
+                                prefixIcon: const Icon(Icons.email_outlined),
                               ),
                               validator: (v) => (v != null && v.contains('@'))
                                   ? null
@@ -165,7 +170,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             color: Colors.white))
-                                    : const Text('Envoyer le lien'),
+                                    : Text(s.forgotPasswordSendLink),
                               ),
                             ),
                           ],
@@ -179,6 +184,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

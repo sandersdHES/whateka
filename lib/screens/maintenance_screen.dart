@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../services/access_service.dart';
 
@@ -71,8 +72,12 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final theme = Theme.of(context);
+        final s = S.of(context);
+        return Scaffold(
       backgroundColor: AppColors.paper,
       body: SafeArea(
         child: Center(
@@ -110,14 +115,13 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                   const SizedBox(height: 28),
 
                   Text(
-                    'Whateka arrive bientôt',
+                    s.comingSoonTitle,
                     style: theme.textTheme.headlineLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    "Notre app est en cours de finalisation. "
-                    "Suis-nous pour être informé du lancement.",
+                    s.comingSoonDescription,
                     style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.stone),
                     textAlign: TextAlign.center,
                   ),
@@ -157,9 +161,9 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                             children: [
                               const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 20),
                               const SizedBox(width: 10),
-                              const Text(
-                                'Suivre',
-                                style: TextStyle(
+                              Text(
+                                s.maintenanceFollowOn,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 15,
@@ -206,7 +210,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                   const SizedBox(height: 18),
 
                   Text(
-                    "Vous avez un code d'accès ?",
+                    s.maintenanceCodeLabel,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: AppColors.stone,
                       fontWeight: FontWeight.w600,
@@ -267,9 +271,9 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Text(
-                              'Valider',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                          : Text(
+                              s.maintenanceValidate,
+                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                             ),
                     ),
                   ),
@@ -278,7 +282,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                   TextButton(
                     onPressed: _signOut,
                     style: TextButton.styleFrom(foregroundColor: AppColors.stone),
-                    child: const Text('Se déconnecter'),
+                    child: Text(s.maintenanceLogout),
                   ),
                 ],
               ),
@@ -286,6 +290,8 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }
@@ -326,8 +332,12 @@ class _AccessSuccessScreenState extends State<AccessSuccessScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final theme = Theme.of(context);
+        final s = S.of(context);
+        return Scaffold(
       backgroundColor: AppColors.paper,
       body: Center(
         child: Column(
@@ -354,14 +364,14 @@ class _AccessSuccessScreenState extends State<AccessSuccessScreen>
             ),
             const SizedBox(height: 24),
             Text(
-              'Bienvenue !',
+              s.successWelcome,
               style: theme.textTheme.headlineLarge,
             ),
             const SizedBox(height: 8),
             SizedBox(
               width: 240,
               child: Text(
-                "Accès accordé. Place à l'aventure.",
+                s.successDescription,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.stone),
               ),
@@ -369,6 +379,8 @@ class _AccessSuccessScreenState extends State<AccessSuccessScreen>
           ],
         ),
       ),
+    );
+      },
     );
   }
 }

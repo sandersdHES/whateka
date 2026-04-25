@@ -19,6 +19,7 @@ import 'screens/update_password_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/maintenance_screen.dart';
 import 'screens/submit_activity_screen.dart';
+import 'i18n/strings.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -78,9 +79,18 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // Init locale au demarrage (lit user_metadata.locale ou fallback FR)
+    LocaleProvider.instance.init();
+    LocaleProvider.instance.addListener(() {
+      if (mounted) setState(() {});
+    });
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       if (data.event == AuthChangeEvent.passwordRecovery) {
         navigatorKey.currentState?.pushNamed('/update_password');
+      }
+      // Re-sync locale apres login
+      if (data.event == AuthChangeEvent.signedIn) {
+        LocaleProvider.instance.init();
       }
     });
   }

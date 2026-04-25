@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 
 /// Barre de navigation inferieure commune a tous les ecrans "logges".
@@ -25,7 +26,11 @@ class WhatekBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        return Padding(
       padding: const EdgeInsets.fromLTRB(40, 0, 40, 20),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
@@ -48,23 +53,31 @@ class WhatekBottomNav extends StatelessWidget {
                   Icons.map_outlined,
                   currentRoute == '/map',
                   () => _navigate(context, '/map'),
+                  tooltip: s.navMap,
                 ),
-                _LogoNavItem(onTap: () => _navigate(context, '/quiz')),
+                _LogoNavItem(
+                  onTap: () => _navigate(context, '/quiz'),
+                  tooltip: s.navQuiz,
+                ),
                 _NavIcon(
                   Icons.favorite_outline,
                   currentRoute == '/favorites',
                   () => _navigate(context, '/favorites'),
+                  tooltip: s.navFavorites,
                 ),
                 _NavIcon(
                   Icons.person_outline,
                   currentRoute == '/profile',
                   () => _navigate(context, '/profile'),
+                  tooltip: s.navProfile,
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+      },
     );
   }
 }
@@ -73,21 +86,30 @@ class _NavIcon extends StatelessWidget {
   final IconData icon;
   final bool isActive;
   final VoidCallback onTap;
+  final String tooltip;
 
-  const _NavIcon(this.icon, this.isActive, this.onTap);
+  const _NavIcon(this.icon, this.isActive, this.onTap,
+      {required this.tooltip});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 44,
-        height: 44,
-        child: Icon(
-          icon,
-          size: 24,
-          color: isActive ? AppColors.ink : AppColors.stone,
+    return Tooltip(
+      message: tooltip,
+      child: Semantics(
+        label: tooltip,
+        button: true,
+        child: GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: Icon(
+              icon,
+              size: 24,
+              color: isActive ? AppColors.ink : AppColors.stone,
+            ),
+          ),
         ),
       ),
     );
@@ -96,21 +118,29 @@ class _NavIcon extends StatelessWidget {
 
 class _LogoNavItem extends StatelessWidget {
   final VoidCallback onTap;
+  final String tooltip;
 
-  const _LogoNavItem({required this.onTap});
+  const _LogoNavItem({required this.onTap, required this.tooltip});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: 48,
-        height: 48,
-        padding: const EdgeInsets.all(2),
-        child: Image.asset(
-          'assets/images/home_icon.png',
-          fit: BoxFit.contain,
+    return Tooltip(
+      message: tooltip,
+      child: Semantics(
+        label: tooltip,
+        button: true,
+        child: GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            width: 48,
+            height: 48,
+            padding: const EdgeInsets.all(2),
+            child: Image.asset(
+              'assets/images/home_icon.png',
+              fit: BoxFit.contain,
+            ),
+          ),
         ),
       ),
     );

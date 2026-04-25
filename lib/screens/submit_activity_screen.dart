@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../widgets/responsive_center.dart';
 
@@ -48,12 +49,25 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     ('event', 'Événement'),
   ];
 
-  static const _features = [
+  // Liste des features stockées en DB (clés FR fixes — la traduction se fait
+  // à l'affichage via _featuresLabels).
+  static const _featuresValues = [
     'Reservation necessaire',
     'Parking',
     'Horaires restreints',
     'Minimum de participants',
   ];
+
+  /// Labels traduits pour chaque feature (même ordre que _featuresValues).
+  List<String> get _featuresLabels {
+    final s = S.current;
+    return [
+      s.featureReservation,
+      s.featureParking,
+      s.featureRestrictedHours,
+      s.featureMinParticipants,
+    ];
+  }
 
   static const _seasons = ['Printemps', 'Été', 'Automne', 'Hiver'];
   static const _socialTags = ['Famille', 'Couple', 'Amis', 'Solo'];
@@ -349,9 +363,8 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              'Activité soumise ! Un administrateur va la valider sous peu.'),
+        SnackBar(
+          content: Text(S.current.submitSuccess),
           backgroundColor: AppColors.green,
           behavior: SnackBarBehavior.floating,
         ),
@@ -367,9 +380,13 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        return Scaffold(
       appBar: AppBar(
-        title: const Text('Proposer une activité'),
+        title: Text(s.submitTitle),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
@@ -415,7 +432,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 ],
 
                 _Section(
-                  label: 'Titre *',
+                  label: '${s.submitName} *',
                   child: TextFormField(
                     controller: _titleCtrl,
                     decoration: const InputDecoration(
@@ -424,7 +441,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   ),
                 ),
                 _Section(
-                  label: 'Lieu *',
+                  label: '${s.submitLocation} *',
                   child: TextFormField(
                     controller: _locationCtrl,
                     decoration: const InputDecoration(
@@ -433,7 +450,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   ),
                 ),
                 _Section(
-                  label: 'Catégories *',
+                  label: '${s.submitCategories} *',
                   child: _ChipSelector(
                     options: _categories.map((c) => c.$2).toList(),
                     values: _categories.map((c) => c.$1).toList(),
@@ -446,7 +463,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   ),
                 ),
                 _Section(
-                  label: 'Description *',
+                  label: '${s.submitDescription} *',
                   child: TextFormField(
                     controller: _descriptionCtrl,
                     maxLines: 4,
@@ -494,7 +511,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                           : const Icon(Icons.my_location, size: 18),
                       label: Text(_geocoding
                           ? 'Localisation...'
-                          : 'Localiser automatiquement (titre + lieu)'),
+                          : s.submitGeolocate),
                     ),
                   ),
                 ),
@@ -623,7 +640,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   ),
                 ),
                 _Section(
-                  label: 'Durée (en heures) *',
+                  label: '${s.submitDuration} *',
                   child: TextFormField(
                     controller: _durationHoursCtrl,
                     keyboardType:
@@ -632,7 +649,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   ),
                 ),
                 _Section(
-                  label: 'Niveau de prix *',
+                  label: '${s.submitPrice} *',
                   child: Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -671,10 +688,10 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   ),
                 ),
                 _Section(
-                  label: 'Informations utiles',
+                  label: s.submitFeatures,
                   child: _ChipSelector(
-                    options: _features,
-                    values: _features,
+                    options: _featuresLabels,
+                    values: _featuresValues,
                     selected: _selectedFeatures,
                     onToggle: (v) => setState(() {
                       _selectedFeatures.contains(v)
@@ -748,7 +765,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text('Soumettre'),
+                      : Text(s.submitConfirm),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -761,6 +778,8 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }
@@ -905,7 +924,7 @@ class _PhotoPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Section(
-      label: 'Photos',
+      label: S.of(context).submitPhoto,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

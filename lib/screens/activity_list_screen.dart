@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
@@ -116,7 +117,7 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Suggestions'),
+        title: Text(S.of(context).resultTitle),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
@@ -184,7 +185,7 @@ class _ActivityListScreenState extends State<ActivityListScreen> {
                         )
                       : const Icon(Icons.add, size: 18),
                   label: Text(
-                      _isLoadingMore ? 'Chargement...' : 'Plus d\'activités'),
+                      _isLoadingMore ? S.of(context).loading : 'Plus d\'activités'),
                 ),
               ),
             ),

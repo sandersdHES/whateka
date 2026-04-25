@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../i18n/strings.dart';
 import '../services/activity_service.dart';
 import '../models/activity.dart';
 import '../models/ai_response.dart';
@@ -82,9 +83,13 @@ class _AiResultScreenState extends State<AiResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        return Scaffold(
       appBar: AppBar(
-        title: const Text('Pour vous'),
+        title: Text(s.resultTitle),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
@@ -97,7 +102,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
               onPressed: () => Navigator.pushReplacementNamed(
                   context, '/quiz'),
               icon: const Icon(Icons.refresh, size: 16),
-              label: const Text('Recommencer'),
+              label: Text(s.resultRetry),
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.cyan,
                 textStyle: const TextStyle(
@@ -236,7 +241,7 @@ class _AiResultScreenState extends State<AiResultScreen> {
                             )
                           : const Icon(Icons.refresh, size: 18),
                       label: Text(
-                          _isLoadingMore ? 'Chargement...' : 'Plus d\'idées'),
+                          _isLoadingMore ? s.loading : 'Plus d\'idées'),
                     ),
                   ),
                 ],
@@ -245,6 +250,8 @@ class _AiResultScreenState extends State<AiResultScreen> {
           );
         },
       ),
+    );
+      },
     );
   }
 }
@@ -381,7 +388,7 @@ class _EmptyState extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back, size: 18),
-              label: const Text('Recommencer'),
+              label: Text(S.of(context).resultRetry),
             ),
           ],
         ),

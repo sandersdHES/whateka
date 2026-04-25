@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../widgets/avatar_promenade.dart';
+import '../widgets/language_toggle.dart';
 import '../widgets/responsive_center.dart';
 import '../widgets/whateka_bottom_nav.dart';
 
@@ -203,9 +205,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        return Scaffold(
       appBar: AppBar(
-        title: const Text('Mon profil'),
+        title: Text(s.profileTitle),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
@@ -241,7 +247,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: _StatCard(
                       icon: Icons.search,
                       value: '$_totalSearches',
-                      label: _totalSearches > 1 ? 'recherches' : 'recherche',
+                      label: s.profileSearches,
                       accent: AppColors.cyan,
                     ),
                   ),
@@ -250,7 +256,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: _StatCard(
                       icon: Icons.directions_walk,
                       value: _metersWalked.floor().toString(),
-                      label: _metersWalked >= 2 ? 'mètres' : 'mètre',
+                      label: s.profileMeters,
                       accent: AppColors.orange,
                     ),
                   ),
@@ -330,7 +336,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               // Section Position
               Text(
-                'Ma position',
+                s.profileLocation,
                 style: Theme.of(context).textTheme.labelSmall,
               ),
               const SizedBox(height: 10),
@@ -467,11 +473,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 12),
 
+              // Section Langue
+              Text(
+                s.profileLanguage,
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.line, width: 0.5),
+                ),
+                child: const Center(child: LanguageToggle()),
+              ),
+              const SizedBox(height: 24),
+
               // Déconnexion en orange
               TextButton.icon(
                 onPressed: _signOut,
                 icon: const Icon(Icons.logout, size: 18),
-                label: const Text('Se déconnecter'),
+                label: Text(s.profileSignOut),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.orange,
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -484,6 +507,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+      },
+    );
   }
 }
 
@@ -494,11 +519,12 @@ class _LocationModeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Row(
       children: [
         Expanded(
           child: _ModeChoice(
-            label: 'Automatique',
+            label: s.profileLocationAuto,
             subtitle: 'GPS',
             icon: Icons.gps_fixed,
             selected: mode == 'auto',
@@ -508,7 +534,7 @@ class _LocationModeToggle extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _ModeChoice(
-            label: 'Manuelle',
+            label: s.profileLocationManual,
             subtitle: 'Choisir une ville',
             icon: Icons.edit_location_alt_outlined,
             selected: mode == 'manual',

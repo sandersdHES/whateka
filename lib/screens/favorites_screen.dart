@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
@@ -31,9 +32,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+        final s = S.of(context);
+        return Scaffold(
       appBar: AppBar(
-        title: const Text('Favoris'),
+        title: Text(s.navFavorites),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
@@ -175,6 +180,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           );
         },
       ),
+    );
+      },
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../models/activity.dart';
 
@@ -35,17 +36,18 @@ class ActivityCard extends StatelessWidget {
     'institution': Color(0xFF475569), // gris foncé institution
   };
 
-  static String _categoryLabel(String c) {
+  static String _categoryLabel(String c, BuildContext context) {
+    final s = S.of(context);
     switch (c.toLowerCase().trim()) {
-      case 'culture':    return 'Culture';
-      case 'nature':     return 'Nature';
-      case 'gastronomy': return 'Gastro';
-      case 'sport':      return 'Sport';
-      case 'adventure':  return 'Aventure';
-      case 'relax':      return 'Détente';
-      case 'fun':        return 'Fun';
-      case 'event':      return 'Événement';
-      case 'institution':return 'Institution';
+      case 'culture':    return s.quizCatCulture;
+      case 'nature':     return s.quizCatNature;
+      case 'gastronomy': return s.quizCatGastronomy;
+      case 'sport':      return s.quizCatSport;
+      case 'adventure':  return s.quizCatAdventure;
+      case 'relax':      return s.quizCatRelax;
+      case 'fun':        return s.quizCatFun;
+      case 'event':      return s.quizCatEvent;
+      case 'institution':return s.quizCatEvent;
       default:           return c;
     }
   }
@@ -128,7 +130,7 @@ class ActivityCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
-                  _categoryLabel(cat).toUpperCase(),
+                  _categoryLabel(cat, context).toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 10,
@@ -157,7 +159,7 @@ class ActivityCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    activity.title,
+                    pickLocalized(activity.title, activity.titleEn),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

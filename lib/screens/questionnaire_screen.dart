@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../i18n/strings.dart';
 import '../main.dart';
 import '../services/context_service.dart';
 import '../widgets/responsive_center.dart';
@@ -38,59 +39,64 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   final List<Set<int>> selections = [{}, {}, {}, {}, {}, {}];
 
-  final List<_QuestionQuestionData> questions = const [
-    _QuestionQuestionData(
-      "Avec qui partez-vous ?",
-      [
-        _Option('Solo', Icons.person, value: 'solo'),
-        _Option('En couple', Icons.favorite, value: 'couple'),
-        _Option('En famille', Icons.family_restroom, value: 'family'),
-        _Option('Entre amis', Icons.groups, value: 'friends'),
-      ],
-    ),
-    _QuestionQuestionData(
-      "Quelle est votre envie du moment ?",
-      [
-        _Option('Nature', Icons.landscape, value: 'nature'),
-        _Option('Culture', Icons.museum, value: 'culture'),
-        _Option('Détente', Icons.spa, value: 'relax'),
-        _Option('Sport', Icons.directions_run, value: 'sport'),
-        _Option('Gourmandise', Icons.restaurant, value: 'gastronomy'),
-        _Option('Aventure', Icons.explore_off, value: 'adventure'),
-        _Option('Fun', Icons.celebration, value: 'fun'),
-        _Option('Événement', Icons.event, value: 'event'),
-      ],
-      maxSelections: 3,
-    ),
-    _QuestionQuestionData(
-      "Envie d'extérieur ou d'intérieur ?",
-      [
-        _Option('Outdoor', Icons.wb_sunny, value: 'outdoor'),
-        _Option('Indoor', Icons.home, value: 'indoor'),
-        _Option('Egal', Icons.thumbs_up_down, value: 'any'),
-      ],
-    ),
-    _QuestionQuestionData(
-      "Quel est votre budget ?",
-      [
-        _Option('Gratuit', Icons.money_off, value: '1'),
-        _Option('1–20 CHF', Icons.attach_money, value: '2'),
-        _Option('20–50 CHF', Icons.currency_exchange, value: '3'),
-        _Option('50–100 CHF', Icons.payments, value: '4'),
-        _Option('100+ CHF', Icons.diamond_outlined, value: '5'),
-      ],
-      maxSelections: 5,
-      cascadeLowerTiers: true,
-    ),
-    _QuestionQuestionData(
-      "Combien de temps ?",
-      [
-        _Option('Quelques h.', Icons.timer, value: 'short'),
-        _Option('Demi-journée', Icons.wb_sunny_outlined, value: 'medium'),
-        _Option('Journée', Icons.calendar_today, value: 'long'),
-      ],
-    ),
-  ];
+  /// Liste des questions construite dynamiquement à partir de la locale
+  /// courante (S.current). Recalculée à chaque build pour suivre la langue.
+  List<_QuestionQuestionData> get questions {
+    final s = S.current;
+    return [
+      _QuestionQuestionData(
+        s.quizQ1,
+        [
+          _Option(s.quizSolo, Icons.person, value: 'solo'),
+          _Option(s.quizCouple, Icons.favorite, value: 'couple'),
+          _Option(s.quizFamily, Icons.family_restroom, value: 'family'),
+          _Option(s.quizFriends, Icons.groups, value: 'friends'),
+        ],
+      ),
+      _QuestionQuestionData(
+        s.quizQ2,
+        [
+          _Option(s.quizCatNature, Icons.landscape, value: 'nature'),
+          _Option(s.quizCatCulture, Icons.museum, value: 'culture'),
+          _Option(s.quizCatRelax, Icons.spa, value: 'relax'),
+          _Option(s.quizCatSport, Icons.directions_run, value: 'sport'),
+          _Option(s.quizCatGastronomy, Icons.restaurant, value: 'gastronomy'),
+          _Option(s.quizCatAdventure, Icons.explore_off, value: 'adventure'),
+          _Option(s.quizCatFun, Icons.celebration, value: 'fun'),
+          _Option(s.quizCatEvent, Icons.event, value: 'event'),
+        ],
+        maxSelections: 3,
+      ),
+      _QuestionQuestionData(
+        s.quizQ3,
+        [
+          _Option(s.quizOutdoor, Icons.wb_sunny, value: 'outdoor'),
+          _Option(s.quizIndoor, Icons.home, value: 'indoor'),
+          _Option(s.quizAny, Icons.thumbs_up_down, value: 'any'),
+        ],
+      ),
+      _QuestionQuestionData(
+        s.quizQ4,
+        [
+          _Option(s.quizPriceFree, Icons.money_off, value: '1'),
+          _Option(s.quizPriceLow, Icons.attach_money, value: '2'),
+          _Option(s.quizPriceMid, Icons.currency_exchange, value: '3'),
+          _Option(s.quizPriceHigh, Icons.payments, value: '4'),
+          _Option(s.quizPriceVeryHigh, Icons.diamond_outlined, value: '5'),
+        ],
+        maxSelections: 5,
+        cascadeLowerTiers: true,
+      ),
+      _QuestionQuestionData(
+        s.quizQ5,
+        [
+          _Option(s.quizDurationShort, Icons.timer, value: 'short'),
+          _Option(s.quizDurationMid, Icons.wb_sunny_outlined, value: 'medium'),
+          _Option(s.quizDurationLong, Icons.calendar_today, value: 'long'),
+        ],
+      ),
+    ];
+  }
 
   void _nextStep() {
     if (selections[currentStep].isEmpty) return;
@@ -251,6 +257,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: LocaleProvider.instance,
+      builder: (context, _) {
+    final s = S.of(context);
     final question = questions[currentStep];
     final progress = (currentStep + 1) / questions.length;
     final canProceed = selections[currentStep].isNotEmpty;
@@ -309,7 +319,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                     )
                   else if (question.maxSelections > 1)
                     Text(
-                      'Jusqu\'à ${question.maxSelections} choix',
+                      s.quizMaxPicks,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                 ],
@@ -388,8 +398,8 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                   ),
                   child: Text(
                     currentStep == questions.length - 1
-                        ? (_isLoading ? 'Chargement...' : 'Terminer')
-                        : 'Continuer',
+                        ? (_isLoading ? s.loading : s.btnFinish)
+                        : s.btnContinue,
                   ),
                 ),
               ),
@@ -398,6 +408,8 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

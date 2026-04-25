@@ -1,9 +1,13 @@
 class Activity {
   final int id;
   final String title;
-  final String location; // mapped from location_name
+  final String? titleEn;
+  final String location; // mapped from location_name (jamais traduit)
   final String duration; // mapped from duration_minutes → formatted as hours
   final String? description;
+  final String? descriptionEn;
+  final String? dateLabel;
+  final String? dateLabelEn;
   final String? imageUrl; // mapped from image_url
   final String? category;
   final String? activityUrl; // mapped from activity_url
@@ -30,9 +34,13 @@ class Activity {
   Activity({
     required this.id,
     required this.title,
+    this.titleEn,
     required this.location,
     required this.duration,
     this.description,
+    this.descriptionEn,
+    this.dateLabel,
+    this.dateLabelEn,
     this.imageUrl,
     this.category,
     this.activityUrl,
@@ -124,9 +132,13 @@ class Activity {
     return Activity(
       id: json['id'] as int,
       title: json['title'] as String,
+      titleEn: json['title_en'] as String?,
       location: json['location_name'] as String,
       duration: _formatDuration(json['duration_minutes'] as int? ?? 0),
       description: json['description'] as String?,
+      descriptionEn: json['description_en'] as String?,
+      dateLabel: json['date_label'] as String?,
+      dateLabelEn: json['date_label_en'] as String?,
       imageUrl: json['image_url'] as String?,
       category: json['category'] as String?,
       activityUrl: json['activity_url'] as String?,
