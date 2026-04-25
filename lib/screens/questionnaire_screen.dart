@@ -325,21 +325,25 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                 padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    const crossAxisCount = 2;
-                    const spacing = 12.0;
+                    // Pour 8 options ou plus, on bascule en 3 colonnes pour
+                    // garder des cellules suffisamment hautes sans scroll.
+                    final crossAxisCount =
+                        question.options.length >= 8 ? 3 : 2;
+                    const spacing = 10.0;
                     final rows =
                         (question.options.length / crossAxisCount).ceil();
                     final cellHeight =
                         (constraints.maxHeight - (rows - 1) * spacing) / rows;
                     final cellWidth =
-                        (constraints.maxWidth - spacing) / crossAxisCount;
-                    // Garde-fou : au moins 70 de haut pour garder lisibilite
-                    // (si ecran vraiment minuscule, le scroll revient).
-                    final aspect = cellHeight > 70
+                        (constraints.maxWidth - (crossAxisCount - 1) * spacing) /
+                            crossAxisCount;
+                    // Garde-fou minimal : 56px (icone + label sur 2 lignes).
+                    const minCellHeight = 56.0;
+                    final aspect = cellHeight > minCellHeight
                         ? cellWidth / cellHeight
-                        : cellWidth / 70.0;
+                        : cellWidth / minCellHeight;
                     return GridView.builder(
-                      physics: cellHeight > 70
+                      physics: cellHeight > minCellHeight
                           ? const NeverScrollableScrollPhysics()
                           : const BouncingScrollPhysics(),
                       itemCount: question.options.length,
@@ -348,7 +352,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                         crossAxisCount: crossAxisCount,
                         crossAxisSpacing: spacing,
                         mainAxisSpacing: spacing,
-                        childAspectRatio: aspect,
+                        childAspectRatio: aspect.clamp(0.6, 2.5),
                       ),
                       itemBuilder: (context, index) {
                         final isSelected =
@@ -426,23 +430,30 @@ class _OptionCard extends StatelessWidget {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     option.icon,
                     color: selected ? Colors.white : AppColors.ink,
-                    size: 32,
+                    size: 26,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    option.label,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color:
-                              selected ? Colors.white : AppColors.ink,
-                        ),
+                  const SizedBox(height: 6),
+                  Flexible(
+                    child: Text(
+                      option.label,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(
+                            color: selected ? Colors.white : AppColors.ink,
+                            fontSize: 13,
+                          ),
+                    ),
                   ),
                 ],
               ),
