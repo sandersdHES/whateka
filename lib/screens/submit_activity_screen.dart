@@ -1,6 +1,10 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
 import '../widgets/responsive_center.dart';
@@ -82,9 +86,12 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
   bool _isOutdoor = true;
 
   final List<_PhotoItem> _photos = [];
+  final MapController _mapController = MapController();
 
   bool _submitting = false;
+  bool _geocoding = false;
   String? _error;
+  String? _geocodeInfo; // info textuelle apres geocode reussi
 
   @override
   void dispose() {
@@ -97,6 +104,118 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     _lngCtrl.dispose();
     _durationHoursCtrl.dispose();
     super.dispose();
+  }
+
+  /// Position courante affichee sur la carte (parsed depuis les TextFields).
+  /// Centre sur Lausanne par defaut si rien n'est saisi.
+  LatLng get _previewPosition {
+    final lat = double.tryParse(_latCtrl.text.trim());
+    final lng = double.tryParse(_lngCtrl.text.trim());
+    if (lat != null && lng != null && lat >= -90 && lat <= 90 &&
+        lng >= -180 && lng <= 180) {
+      return LatLng(lat, lng);
+    }
+    return const LatLng(46.5197, 6.6323); // Lausanne par defaut
+  }
+
+  bool get _hasValidCoords {
+    final lat = double.tryParse(_latCtrl.text.trim());
+    final lng = double.tryParse(_lngCtrl.text.trim());
+    return lat != null && lng != null;
+  }
+
+  /// Nettoie le titre pour Nominatim (retire prefixes type "Visite du", coupe
+  /// au tiret pour ne garder que la partie principale).
+  String _cleanTitle(String t) {
+    var cleaned = t.trim();
+    const prefixes = [
+      'Visite guidée du ', 'Visite guidée des ', 'Visite guidée de ',
+      'Visite du ', 'Visite de la ', 'Visite des ', 'Visite de ',
+      'Découverte du ', 'Découverte de ', 'Découverte des ',
+      'Balade au ', 'Balade en ', 'Balade dans ',
+      'Randonnée au ', 'Randonnée à ', 'Randonnée vers ',
+    ];
+    for (final p in prefixes) {
+      if (cleaned.toLowerCase().startsWith(p.toLowerCase())) {
+        cleaned = cleaned.substring(p.length).trim();
+        break;
+      }
+    }
+    for (final sep in [' - ', ' — ', ' – ', ' | ']) {
+      if (cleaned.contains(sep)) {
+        cleaned = cleaned.split(sep).first.trim();
+        break;
+      }
+    }
+    return cleaned;
+  }
+
+  Future<void> _autoGeocode() async {
+    final title = _titleCtrl.text.trim();
+    final loc = _locationCtrl.text.trim();
+    if (title.isEmpty && loc.isEmpty) {
+      setState(() => _error =
+          'Remplis au moins le titre et le lieu pour la localisation auto.');
+      return;
+    }
+    setState(() {
+      _geocoding = true;
+      _error = null;
+      _geocodeInfo = null;
+    });
+
+    final cleaned = _cleanTitle(title);
+    final candidates = <String>[
+      if (cleaned.isNotEmpty && loc.isNotEmpty) '$cleaned, $loc, Suisse',
+      if (cleaned.isNotEmpty) '$cleaned, Suisse',
+      if (loc.isNotEmpty) '$loc, Suisse',
+    ];
+
+    try {
+      for (final q in candidates) {
+        final url = Uri.https('nominatim.openstreetmap.org', '/search', {
+          'q': q,
+          'format': 'json',
+          'limit': '1',
+          'countrycodes': 'ch',
+        });
+        final resp = await http.get(url, headers: {
+          'User-Agent': 'WhatekaApp/1.0 (whateka.ch)',
+        });
+        if (resp.statusCode != 200) continue;
+        final data = jsonDecode(resp.body) as List;
+        if (data.isEmpty) continue;
+        final first = data.first as Map;
+        final lat = double.tryParse(first['lat'].toString());
+        final lng = double.tryParse(first['lon'].toString());
+        final name = (first['display_name'] as String? ?? '');
+        if (lat == null || lng == null) continue;
+        if (mounted) {
+          setState(() {
+            _latCtrl.text = lat.toStringAsFixed(6);
+            _lngCtrl.text = lng.toStringAsFixed(6);
+            _geocodeInfo = name.length > 80
+                ? '${name.substring(0, 80)}...'
+                : name;
+          });
+          // Recentre la mini-carte
+          try {
+            _mapController.move(LatLng(lat, lng), 14);
+          } catch (_) {}
+        }
+        return;
+      }
+      if (mounted) {
+        setState(() => _error =
+            'Aucune adresse trouvée pour "$title" à "$loc". Saisis manuellement ou tape sur la carte.');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Erreur géolocalisation : $e');
+      }
+    } finally {
+      if (mounted) setState(() => _geocoding = false);
+    }
   }
 
   Future<void> _pickPhotosFromDevice() async {
@@ -389,6 +508,52 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   onAddRemoteUrl: _addRemoteUrl,
                 ),
 
+                // Bouton auto-geocodage : appelle Nominatim avec titre+lieu
+                // pour pre-remplir lat/lng. L'utilisateur peut ensuite ajuster
+                // sur la carte (clic) ou directement dans les champs.
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _geocoding ? null : _autoGeocode,
+                      icon: _geocoding
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.cyan,
+                              ),
+                            )
+                          : const Icon(Icons.my_location, size: 18),
+                      label: Text(_geocoding
+                          ? 'Localisation...'
+                          : 'Localiser automatiquement (titre + lieu)'),
+                    ),
+                  ),
+                ),
+                if (_geocodeInfo != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle,
+                            size: 16, color: AppColors.green),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            _geocodeInfo!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: AppColors.stone),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 Row(
                   children: [
                     Expanded(
@@ -400,6 +565,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                               const TextInputType.numberWithOptions(
                                   decimal: true, signed: true),
                           decoration: const InputDecoration(hintText: '46.22'),
+                          onChanged: (_) => setState(() {}),
                         ),
                       ),
                     ),
@@ -413,10 +579,83 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                               const TextInputType.numberWithOptions(
                                   decimal: true, signed: true),
                           decoration: const InputDecoration(hintText: '7.36'),
+                          onChanged: (_) => setState(() {}),
                         ),
                       ),
                     ),
                   ],
+                ),
+
+                // Mini-carte de previsualisation : tap sur la carte = met a jour
+                // les coordonnees. Le marqueur orange montre la position
+                // actuellement saisie.
+                _Section(
+                  label: 'Aperçu sur la carte (tape pour ajuster)',
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: SizedBox(
+                      height: 200,
+                      child: FlutterMap(
+                        mapController: _mapController,
+                        options: MapOptions(
+                          initialCenter: _previewPosition,
+                          initialZoom: _hasValidCoords ? 14 : 9,
+                          onTap: (tapPosition, point) {
+                            setState(() {
+                              _latCtrl.text =
+                                  point.latitude.toStringAsFixed(6);
+                              _lngCtrl.text =
+                                  point.longitude.toStringAsFixed(6);
+                            });
+                          },
+                          interactionOptions: const InteractionOptions(
+                            flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                          ),
+                        ),
+                        children: [
+                          TileLayer(
+                            urlTemplate:
+                                'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                            subdomains: const ['a', 'b', 'c', 'd'],
+                            userAgentPackageName: 'com.example.whateka',
+                          ),
+                          if (_hasValidCoords)
+                            MarkerLayer(
+                              markers: [
+                                Marker(
+                                  point: _previewPosition,
+                                  width: 36,
+                                  height: 36,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.orange,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2.5,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.25),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Icon(
+                                      Icons.place,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
                 _Section(
                   label: 'Durée (en heures) *',
