@@ -267,10 +267,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     final canProceed = selections[currentStep].isNotEmpty;
 
     return Scaffold(
-      backgroundColor: AppColors.paper,
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: AppColors.paper,
-        surfaceTintColor: AppColors.paper,
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: AppColors.surface,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
           onPressed: _handleBack,
@@ -390,7 +390,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                   onPressed: (canProceed && !_isLoading) ? _nextStep : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: canProceed
-                        ? AppColors.cyan
+                        ? AppColors.orange
                         : AppColors.line,
                     foregroundColor:
                         canProceed ? Colors.white : AppColors.stone,
@@ -428,70 +428,75 @@ class _OptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.orange : AppColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? AppColors.orange : AppColors.line,
-            width: 0.5,
-          ),
-        ),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    option.icon,
-                    color: selected ? Colors.white : AppColors.ink,
-                    size: 26,
-                  ),
-                  const SizedBox(height: 6),
-                  Flexible(
-                    child: Text(
-                      option.label,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelLarge
-                          ?.copyWith(
-                            color: selected ? Colors.white : AppColors.ink,
-                            fontSize: 13,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.orange : AppColors.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: selected ? AppColors.orange : AppColors.line,
+              width: 0.5,
             ),
-            if (selected)
-              Positioned(
-                top: 10,
-                right: 10,
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.9), width: 1),
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    color: AppColors.orange,
-                    size: 14,
-                  ),
+          ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      option.icon,
+                      color: selected ? Colors.white : AppColors.ink,
+                      size: 26,
+                    ),
+                    const SizedBox(height: 6),
+                    Flexible(
+                      child: Text(
+                        option.label,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelLarge
+                            ?.copyWith(
+                              color: selected ? Colors.white : AppColors.ink,
+                              fontSize: 13,
+                            ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-          ],
+              if (selected)
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.9), width: 1),
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: AppColors.orange,
+                      size: 14,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
