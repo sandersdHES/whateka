@@ -4,7 +4,7 @@
     "start_url": "/",
     "display": "standalone",
     "background_color": "#FFFFFF",
-    "theme_color": "#FF6B35",
+    "theme_color": "#FF6F61",
     "description": "Whateka vous recommande les meilleures activités en Valais selon vos envies et votre budget.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
