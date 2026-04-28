@@ -444,15 +444,15 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF0F0),
+                      color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                          color: const Color(0xFFE53935), width: 0.5),
+                          color: Theme.of(context).colorScheme.error, width: 0.5),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline,
-                            size: 18, color: Color(0xFFE53935)),
+                        Icon(Icons.error_outline,
+                            size: 18, color: Theme.of(context).colorScheme.error),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
@@ -460,7 +460,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
-                                ?.copyWith(color: const Color(0xFFB71C1C)),
+                                ?.copyWith(color: Theme.of(context).colorScheme.error),
                           ),
                         ),
                       ],
@@ -693,8 +693,11 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                     runSpacing: 8,
                     children: _priceLevels.map((p) {
                       final isSel = _priceLevel == p.$1;
-                      return GestureDetector(
+                      return Material(
+                        color: Colors.transparent,
+                        child: InkWell(
                         onTap: () => setState(() => _priceLevel = p.$1),
+                        borderRadius: BorderRadius.circular(999),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
                           padding: const EdgeInsets.symmetric(
@@ -720,6 +723,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                                   fontWeight: FontWeight.w600,
                                 ),
                           ),
+                        ),
                         ),
                       );
                     }).toList(),
@@ -868,8 +872,11 @@ class _ChipSelector extends StatelessWidget {
       runSpacing: 8,
       children: List.generate(options.length, (i) {
         final isSel = selected.contains(values[i]);
-        return GestureDetector(
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
           onTap: () => onToggle(values[i]),
+          borderRadius: BorderRadius.circular(999),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -888,6 +895,7 @@ class _ChipSelector extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
             ),
+          ),
           ),
         );
       }),
@@ -910,31 +918,35 @@ class _ToggleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.orange : AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: selected ? AppColors.orange : AppColors.line,
-            width: 0.5,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(icon,
-                color: selected ? Colors.white : AppColors.ink, size: 24),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: selected ? Colors.white : AppColors.ink,
-                  ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.orange : AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: selected ? AppColors.orange : AppColors.line,
+              width: 0.5,
             ),
-          ],
+          ),
+          child: Column(
+            children: [
+              Icon(icon,
+                  color: selected ? Colors.white : AppColors.ink, size: 24),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: selected ? Colors.white : AppColors.ink,
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
@@ -53,7 +52,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
         final s = S.of(context);
         final displayName = _userName ?? s.homeMenuDefaultUserName;
         return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFB),
+      backgroundColor: AppColors.surface,
       bottomNavigationBar:
           const WhatekBottomNav(currentRoute: '/dashboard'),
       body: Stack(
@@ -96,22 +95,23 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        GestureDetector(
-                          onTap: () => Navigator.pushNamed(context, '/profile'),
-                          child: _GlassContainer(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.account_circle,
-                                    color: AppColors.cyan, size: 28),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '${s.homeMenuGreeting} $displayName',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => Navigator.pushNamed(context, '/profile'),
+                            borderRadius: BorderRadius.circular(30),
+                            child: _GlassContainer(
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.account_circle,
+                                      color: AppColors.cyan, size: 28),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${s.homeMenuGreeting} $displayName',
+                                    style: Theme.of(context).textTheme.labelLarge,
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -136,13 +136,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                       child: Text(
                         s.homeMenuExploreTitle,
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.6,
-                          height: 1.2,
-                          color: AppColors.ink,
-                        ),
+                        style: Theme.of(context).textTheme.headlineLarge,
                       ),
                     ),
                     const Spacer(),
@@ -230,11 +224,7 @@ class _MenuButton extends StatelessWidget {
                 Expanded(
                   child: Text(
                     label,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.black.withValues(alpha: 0.8),
-                    ),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
                 Icon(Icons.arrow_forward_ios,

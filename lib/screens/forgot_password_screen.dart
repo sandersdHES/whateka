@@ -77,7 +77,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       builder: (context, _) {
         final s = S.of(context);
         return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
@@ -132,17 +132,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   Text(
                     s.forgotPasswordTitle,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.black,
-                        ),
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     s.forgotPasswordPrompt,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.black.withValues(alpha: 0.6),
+                          color: AppColors.stone,
                         ),
                   ),
                   const SizedBox(height: 48),

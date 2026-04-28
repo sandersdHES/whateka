@@ -27,8 +27,7 @@ class EmailVerificationScreen extends StatelessWidget {
                     s.verificationHeading,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: AppColors.black,
-                          fontWeight: FontWeight.bold,
+                          color: AppColors.ink,
                         ),
                   ),
                   const SizedBox(height: 16),
@@ -36,7 +35,7 @@ class EmailVerificationScreen extends StatelessWidget {
                     s.verificationDescription,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.black.withValues(alpha: 0.7),
+                          color: AppColors.stone,
                         ),
                   ),
                   const SizedBox(height: 32),

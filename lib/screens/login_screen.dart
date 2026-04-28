@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (context, _) {
         final s = S.of(context);
         return Scaffold(
-          backgroundColor: AppColors.paper,
+          backgroundColor: AppColors.surface,
           body: SafeArea(
             child: ResponsiveCenter(
               child: Column(
@@ -170,10 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextButton.styleFrom(
                             foregroundColor: AppColors.cyan,
                           ),
-                          child: Text(
-                            s.btnSignup,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
+                          child: Text(s.btnSignup),
                         ),
                       ],
                     ),

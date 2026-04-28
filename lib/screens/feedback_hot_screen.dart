@@ -5,6 +5,7 @@ import '../models/activity.dart';
 import '../models/feedback_question.dart';
 import '../models/feedback_submission.dart';
 import '../services/feedback_service.dart';
+import '../widgets/responsive_center.dart';
 import '../widgets/whateka_bottom_nav.dart';
 
 /// Ecran de feedback "a chaud" affiche apres selection d'une activite.
@@ -80,7 +81,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
         SnackBar(
           content: Text(
               '${S.current.feedbackPlsAnswer} : ${missing.first}${missing.length > 1 ? " (+${missing.length - 1})" : ""}'),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
       return;
@@ -102,7 +103,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(S.current.feedbackThanks),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.green,
         ),
       );
       Navigator.of(context).popUntil((route) => route.isFirst);
@@ -110,7 +111,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(S.current.feedbackSendError),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -126,26 +127,29 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
       children: List.generate(5, (index) {
         final value = index + 1;
         final selected = draft.answerRating == value;
-        return GestureDetector(
-          onTap: () => setState(() => draft.answerRating = value),
-          child: Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: selected ? AppColors.orange : Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: selected ? AppColors.orange : Colors.grey[300]!,
-                width: 2,
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => setState(() => draft.answerRating = value),
+            borderRadius: BorderRadius.circular(8),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: selected ? AppColors.orange : AppColors.surface,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: selected ? AppColors.orange : AppColors.line,
+                  width: 1.5,
+                ),
               ),
-            ),
-            child: Center(
-              child: Text(
-                value.toString(),
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: selected ? Colors.white : Colors.black87,
+              child: Center(
+                child: Text(
+                  value.toString(),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: selected ? Colors.white : AppColors.ink,
+                  ),
                 ),
               ),
             ),
@@ -162,13 +166,11 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
           child: ElevatedButton(
             onPressed: () => setState(() => draft.answerBool = true),
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  draft.answerBool == true ? AppColors.orange : Colors.grey[200],
-              foregroundColor:
-                  draft.answerBool == true ? Colors.white : Colors.black87,
+              backgroundColor: draft.answerBool == true ? AppColors.orange : AppColors.line,
+              foregroundColor: draft.answerBool == true ? Colors.white : AppColors.ink,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              elevation: 0,
             ),
             child: Text(S.current.yes),
           ),
@@ -178,14 +180,11 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
           child: ElevatedButton(
             onPressed: () => setState(() => draft.answerBool = false),
             style: ElevatedButton.styleFrom(
-              backgroundColor: draft.answerBool == false
-                  ? AppColors.orange
-                  : Colors.grey[200],
-              foregroundColor:
-                  draft.answerBool == false ? Colors.white : Colors.black87,
+              backgroundColor: draft.answerBool == false ? AppColors.orange : AppColors.line,
+              foregroundColor: draft.answerBool == false ? Colors.white : AppColors.ink,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              elevation: 0,
             ),
             child: Text(S.current.no),
           ),
@@ -202,10 +201,9 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
       maxLines: 4,
       decoration: InputDecoration(
         hintText: S.current.feedbackTextHint,
-        border:
-            OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
         filled: true,
-        fillColor: Colors.grey[50],
+        fillColor: AppColors.surface,
       ),
     );
   }
@@ -214,7 +212,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
     if (draft.question.choices.isEmpty) {
       return Text(
         S.current.feedbackNoOptions,
-        style: const TextStyle(color: Colors.red),
+        style: TextStyle(color: Theme.of(context).colorScheme.error),
       );
     }
     return Wrap(
@@ -228,7 +226,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
           onSelected: (_) => setState(() => draft.answerChoice = choice),
           selectedColor: AppColors.orange,
           labelStyle: TextStyle(
-            color: selected ? Colors.white : Colors.black87,
+            color: selected ? Colors.white : AppColors.ink,
             fontWeight: FontWeight.w500,
           ),
         );
@@ -248,11 +246,9 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(S.current.feedbackRatingNotAtAll,
-                    style:
-                        TextStyle(fontSize: 12, color: Colors.grey[600])),
+                    style: Theme.of(context).textTheme.bodySmall),
                 Text(S.current.feedbackRatingFully,
-                    style:
-                        TextStyle(fontSize: 12, color: Colors.grey[600])),
+                    style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ],
@@ -273,9 +269,8 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          draft.question.text +
-              (draft.question.isRequired ? ' *' : ''),
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          draft.question.text + (draft.question.isRequired ? ' *' : ''),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(height: 12),
         input,
@@ -292,8 +287,6 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(s.feedbackTitle),
-            backgroundColor: AppColors.orange,
-            foregroundColor: Colors.white,
           ),
           bottomNavigationBar:
               const WhatekBottomNav(currentRoute: '/feedback_hot'),
@@ -310,8 +303,8 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline,
-                            size: 64, color: Colors.red),
+                        Icon(Icons.error_outline,
+                            size: 64, color: Theme.of(context).colorScheme.error),
                         const SizedBox(height: 16),
                         Text(
                           s.feedbackQuestionnaireLoadError,
@@ -321,7 +314,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                         const SizedBox(height: 8),
                         Text(
                           snapshot.error.toString(),
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          style: Theme.of(context).textTheme.bodySmall,
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
@@ -351,7 +344,9 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                 );
               }
 
-              return SingleChildScrollView(
+              return ResponsiveCenter(
+                maxWidth: 560,
+                child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,14 +365,12 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                         children: [
                           Text(
                             pickLocalized(widget.activity.title, widget.activity.titleEn),
-                            style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 8),
                           Text(
                             s.feedbackHeader,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.black87),
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ],
                       ),
@@ -439,7 +432,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                     const SizedBox(height: 16),
                   ],
                 ),
-              );
+              ));
             },
           ),
         );

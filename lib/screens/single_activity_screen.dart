@@ -172,7 +172,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
       builder: (context, _) {
         final s = S.of(context);
         return Scaffold(
-      backgroundColor: AppColors.paper,
+      backgroundColor: AppColors.surface,
       body: ResponsiveCenter(
         maxWidth: 560,
         child: Stack(
@@ -208,7 +208,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                   offset: const Offset(0, -28),
                   child: Container(
                     decoration: const BoxDecoration(
-                      color: AppColors.paper,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(28),
                       ),
@@ -382,9 +382,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                                           const SizedBox(width: 5),
                                           Text(
                                             s.activityViewMap,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
+                                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                               color: AppColors.ink,
                                             ),
                                           ),
@@ -462,23 +460,27 @@ class _GlassIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.black.withValues(alpha: 0.06),
-                width: 0.5,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: ClipOval(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.8),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  width: 0.5,
+                ),
               ),
+              child: Icon(icon, size: 18, color: iconColor ?? AppColors.ink),
             ),
-            child: Icon(icon, size: 18, color: iconColor ?? AppColors.ink),
           ),
         ),
       ),

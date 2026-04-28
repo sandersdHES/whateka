@@ -81,7 +81,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
       builder: (context, _) {
         final s = S.of(context);
         return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
@@ -132,7 +132,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                         s.updatePasswordSubtitle,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppColors.black.withValues(alpha: 0.6),
+                              color: AppColors.stone,
                             ),
                       ),
                       const SizedBox(height: 32),
@@ -176,7 +176,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                                 const SizedBox(height: 32),
                                 if (_isLoading)
                                   const Center(
-                                      child: CircularProgressIndicator())
+                                      child: CircularProgressIndicator(color: AppColors.cyan))
                                 else
                                   ElevatedButton(
                                     onPressed: _updatePassword,

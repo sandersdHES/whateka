@@ -253,11 +253,15 @@ class _MapScreenState extends State<MapScreen> {
                         point: LatLng(activity.latitude, activity.longitude),
                         width: 48,
                         height: 56,
-                        child: GestureDetector(
-                          onTap: () => _showActivityDetail(activity),
-                          child: _WhatekPin(
-                            color: _markerColorFor(activity.category),
-                            icon: _markerIconFor(activity.category),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _showActivityDetail(activity),
+                            borderRadius: BorderRadius.circular(24),
+                            child: _WhatekPin(
+                              color: _markerColorFor(activity.category),
+                              icon: _markerIconFor(activity.category),
+                            ),
                           ),
                         ),
                       )),
@@ -439,31 +443,33 @@ class _MapScreenState extends State<MapScreen> {
     required bool selected,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.cyan : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon,
-                size: 16,
-                color: selected ? Colors.white : AppColors.ink),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : AppColors.ink,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.cyan : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon,
+                  size: 16,
+                  color: selected ? Colors.white : AppColors.ink),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: selected ? Colors.white : AppColors.ink,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

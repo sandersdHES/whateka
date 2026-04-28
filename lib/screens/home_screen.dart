@@ -14,7 +14,7 @@ class HomeScreen extends StatelessWidget {
       builder: (context, _) {
         final s = S.of(context);
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.surface,
           body: Stack(
             children: [
               // Background Blobs

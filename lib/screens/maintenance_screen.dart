@@ -90,7 +90,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
         final theme = Theme.of(context);
         final s = S.of(context);
         return Scaffold(
-      backgroundColor: AppColors.paper,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -267,7 +267,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                     child: ElevatedButton(
                       onPressed: _isValidating ? null : _validateCode,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.cyan,
+                        backgroundColor: AppColors.orange,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -350,7 +350,7 @@ class _AccessSuccessScreenState extends State<AccessSuccessScreen>
         final theme = Theme.of(context);
         final s = S.of(context);
         return Scaffold(
-      backgroundColor: AppColors.paper,
+      backgroundColor: AppColors.surface,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
