@@ -124,6 +124,32 @@ class ActivityService {
     }
   }
 
+  /// v31 (Smart Recommender) : memorise les nouvelles recommandations dans
+  /// user_metadata.recent_recommendations en mode "FIFO" capee a 30. Les
+  /// nouvelles entrees passent devant. Sert a l'algo edge function pour
+  /// penaliser les activites deja vues (anti-repetition).
+  Future<void> _persistRecentRecommendations(List<int> newIds) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null || newIds.isEmpty) return;
+    final meta = user.userMetadata ?? {};
+    final raw = meta['recent_recommendations'];
+    final existing = raw is List
+        ? raw.whereType<int>().toList()
+        : <int>[];
+    // Prepend nouveaux IDs, deduplique en gardant l'ordre, cap a 30.
+    final merged = <int>[...newIds];
+    for (final id in existing) {
+      if (!merged.contains(id)) merged.add(id);
+    }
+    if (merged.length > 30) merged.removeRange(30, merged.length);
+    await _supabase.auth.updateUser(
+      UserAttributes(data: {
+        ...meta,
+        'recent_recommendations': merged,
+      }),
+    );
+  }
+
   /// Get AI-powered activity recommendations based on user preferences and context
   Future<AiResponse> getAIRecommendations({
     required Map<String, dynamic> userPrefs,
@@ -190,6 +216,18 @@ class ActivityService {
           activity.aiReason = recData['match_reason'] as String?;
           sortedActivities.add(activity);
         }
+      }
+
+      // v31 (Smart Recommender Phase 1.2) : memorise les IDs recommandes
+      // dans user_metadata.recent_recommendations pour que la prochaine
+      // requete penalise les activites deja vues. Les plus recents en
+      // premier, capees a 30 entrees pour eviter de gonfler indefiniment.
+      // Echec silencieux : si l'ecriture rate, l'algo continuera juste
+      // sans la penalite recence.
+      try {
+        await _persistRecentRecommendations(ids);
+      } catch (_) {
+        // ignore : pas critique
       }
 
       return AiResponse(

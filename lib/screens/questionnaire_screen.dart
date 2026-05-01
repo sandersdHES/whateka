@@ -145,6 +145,15 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
           ? 3
           : priceLevels.reduce((a, b) => a > b ? a : b);
 
+      // v31 (Smart Recommender Phase 1.2) : on envoie les IDs des activites
+      // recemment recommandees pour que l'edge function les penalise dans
+      // le scoring (anti-repetition). Les nouvelles recos sont memorisees
+      // ensuite par activity_service apres reception du resultat.
+      final recentRecsRaw = meta['recent_recommendations'];
+      final recentRecommendations = recentRecsRaw is List
+          ? recentRecsRaw.whereType<int>().toList()
+          : <int>[];
+
       final userPrefs = {
         'social': getSingleValue(0),
         'categories': getMultipleValues(1),
@@ -155,6 +164,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         'duration': getSingleValue(4),
         'radius_km': radiusKm,
         'region': region, // v22 : filtre canton-wide (Vaud/Valais) prioritaire
+        'recent_recommendations': recentRecommendations, // v31 anti-repetition
       };
 
       final contextData = await _contextService.getFullContext();
