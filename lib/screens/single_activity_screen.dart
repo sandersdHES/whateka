@@ -150,12 +150,11 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
     }
   }
 
-  /// Traduit la première catégorie (DB key -> label affiché localisé).
-  String _translateCategory(String csv) {
+  /// Traduit une cle DB en label localise. Retourne la cle en l'etat si
+  /// inconnue (cas a oeil sur les donnees, sinon on log).
+  String _translateOneCategory(String key) {
     final s = S.current;
-    final cats = csv.split(',').map((c) => c.trim().toLowerCase()).where((c) => c.isNotEmpty).toList();
-    final c = cats.contains('event') ? 'event' : (cats.isNotEmpty ? cats.first : '');
-    switch (c) {
+    switch (key) {
       case 'culture':    return s.quizCatCulture;
       case 'nature':     return s.quizCatNature;
       case 'gastronomy': return s.quizCatGastronomy;
@@ -165,8 +164,28 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
       case 'fun':        return s.quizCatFun;
       case 'event':      return s.quizCatEvent;
       case 'institution':return s.quizCatEvent;
-      default:           return c;
+      default:           return key;
     }
+  }
+
+  /// Retourne TOUTES les categories de l'activite, traduites et joints
+  /// par " · ". `event` et `institution` sont fusionnes en un seul label
+  /// pour eviter les doublons visuels.
+  String _translateAllCategories(String csv) {
+    final raw = csv.split(',')
+        .map((c) => c.trim().toLowerCase())
+        .where((c) => c.isNotEmpty)
+        .toList();
+    final seen = <String>{};
+    final labels = <String>[];
+    for (final key in raw) {
+      // Fusionne event / institution en un seul label visuel.
+      final normalized = (key == 'institution') ? 'event' : key;
+      if (seen.add(normalized)) {
+        labels.add(_translateOneCategory(normalized));
+      }
+    }
+    return labels.join(' · ');
   }
 
   @override
@@ -221,10 +240,10 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Catégorie (traduite)
+                        // Catégories (toutes, traduites, separees par " · ")
                         if (activity.category != null) ...[
                           Text(
-                            _translateCategory(activity.category!).toUpperCase(),
+                            _translateAllCategories(activity.category!).toUpperCase(),
                             style: Theme.of(context).textTheme.labelSmall,
                           ),
                           const SizedBox(height: 8),
