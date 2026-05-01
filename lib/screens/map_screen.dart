@@ -42,6 +42,51 @@ class _MapScreenState extends State<MapScreen> {
   int? _focusedActivityId;
   bool _focusOpenedDetail = false;
 
+  // Categories selectionnees pour le filtre. Vide = afficher toutes.
+  // Les valeurs sont les cles DB ('nature', 'culture', etc.).
+  final Set<String> _selectedCategories = {};
+
+  // Liste des categories filtrables avec leur cle DB + label localise.
+  static const List<({String key, IconData icon})> _filterCategories = [
+    (key: 'nature',     icon: Icons.landscape),
+    (key: 'culture',    icon: Icons.museum),
+    (key: 'gastronomy', icon: Icons.restaurant),
+    (key: 'sport',      icon: Icons.directions_run),
+    (key: 'adventure',  icon: Icons.hiking),
+    (key: 'relax',      icon: Icons.spa),
+    (key: 'fun',        icon: Icons.celebration),
+    (key: 'event',      icon: Icons.event),
+  ];
+
+  String _categoryLabel(String key) {
+    final s = S.current;
+    switch (key) {
+      case 'nature':     return s.quizCatNature;
+      case 'culture':    return s.quizCatCulture;
+      case 'gastronomy': return s.quizCatGastronomy;
+      case 'sport':      return s.quizCatSport;
+      case 'adventure':  return s.quizCatAdventure;
+      case 'relax':      return s.quizCatRelax;
+      case 'fun':        return s.quizCatFun;
+      case 'event':      return s.quizCatEvent;
+      default:           return key;
+    }
+  }
+
+  Color _categoryColor(String key) {
+    switch (key) {
+      case 'nature':     return AppColors.green;
+      case 'culture':    return AppColors.brown;
+      case 'gastronomy': return AppColors.orange;
+      case 'sport':      return AppColors.cyan;
+      case 'adventure':  return AppColors.yellow;
+      case 'relax':      return const Color(0xFFB8A1D9);
+      case 'fun':        return AppColors.yellow;
+      case 'event':      return const Color(0xFFDC2626);
+      default:           return AppColors.stone;
+    }
+  }
+
   // Zoom par defaut quand on centre sur la position utilisateur :
   // 12 = vue de ville (assez large pour voir le canton alentour).
   static const double _userZoom = 12.0;
@@ -214,6 +259,15 @@ class _MapScreenState extends State<MapScreen> {
       if (a.isExpiredAt(now)) return false;
       // En mode Live : seulement les proposables maintenant
       if (_liveMode && !a.isProposableAt(now)) return false;
+      // Filtre catégories : si une selection existe, l'activite doit avoir
+      // au moins une categorie dans le set selectionne.
+      if (_selectedCategories.isNotEmpty) {
+        final cats = (a.category ?? '')
+            .split(',')
+            .map((c) => c.trim().toLowerCase())
+            .toSet();
+        if (!cats.any((c) => _selectedCategories.contains(c))) return false;
+      }
       if (_searchQuery.isNotEmpty) {
         final matchSearch = a.title.toLowerCase().contains(q) ||
             a.location.toLowerCase().contains(q) ||
@@ -376,40 +430,112 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Toggle Live / Tout
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Colors.black.withValues(alpha: 0.06),
-                            width: 0.5,
+                  // Ligne 1 : Toggle Live / Tout
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.85),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.black.withValues(alpha: 0.06),
+                                width: 0.5,
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildModeChip(
+                                  label: s.mapToggleAll,
+                                  icon: Icons.public,
+                                  selected: !_liveMode,
+                                  onTap: () => setState(() => _liveMode = false),
+                                ),
+                                const SizedBox(width: 4),
+                                _buildModeChip(
+                                  label: s.mapToggleLive,
+                                  icon: Icons.bolt,
+                                  selected: _liveMode,
+                                  onTap: () => setState(() => _liveMode = true),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        padding: const EdgeInsets.all(4),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildModeChip(
-                              label: s.mapToggleAll,
-                              icon: Icons.public,
-                              selected: !_liveMode,
-                              onTap: () => setState(() => _liveMode = false),
-                            ),
-                            const SizedBox(width: 4),
-                            _buildModeChip(
-                              label: s.mapToggleLive,
-                              icon: Icons.bolt,
-                              selected: _liveMode,
-                              onTap: () => setState(() => _liveMode = true),
-                            ),
-                          ],
-                        ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Ligne 2 : Filtre par catégories (chips horizontaux scrollables)
+                  SizedBox(
+                    height: 38,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _filterCategories.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 6),
+                      itemBuilder: (context, index) {
+                        final cat = _filterCategories[index];
+                        final selected = _selectedCategories.contains(cat.key);
+                        final color = _categoryColor(cat.key);
+                        return GestureDetector(
+                          onTap: () => setState(() {
+                            if (selected) {
+                              _selectedCategories.remove(cat.key);
+                            } else {
+                              _selectedCategories.add(cat.key);
+                            }
+                          }),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(999),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 180),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: selected
+                                      ? color
+                                      : Colors.white.withValues(alpha: 0.85),
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(
+                                    color: selected
+                                        ? color
+                                        : Colors.black.withValues(alpha: 0.06),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      cat.icon,
+                                      size: 14,
+                                      color: selected ? Colors.white : color,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      _categoryLabel(cat.key),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color:
+                                            selected ? Colors.white : AppColors.ink,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
