@@ -16,6 +16,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  // Affiche / masque le mot de passe (oeil clicable dans le suffixIcon).
+  bool _passwordVisible = false;
 
   Future<void> _signIn() async {
     if (!_formKey.currentState!.validate()) return;
@@ -119,8 +121,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                 labelText: s.loginPasswordPlaceholder,
                                 prefixIcon: const Icon(Icons.lock_outline,
                                     size: 20),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _passwordVisible
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    size: 20,
+                                    color: AppColors.stone,
+                                  ),
+                                  tooltip: _passwordVisible
+                                      ? s.passwordHide
+                                      : s.passwordShow,
+                                  onPressed: () => setState(
+                                      () => _passwordVisible = !_passwordVisible),
+                                ),
                               ),
-                              obscureText: true,
+                              obscureText: !_passwordVisible,
                               validator: (val) => (val == null || val.isEmpty)
                                   ? s.validationRequired
                                   : null,

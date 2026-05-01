@@ -207,6 +207,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// Suppression de compte definitive (App Store requirement).
   Future<void> _deleteAccount() async {
     final s = S.current;
     final confirmed = await showDialog<bool>(
@@ -244,6 +245,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  /// Affiche une bottom-sheet pour changer le mot de passe.
+  /// Verification : on retente une connexion avec l'ancien mot de passe avant
+  /// d'accepter le changement (Supabase ne fournit pas d'API "verify password"
+  /// dedie). Puis on appelle auth.updateUser(password: newPassword).
+  Future<void> _showChangePasswordSheet() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom,
+        ),
+        child: const _ChangePasswordSheet(),
+      ),
+    );
   }
 
   bool _isRadiusSelected(_RadiusOption o) {
@@ -524,6 +543,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 12),
 
+              // Section Securite : changer le mot de passe.
+              // Bouton outline pour ne pas concurrencer le CTA sauvegarder (cyan).
+              OutlinedButton.icon(
+                onPressed: _showChangePasswordSheet,
+                icon: const Icon(Icons.lock_reset, size: 18),
+                label: Text(s.profileChangePassword),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+              const SizedBox(height: 12),
+
               // Section Langue
               Text(
                 s.profileLanguage,
@@ -723,6 +754,269 @@ class _StatCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Bottom-sheet pour changer le mot de passe utilisateur.
+/// - Champ "actuel" verifie via signInWithPassword avec l'email courant
+/// - Champ "nouveau" + "confirmer" valides cote client (>=6 chars + match)
+/// - Sur succes : updateUser(password:) puis SnackBar + close.
+class _ChangePasswordSheet extends StatefulWidget {
+  const _ChangePasswordSheet();
+
+  @override
+  State<_ChangePasswordSheet> createState() => _ChangePasswordSheetState();
+}
+
+class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _currentCtrl = TextEditingController();
+  final _newCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
+  bool _currentVisible = false;
+  bool _newVisible = false;
+  bool _confirmVisible = false;
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _currentCtrl.dispose();
+    _newCtrl.dispose();
+    _confirmCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    final current = _currentCtrl.text.trim();
+    final next = _newCtrl.text.trim();
+    if (current == next) {
+      setState(() => _error = S.current.profileChangePasswordSamePwd);
+      return;
+    }
+
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+
+    final supabase = Supabase.instance.client;
+    final email = supabase.auth.currentUser?.email;
+    if (email == null) {
+      setState(() {
+        _busy = false;
+        _error = S.current.profileChangePasswordGenericError;
+      });
+      return;
+    }
+
+    try {
+      // 1. Verifier l'ancien mot de passe en retentant un signin.
+      //    Supabase n'expose pas d'API "verify only" — c'est la solution
+      //    standard utilisee dans les SDK officiels.
+      await supabase.auth.signInWithPassword(
+        email: email,
+        password: current,
+      );
+
+      // 2. Mettre a jour le mot de passe.
+      await supabase.auth.updateUser(UserAttributes(password: next));
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.current.profileChangePasswordSuccess),
+          backgroundColor: AppColors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } on AuthException catch (e) {
+      if (!mounted) return;
+      // Heuristique : message "Invalid login credentials" => mot de passe
+      // actuel incorrect. Sinon afficher le message brut.
+      final msg = e.message.toLowerCase();
+      setState(() {
+        _busy = false;
+        if (msg.contains('invalid') || msg.contains('credentials')) {
+          _error = S.current.profileChangePasswordCurrentInvalid;
+        } else {
+          _error = e.message;
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _error = S.current.profileChangePasswordGenericError;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Drag handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.line,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                s.profileChangePasswordTitle,
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              if (_error != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF0F0),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: const Color(0xFFE53935), width: 0.5),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline,
+                          size: 18, color: Color(0xFFE53935)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _error!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: const Color(0xFFB71C1C)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              TextFormField(
+                controller: _currentCtrl,
+                obscureText: !_currentVisible,
+                decoration: InputDecoration(
+                  labelText: s.profileChangePasswordCurrent,
+                  prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _currentVisible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      size: 20,
+                      color: AppColors.stone,
+                    ),
+                    tooltip:
+                        _currentVisible ? s.passwordHide : s.passwordShow,
+                    onPressed: () => setState(
+                        () => _currentVisible = !_currentVisible),
+                  ),
+                ),
+                validator: (v) => (v == null || v.isEmpty)
+                    ? s.validationRequired
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _newCtrl,
+                obscureText: !_newVisible,
+                decoration: InputDecoration(
+                  labelText: s.updatePasswordNewLabel,
+                  prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _newVisible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      size: 20,
+                      color: AppColors.stone,
+                    ),
+                    tooltip: _newVisible ? s.passwordHide : s.passwordShow,
+                    onPressed: () =>
+                        setState(() => _newVisible = !_newVisible),
+                  ),
+                ),
+                validator: (v) => (v != null && v.length >= 6)
+                    ? null
+                    : s.validationMinChars,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _confirmCtrl,
+                obscureText: !_confirmVisible,
+                decoration: InputDecoration(
+                  labelText: s.updatePasswordConfirmLabel,
+                  prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _confirmVisible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      size: 20,
+                      color: AppColors.stone,
+                    ),
+                    tooltip:
+                        _confirmVisible ? s.passwordHide : s.passwordShow,
+                    onPressed: () => setState(
+                        () => _confirmVisible = !_confirmVisible),
+                  ),
+                ),
+                validator: (v) {
+                  if (v == null || v.isEmpty) return s.validationRequired;
+                  if (v != _newCtrl.text) {
+                    return s.validationPasswordsMismatch;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _busy ? null : _submit,
+                child: _busy
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(s.profileChangePassword),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: _busy ? null : () => Navigator.of(context).pop(),
+                child: Text(s.btnCancel),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -72,11 +72,27 @@ class Activity {
 
     if (recurrenceType == null) return true;
     final hasWeekly = weeklyDays != null && weeklyDays!.isNotEmpty;
-    final hasSeasonal = seasonalMonths != null && seasonalMonths!.isNotEmpty;
-    final hasOneOff = recurrenceType == 'one_off' && dateStart != null && dateEnd != null;
+    final hasSeasonalMonths =
+        seasonalMonths != null && seasonalMonths!.isNotEmpty;
+    final hasDateRange = dateStart != null && dateEnd != null;
+    final hasOneOff = recurrenceType == 'one_off' && hasDateRange;
+    // v28 : seasonal peut aussi utiliser des dates precises (annee ignoree).
+    final hasSeasonalDates = recurrenceType == 'seasonal' && hasDateRange;
 
     if (hasWeekly && !weeklyDays!.contains(now.weekday % 7)) return false;
-    if (hasSeasonal && !seasonalMonths!.contains(now.month)) return false;
+    if (hasSeasonalMonths && !seasonalMonths!.contains(now.month)) return false;
+    // v28 : fenetre saisonniere precise (MM-JJ recurrent annuel).
+    if (hasSeasonalDates) {
+      final startKey = dateStart!.month * 100 + dateStart!.day;
+      final endKey = dateEnd!.month * 100 + dateEnd!.day;
+      final nowKey = now.month * 100 + now.day;
+      final inWindow = startKey <= endKey
+          // Fenetre dans la meme annee (ex : 1er juin -> 30 sept)
+          ? (nowKey >= startKey && nowKey <= endKey)
+          // Fenetre qui passe le 1er janvier (ex : 15 dec -> 5 avril)
+          : (nowKey >= startKey || nowKey <= endKey);
+      if (!inWindow) return false;
+    }
     if (hasOneOff) {
       final start = dateStart!;
       final end = DateTime(dateEnd!.year, dateEnd!.month, dateEnd!.day, 23, 59, 59);
@@ -96,7 +112,10 @@ class Activity {
         if (now.isBefore(start)) return false;
       }
     }
-    if (recurrenceType == 'seasonal' && !hasSeasonal) return false;
+    // v28 : exclure les seasonal sans aucune contrainte concrete.
+    if (recurrenceType == 'seasonal' && !hasSeasonalMonths && !hasSeasonalDates) {
+      return false;
+    }
     return true;
   }
 

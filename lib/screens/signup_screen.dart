@@ -19,6 +19,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _firstnameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  // Toggle indépendant pour chaque champ (mot de passe + confirmation).
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
 
   @override
   void dispose() {
@@ -136,8 +139,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 labelText: s.loginPasswordPlaceholder,
                                 prefixIcon: const Icon(Icons.lock_outline,
                                     size: 20),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _passwordVisible
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    size: 20,
+                                    color: AppColors.stone,
+                                  ),
+                                  tooltip: _passwordVisible
+                                      ? s.passwordHide
+                                      : s.passwordShow,
+                                  onPressed: () => setState(
+                                      () => _passwordVisible = !_passwordVisible),
+                                ),
                               ),
-                              obscureText: true,
+                              obscureText: !_passwordVisible,
                               validator: (v) => (v != null && v.length >= 6)
                                   ? null
                                   : s.validationMinChars,
@@ -149,8 +166,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 labelText: s.signupConfirmPasswordPlaceholder,
                                 prefixIcon: const Icon(Icons.lock_outline,
                                     size: 20),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _confirmPasswordVisible
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    size: 20,
+                                    color: AppColors.stone,
+                                  ),
+                                  tooltip: _confirmPasswordVisible
+                                      ? s.passwordHide
+                                      : s.passwordShow,
+                                  onPressed: () => setState(() =>
+                                      _confirmPasswordVisible =
+                                          !_confirmPasswordVisible),
+                                ),
                               ),
-                              obscureText: true,
+                              obscureText: !_confirmPasswordVisible,
                               validator: (v) {
                                 if (v == null || v.isEmpty) return s.validationRequired;
                                 if (v != _passwordController.text) {

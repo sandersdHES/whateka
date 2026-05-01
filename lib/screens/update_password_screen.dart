@@ -16,6 +16,8 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
 
   Future<void> _updatePassword() async {
     if (!_formKey.currentState!.validate()) return;
@@ -149,8 +151,22 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                                   decoration: InputDecoration(
                                     labelText: s.updatePasswordNewLabel,
                                     prefixIcon: const Icon(Icons.lock_outline),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _passwordVisible
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined,
+                                        size: 20,
+                                        color: AppColors.stone,
+                                      ),
+                                      tooltip: _passwordVisible
+                                          ? s.passwordHide
+                                          : s.passwordShow,
+                                      onPressed: () => setState(() =>
+                                          _passwordVisible = !_passwordVisible),
+                                    ),
                                   ),
-                                  obscureText: true,
+                                  obscureText: !_passwordVisible,
                                   validator: (v) => (v != null && v.length >= 6)
                                       ? null
                                       : s.validationMinChars,
@@ -161,8 +177,23 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                                   decoration: InputDecoration(
                                     labelText: s.updatePasswordConfirmLabel,
                                     prefixIcon: const Icon(Icons.lock_outline),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _confirmPasswordVisible
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined,
+                                        size: 20,
+                                        color: AppColors.stone,
+                                      ),
+                                      tooltip: _confirmPasswordVisible
+                                          ? s.passwordHide
+                                          : s.passwordShow,
+                                      onPressed: () => setState(() =>
+                                          _confirmPasswordVisible =
+                                              !_confirmPasswordVisible),
+                                    ),
                                   ),
-                                  obscureText: true,
+                                  obscureText: !_confirmPasswordVisible,
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
                                       return s.validationRequired;

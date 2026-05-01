@@ -330,6 +330,17 @@ class _Strings {
   final String maintenanceCodeIncorrect;
   final String maintenanceOrSeparator;
 
+  // Password visibility & change-password (profile)
+  final String passwordShow;
+  final String passwordHide;
+  final String profileChangePassword;
+  final String profileChangePasswordTitle;
+  final String profileChangePasswordCurrent;
+  final String profileChangePasswordSuccess;
+  final String profileChangePasswordCurrentInvalid;
+  final String profileChangePasswordSamePwd;
+  final String profileChangePasswordGenericError;
+
   const _Strings({
     required this.appTagline,
     required this.comingSoonTitle,
@@ -590,6 +601,15 @@ class _Strings {
     required this.aiFetchError,
     required this.maintenanceCodeIncorrect,
     required this.maintenanceOrSeparator,
+    required this.passwordShow,
+    required this.passwordHide,
+    required this.profileChangePassword,
+    required this.profileChangePasswordTitle,
+    required this.profileChangePasswordCurrent,
+    required this.profileChangePasswordSuccess,
+    required this.profileChangePasswordCurrentInvalid,
+    required this.profileChangePasswordSamePwd,
+    required this.profileChangePasswordGenericError,
   });
 }
 
@@ -853,6 +873,15 @@ const _Strings _fr = _Strings(
   aiFetchError: "Erreur lors de la récupération des recommandations IA",
   maintenanceCodeIncorrect: "Code incorrect",
   maintenanceOrSeparator: "ou",
+  passwordShow: "Afficher le mot de passe",
+  passwordHide: "Masquer le mot de passe",
+  profileChangePassword: "Changer de mot de passe",
+  profileChangePasswordTitle: "Changer de mot de passe",
+  profileChangePasswordCurrent: "Mot de passe actuel",
+  profileChangePasswordSuccess: "Mot de passe modifié avec succès",
+  profileChangePasswordCurrentInvalid: "Mot de passe actuel incorrect",
+  profileChangePasswordSamePwd: "Le nouveau mot de passe doit être différent de l'ancien",
+  profileChangePasswordGenericError: "Impossible de changer le mot de passe",
 );
 
 const _Strings _en = _Strings(
@@ -1115,6 +1144,15 @@ const _Strings _en = _Strings(
   aiFetchError: "Error fetching AI recommendations",
   maintenanceCodeIncorrect: "Incorrect code",
   maintenanceOrSeparator: "or",
+  passwordShow: "Show password",
+  passwordHide: "Hide password",
+  profileChangePassword: "Change password",
+  profileChangePasswordTitle: "Change password",
+  profileChangePasswordCurrent: "Current password",
+  profileChangePasswordSuccess: "Password changed successfully",
+  profileChangePasswordCurrentInvalid: "Current password is incorrect",
+  profileChangePasswordSamePwd: "The new password must be different from the current one",
+  profileChangePasswordGenericError: "Could not change password",
 );
 
 /// Provider de locale (notifie les widgets quand la langue change).
