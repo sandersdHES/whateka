@@ -1,4 +1,31 @@
-// Whateka - Edge Function recommend-activity v31
+// Whateka - Edge Function recommend-activity v32
+// CHANGEMENTS v32 (Smart Recommender Phase 2 — personnalisation par historique) :
+//   - computeUserTasteProfile() : construit un profil utilisateur a la volee
+//     a partir de ses FAVORIS (signal principal). Si la table feedback existe
+//     encore (deprecation prevue), elle est utilisee en signal secondaire :
+//     ratings >= 4 = positif (renforce le profil), ratings <= 2 = negatif
+//     (alimente disliked_categories).
+//       * top_categories     : poids relatifs des categories likees
+//       * avg_price_level    : prix moyen prefere (1-5)
+//       * indoor_outdoor_pref: ratio des likes indoor vs outdoor
+//       * popular_social_tags: tags les plus presents dans les likes
+//       * disliked_categories: alimente seulement si feedback existe (sinon vide)
+//   - tasteBonus() : applique des bonus/penalites par candidat selon le profil
+//       * +4 max si match avec top_categories ponderee
+//       * +2 si price_level dans la plage preferee +/-1
+//       * +1 si indoor/outdoor matche la preference
+//       * +1 si overlap social_tags
+//       * -3 si categorie dans disliked_categories (no-op si feedback supprime)
+//   - Cold start : si total_signals (= nb favoris + feedback positifs) < 3,
+//     on skip la perso (Phase 1 seule). Evite d'orienter trop tot un nouvel
+//     user vers un pattern bruite.
+//   - Le profil est NON cache (calcul a chaque appel) car peu couteux et
+//     toujours frais. ~2 queries supplementaires.
+//   - NOTE deprecation feedback : quand les tables feedback_submissions /
+//     feedback_answers seront supprimees, ce code degrade gracieusement
+//     (queries vides). Pour conserver le signal negatif il faudra ajouter
+//     un mecanisme explicite (ex : bouton "pas interesse" sur fiche activite).
+//
 // CHANGEMENTS v31 (Smart Recommender Phase 1) :
 //   1. Score qualite : bonus selon nb de favoris + rating moyen feedback
 //      - Top 20% qualite : +3
@@ -357,38 +384,43 @@ async function fetchQualityBonus(
     favCount.set(r.activity_id, (favCount.get(r.activity_id) ?? 0) + 1);
   }
 
-  // Calcule le rating moyen via feedback_submissions + feedback_answers.
-  // Limite : on ne lit que les ratings (answer_rating IS NOT NULL).
-  const { data: subRows } = await supabase
-    .from("feedback_submissions")
-    .select("id, activity_id")
-    .in("activity_id", candidateIds);
-
-  const subToActivity = new Map<string, number>();
-  for (const r of (subRows ?? []) as Array<{ id: string; activity_id: number }>) {
-    subToActivity.set(r.id, r.activity_id);
-  }
-
+  // Rating moyen via feedback_submissions + feedback_answers (DEPRECATION en cours).
+  // Si tables vides/supprimees, le score qualite sera base uniquement sur les
+  // favoris — toujours fonctionnel.
   const ratingSum = new Map<number, number>();
   const ratingCount = new Map<number, number>();
-  if (subToActivity.size > 0) {
-    const subIds = Array.from(subToActivity.keys());
-    const { data: ansRows } = await supabase
-      .from("feedback_answers")
-      .select("submission_id, answer_rating")
-      .in("submission_id", subIds)
-      .not("answer_rating", "is", null);
+  try {
+    const { data: subRows } = await supabase
+      .from("feedback_submissions")
+      .select("id, activity_id")
+      .in("activity_id", candidateIds);
+    const subToActivity = new Map<string, number>();
     for (
-      const r of (ansRows ?? []) as Array<{
-        submission_id: string;
-        answer_rating: number;
-      }>
+      const r of (subRows ?? []) as Array<{ id: string; activity_id: number }>
     ) {
-      const aid = subToActivity.get(r.submission_id);
-      if (aid == null) continue;
-      ratingSum.set(aid, (ratingSum.get(aid) ?? 0) + r.answer_rating);
-      ratingCount.set(aid, (ratingCount.get(aid) ?? 0) + 1);
+      subToActivity.set(r.id, r.activity_id);
     }
+    if (subToActivity.size > 0) {
+      const subIds = Array.from(subToActivity.keys());
+      const { data: ansRows } = await supabase
+        .from("feedback_answers")
+        .select("submission_id, answer_rating")
+        .in("submission_id", subIds)
+        .not("answer_rating", "is", null);
+      for (
+        const r of (ansRows ?? []) as Array<{
+          submission_id: string;
+          answer_rating: number;
+        }>
+      ) {
+        const aid = subToActivity.get(r.submission_id);
+        if (aid == null) continue;
+        ratingSum.set(aid, (ratingSum.get(aid) ?? 0) + r.answer_rating);
+        ratingCount.set(aid, (ratingCount.get(aid) ?? 0) + 1);
+      }
+    }
+  } catch (_e) {
+    // Tables feedback supprimees : le score qualite passe en mode favoris-only.
   }
 
   // Score qualite combine : 0.7 * (rating moyen / 5) + 0.3 * (favoris normalises)
@@ -416,6 +448,284 @@ async function fetchQualityBonus(
     if (i < top20Cutoff) bonus.set(sorted[i][0], 3);
     else if (i < top50Cutoff) bonus.set(sorted[i][0], 1);
   }
+  return bonus;
+}
+
+/**
+ * v32 (Smart Recommender Phase 2) — profil de gout calcule depuis l'historique
+ * d'un user (favoris + feedbacks positifs et negatifs).
+ */
+type UserTasteProfile = {
+  totalSignals: number; // nb total d'activites likees + feedbacks pos
+  topCategories: Map<string, number>; // poids 0..1 par categorie
+  avgPriceLevel: number | null; // moyenne 1-5 ou null si pas de signal
+  indoorOutdoorPref: "mostly_indoor" | "mostly_outdoor" | "mixed" | null;
+  popularSocialTags: Set<string>; // tags presents dans >= 30% des likes
+  dislikedCategories: Set<string>; // categories notees <= 2 dans le feedback
+};
+
+/**
+ * Construit le profil de gout du user a la volee. Lit :
+ *   - favorites jointes a activities (signal positif fort)
+ *   - feedback_submissions + feedback_answers avec rating >= 4 (positif)
+ *   - feedback avec rating <= 2 (negatif, alimente dislikedCategories)
+ *
+ * Si le user a < 3 signaux totaux, retourne un profil vide (cold start).
+ * Echec gracieux : en cas d'erreur DB on retourne null (l'algo continue
+ * sans personnalisation).
+ */
+async function computeUserTasteProfile(
+  supabase: ReturnType<typeof createClient>,
+  userId: string | null,
+): Promise<UserTasteProfile | null> {
+  if (!userId) return null;
+  try {
+    // 1. Favoris : signal positif fort. Joint avec activities pour metadata.
+    const { data: favData } = await supabase
+      .from("favorites")
+      .select(
+        "activities!inner(id, category, price_level, is_indoor, is_outdoor, social_tags)",
+      )
+      .eq("user_id", userId);
+
+    type ActMeta = {
+      id: number;
+      category: string | null;
+      price_level: number | null;
+      is_indoor: boolean | null;
+      is_outdoor: boolean | null;
+      social_tags: string[] | null;
+    };
+    const positives: ActMeta[] = ((favData ?? []) as Array<{ activities: ActMeta }>)
+      .map((r) => r.activities)
+      .filter(Boolean);
+
+    // 2. Feedbacks (DEPRECATION en cours) : si les tables existent encore on
+    //    extrait les ratings positifs (>=4) et negatifs (<=2) en moyennant
+    //    par activity_id. Si tables vides ou supprimees -> queries renvoient
+    //    rien, on continue en favoris-only.
+    const ratingsByActivity = new Map<number, number[]>();
+    try {
+      const { data: subData } = await supabase
+        .from("feedback_submissions")
+        .select("id, activity_id")
+        .eq("user_id", userId);
+      const subToActivity = new Map<string, number>();
+      for (
+        const s of (subData ?? []) as Array<{ id: string; activity_id: number }>
+      ) {
+        subToActivity.set(s.id, s.activity_id);
+      }
+      if (subToActivity.size > 0) {
+        const subIds = Array.from(subToActivity.keys());
+        const { data: ansData } = await supabase
+          .from("feedback_answers")
+          .select("submission_id, answer_rating")
+          .in("submission_id", subIds)
+          .not("answer_rating", "is", null);
+        for (
+          const a of (ansData ?? []) as Array<{
+            submission_id: string;
+            answer_rating: number;
+          }>
+        ) {
+          const aid = subToActivity.get(a.submission_id);
+          if (aid == null) continue;
+          if (!ratingsByActivity.has(aid)) ratingsByActivity.set(aid, []);
+          ratingsByActivity.get(aid)!.push(a.answer_rating);
+        }
+      }
+    } catch (_e) {
+      // Tables feedback supprimees ou erreur de lecture : pas grave, le
+      // profil sera construit uniquement depuis les favoris (signal principal).
+    }
+
+    // Calcule rating moyen par activite ET separe positifs (>=4) vs negatifs (<=2).
+    const positiveActivityIds = new Set<number>();
+    const negativeActivityIds = new Set<number>();
+    for (const [aid, ratings] of ratingsByActivity.entries()) {
+      const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+      if (avg >= 4) positiveActivityIds.add(aid);
+      else if (avg <= 2) negativeActivityIds.add(aid);
+    }
+
+    // 3. Charge les metadata des activites positives feedback (pas deja dans favoris)
+    //    et des negatives (pour disliked categories).
+    const knownIds = new Set(positives.map((a) => a.id));
+    const additionalIds = [
+      ...positiveActivityIds,
+      ...negativeActivityIds,
+    ].filter((id) => !knownIds.has(id));
+    let additionalActs: ActMeta[] = [];
+    if (additionalIds.length > 0) {
+      const { data: addData } = await supabase
+        .from("activities")
+        .select("id, category, price_level, is_indoor, is_outdoor, social_tags")
+        .in("id", additionalIds);
+      additionalActs = (addData ?? []) as ActMeta[];
+    }
+    const allActs = new Map<number, ActMeta>();
+    for (const a of positives) allActs.set(a.id, a);
+    for (const a of additionalActs) allActs.set(a.id, a);
+
+    // Combine signals positifs : favoris + feedback>=4 (deduplique)
+    const positiveActs: ActMeta[] = [];
+    for (const a of positives) positiveActs.push(a);
+    for (const aid of positiveActivityIds) {
+      if (knownIds.has(aid)) continue;
+      const a = allActs.get(aid);
+      if (a) positiveActs.push(a);
+    }
+    const negativeActs: ActMeta[] = [];
+    for (const aid of negativeActivityIds) {
+      const a = allActs.get(aid);
+      if (a) negativeActs.push(a);
+    }
+
+    const totalSignals = positiveActs.length;
+    if (totalSignals === 0 && negativeActs.length === 0) return null;
+
+    // --- Aggregations ---
+    // top_categories : compte les occurrences puis normalise.
+    const catCount = new Map<string, number>();
+    for (const a of positiveActs) {
+      const cats = (a.category ?? "")
+        .split(",")
+        .map((c) => c.trim().toLowerCase())
+        .filter(Boolean);
+      for (const c of cats) catCount.set(c, (catCount.get(c) ?? 0) + 1);
+    }
+    const totalCatOcc = [...catCount.values()].reduce((a, b) => a + b, 0) || 1;
+    const topCategories = new Map<string, number>();
+    for (const [c, n] of catCount.entries()) {
+      topCategories.set(c, n / totalCatOcc);
+    }
+
+    // avg_price_level : moyenne (ignore les null)
+    const prices = positiveActs
+      .map((a) => a.price_level)
+      .filter((p): p is number => typeof p === "number");
+    const avgPriceLevel = prices.length > 0
+      ? prices.reduce((a, b) => a + b, 0) / prices.length
+      : null;
+
+    // indoor_outdoor_pref : ratio outdoor vs indoor
+    let indoorN = 0, outdoorN = 0;
+    for (const a of positiveActs) {
+      if (a.is_indoor) indoorN++;
+      if (a.is_outdoor) outdoorN++;
+    }
+    let indoorOutdoorPref: UserTasteProfile["indoorOutdoorPref"] = null;
+    if (indoorN + outdoorN > 0) {
+      const ratio = outdoorN / (indoorN + outdoorN);
+      if (ratio >= 0.7) indoorOutdoorPref = "mostly_outdoor";
+      else if (ratio <= 0.3) indoorOutdoorPref = "mostly_indoor";
+      else indoorOutdoorPref = "mixed";
+    }
+
+    // popular_social_tags : tags qui apparaissent dans >= 30% des likes
+    const tagCount = new Map<string, number>();
+    for (const a of positiveActs) {
+      for (const t of a.social_tags ?? []) {
+        tagCount.set(t, (tagCount.get(t) ?? 0) + 1);
+      }
+    }
+    const popThreshold = Math.max(1, Math.floor(positiveActs.length * 0.3));
+    const popularSocialTags = new Set<string>();
+    for (const [t, n] of tagCount.entries()) {
+      if (n >= popThreshold) popularSocialTags.add(t);
+    }
+
+    // disliked_categories : categories presentes dans les feedback negatifs.
+    const dislikedCategories = new Set<string>();
+    for (const a of negativeActs) {
+      const cats = (a.category ?? "")
+        .split(",")
+        .map((c) => c.trim().toLowerCase())
+        .filter(Boolean);
+      for (const c of cats) dislikedCategories.add(c);
+    }
+    // Garde-fou : si une categorie est a la fois dans top et disliked
+    // (cas theorique : like d'une activite mixte + dislike d'une autre),
+    // on retire de disliked.
+    for (const c of [...dislikedCategories]) {
+      if (topCategories.has(c)) dislikedCategories.delete(c);
+    }
+
+    return {
+      totalSignals,
+      topCategories,
+      avgPriceLevel,
+      indoorOutdoorPref,
+      popularSocialTags,
+      dislikedCategories,
+    };
+  } catch (_e) {
+    return null;
+  }
+}
+
+/**
+ * v32 (Smart Recommender Phase 2) — bonus / penalite par candidat selon
+ * le profil de gout du user. Cold start : si totalSignals < 3, on retourne 0
+ * (la personnalisation requiert un minimum d'historique).
+ */
+function tasteBonus(
+  a: {
+    category?: string | null;
+    price_level?: number | null;
+    is_indoor?: boolean | null;
+    is_outdoor?: boolean | null;
+    social_tags?: string[] | null;
+  },
+  profile: UserTasteProfile | null,
+): number {
+  if (!profile || profile.totalSignals < 3) return 0;
+  let bonus = 0;
+  const cats = (a.category ?? "")
+    .split(",")
+    .map((c) => c.trim().toLowerCase())
+    .filter(Boolean);
+
+  // 1. Top categories : somme des poids matches, plafonnee a +4.
+  let catWeight = 0;
+  for (const c of cats) {
+    const w = profile.topCategories.get(c);
+    if (typeof w === "number") catWeight += w;
+  }
+  bonus += Math.min(4, catWeight * 4);
+
+  // 2. Disliked categories : -3 si au moins une categorie matchee.
+  for (const c of cats) {
+    if (profile.dislikedCategories.has(c)) {
+      bonus -= 3;
+      break;
+    }
+  }
+
+  // 3. Prix : +2 si dans la plage preferee +/-1.
+  if (profile.avgPriceLevel != null && typeof a.price_level === "number") {
+    if (Math.abs(a.price_level - profile.avgPriceLevel) <= 1) bonus += 2;
+  }
+
+  // 4. Indoor / outdoor pref.
+  if (profile.indoorOutdoorPref === "mostly_indoor" && a.is_indoor) bonus += 1;
+  if (profile.indoorOutdoorPref === "mostly_outdoor" && a.is_outdoor) bonus += 1;
+  // mixed : bonus +1 si l'activite est mixte (indoor ET outdoor)
+  if (profile.indoorOutdoorPref === "mixed" && a.is_indoor && a.is_outdoor) {
+    bonus += 1;
+  }
+
+  // 5. Social tags : +1 si overlap avec les tags populaires.
+  if (profile.popularSocialTags.size > 0) {
+    for (const t of a.social_tags ?? []) {
+      if (profile.popularSocialTags.has(t)) {
+        bonus += 1;
+        break;
+      }
+    }
+  }
+
   return bonus;
 }
 
@@ -511,6 +821,11 @@ serve(async (req) => {
 
     const userLat: number | null = contextData.location?.latitude ?? null;
     const userLng: number | null = contextData.location?.longitude ?? null;
+    // v32 : user_id passe en body (deja le cas, ligne 143 d'activity_service.dart)
+    // pour personnaliser le scoring via taste profile.
+    const userId: string | null = (typeof body.user_id === "string")
+      ? body.user_id
+      : null;
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -608,16 +923,21 @@ serve(async (req) => {
       );
     }
 
-    // v31 : Smart Recommender Phase 1 — scoring multi-facteurs.
+    // v32 : Smart Recommender Phase 2 — scoring personnalise.
     // Composants (au-dela des hard filters categories/price/environment) :
     //   - bonus categories supplementaires (v28)
     //   - duration scoring soft (v28)
     //   - social tag match (v28)
-    //   - QUALITE   : favoris + ratings  (v31, bonus jusqu'a +3)
-    //   - METEO     : indoor/outdoor selon temp + weather_code (v31, +/-3)
-    //   - RECENCE   : penalite si deja recommande recemment (v31, -2 a -5)
+    //   - QUALITE       : favoris + ratings (v31, bonus jusqu'a +3)
+    //   - METEO         : indoor/outdoor selon temp + weather_code (v31, +/-3)
+    //   - RECENCE       : penalite si deja recommande recemment (v31, -2 a -5)
+    //   - PERSO PROFIL  : top categories + prix + indoor/outdoor + tags (v32, +/- 7)
     const candidateIds = candidates.map((c) => c.id as number);
-    const qualityBonusMap = await fetchQualityBonus(supabase, candidateIds);
+    // Charge en parallele : qualite agregee globale ET profil de gout du user.
+    const [qualityBonusMap, tasteProfile] = await Promise.all([
+      fetchQualityBonus(supabase, candidateIds),
+      computeUserTasteProfile(supabase, userId),
+    ]);
 
     candidates = candidates
       .map((a) => {
@@ -625,7 +945,11 @@ serve(async (req) => {
         const qBonus = qualityBonusMap.get(a.id as number) ?? 0;
         const wBonus = weatherBonus(a as any, weather as any);
         const rPenalty = recencyPenalty(a.id as number, recentRecommendations);
-        return { ...a, _score: baseScore + qBonus + wBonus + rPenalty };
+        const tBonus = tasteBonus(a as any, tasteProfile);
+        return {
+          ...a,
+          _score: baseScore + qBonus + wBonus + rPenalty + tBonus,
+        };
       })
       .sort((a, b) => (b._score as number) - (a._score as number));
     // On garde au max 50 candidats apres tri pour limiter la taille du
