@@ -307,6 +307,22 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
     // Amplitude des rotations de membres (en radians). ~28° max.
     final armSwing = phase * 0.5;
     final legSwing = phase * 0.4;
+    // v2 : flexion realiste du genou et du coude.
+    // Le genou plie quand la jambe est en phase de "swing" (foot off ground),
+    // c'est-a-dire quand l'angle de hanche est en train d'augmenter (cos > 0).
+    // Pour la jambe gauche : angle = +legSwing, derivee = +cos(t) → bend si cos > 0.
+    // Pour la jambe droite : angle = -legSwing, derivee = -cos(t) → bend si cos < 0.
+    // Idem pour les coudes (les bras swing en phase opposee aux jambes).
+    final cosPhase = _state == _PromenadeState.walking
+        ? math.cos(_walkTime * 5)
+        : 0.0;
+    final leftKneeBend = math.max(0.0, cosPhase) * 0.7;   // 0..40°
+    final rightKneeBend = math.max(0.0, -cosPhase) * 0.7;
+    // Coude : plus subtil que le genou (~25° max).
+    // Bras droit (avant) : angle = +armSwing → bend si cos > 0.
+    // Bras gauche (arriere) : angle = -armSwing → bend si cos < 0.
+    final rightElbowBend = math.max(0.0, cosPhase) * 0.4;
+    final leftElbowBend = math.max(0.0, -cosPhase) * 0.4;
 
     return SizedBox(
       height: widget.height,
@@ -347,15 +363,18 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
                               _Leg(
                                 hipX: 42,
                                 hipY: 118,
-                                // Jambe "droite" (index 0) : decalage phase 0.
-                                angle: legSwing,
+                                // Jambe "gauche" (hanche gauche).
+                                hipAngle: legSwing,
+                                kneeBend: leftKneeBend,
                                 pants: palette.pants,
                                 shoe: palette.shoe,
                               ),
                               _Leg(
                                 hipX: 56,
                                 hipY: 118,
-                                angle: -legSwing,
+                                // Jambe "droite" (hanche droite, phase opposee).
+                                hipAngle: -legSwing,
+                                kneeBend: rightKneeBend,
                                 pants: palette.pants,
                                 shoe: palette.shoe,
                               ),
@@ -363,8 +382,9 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
                               _Arm(
                                 shoulderX: 28,
                                 shoulderY: 58,
-                                // Bras "droit" (index 0) : phase opposee a la jambe droite.
-                                angle: -armSwing,
+                                // Bras gauche : phase opposee au bras droit.
+                                shoulderAngle: -armSwing,
+                                elbowBend: leftElbowBend,
                                 sleeve: palette.sleeve,
                                 skin: palette.skin,
                               ),
@@ -378,7 +398,8 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
                               _Arm(
                                 shoulderX: 82,
                                 shoulderY: 58,
-                                angle: armSwing,
+                                shoulderAngle: armSwing,
+                                elbowBend: rightElbowBend,
                                 sleeve: palette.sleeve,
                                 skin: palette.skin,
                               ),
@@ -409,57 +430,101 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
   }
 }
 
-/// Jambe animee qui pivote autour de la hanche.
+/// Jambe animee a 2 segments avec genou flexible.
+/// - Cuisse : pivote autour de la hanche selon [hipAngle]
+/// - Tibia : pivote autour du genou (bas de cuisse) selon [kneeBend]
+/// - Pied : ellipse au bas du tibia
+///
+/// Le genou plie naturellement quand la jambe est en phase de "swing"
+/// (foot off ground) — donne une demarche realiste plutot que stiff.
 class _Leg extends StatelessWidget {
   final double hipX;
   final double hipY;
-  final double angle; // radians
+  final double hipAngle; // radians, ± ~25°
+  final double kneeBend; // radians, 0 a ~40° (toujours positif, plie en arriere)
   final Color pants;
   final Color shoe;
 
   const _Leg({
     required this.hipX,
     required this.hipY,
-    required this.angle,
+    required this.hipAngle,
+    required this.kneeBend,
     required this.pants,
     required this.shoe,
   });
 
   @override
   Widget build(BuildContext context) {
-    const legWidth = 14.0;
-    const legHeight = 80.0;
+    const thighWidth = 14.0;
+    const thighHeight = 38.0;
+    const shinWidth = 13.0;
+    const shinHeight = 40.0;
+    const shoeHeight = 10.0;
+    const totalHeight = thighHeight + shinHeight + shoeHeight - 4;
+
     return Positioned(
-      left: hipX - legWidth / 2,
+      left: hipX - thighWidth / 2,
       top: hipY,
       child: Transform.rotate(
-        angle: angle,
+        angle: hipAngle,
         alignment: Alignment.topCenter,
         child: SizedBox(
-          width: legWidth,
-          height: legHeight + 6,
+          width: thighWidth,
+          height: totalHeight + 4,
           child: Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.topCenter,
             children: [
-              // Pantalon
+              // Cuisse (haut)
               Container(
-                width: legWidth,
-                height: legHeight,
+                width: thighWidth,
+                height: thighHeight,
                 decoration: BoxDecoration(
                   color: pants,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(6),
+                    bottom: Radius.circular(2),
+                  ),
                 ),
               ),
-              // Pied/chaussure
+              // Tibia + pied : pivote autour du genou (bas de cuisse).
               Positioned(
-                top: legHeight - 6,
-                child: Container(
-                  width: legWidth + 6,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: shoe,
-                    borderRadius: BorderRadius.circular(5),
+                top: thighHeight - 1,
+                child: Transform.rotate(
+                  angle: kneeBend,
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(
+                    width: shinWidth,
+                    height: shinHeight + shoeHeight,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.topCenter,
+                      children: [
+                        Container(
+                          width: shinWidth,
+                          height: shinHeight,
+                          decoration: BoxDecoration(
+                            color: pants,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(2),
+                              bottom: Radius.circular(3),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: shinHeight - 5,
+                          child: Container(
+                            width: shinWidth + 6,
+                            height: shoeHeight,
+                            decoration: BoxDecoration(
+                              color: shoe,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -471,18 +536,26 @@ class _Leg extends StatelessWidget {
   }
 }
 
-/// Bras anime qui pivote autour de l'epaule.
+/// Bras anime a 2 segments avec coude flexible.
+/// - Bras (haut) : pivote autour de l'epaule selon [shoulderAngle]
+/// - Avant-bras : pivote autour du coude selon [elbowBend]
+/// - Main : cercle au bout de l'avant-bras
+///
+/// Le coude plie subtilement quand le bras swing en avant — donne une
+/// allure naturelle (pas de bras raides comme un soldat).
 class _Arm extends StatelessWidget {
   final double shoulderX;
   final double shoulderY;
-  final double angle;
+  final double shoulderAngle; // radians, ± ~28°
+  final double elbowBend;     // radians, 0 a ~25°
   final Color sleeve;
   final Color skin;
 
   const _Arm({
     required this.shoulderX,
     required this.shoulderY,
-    required this.angle,
+    required this.shoulderAngle,
+    required this.elbowBend,
     required this.sleeve,
     required this.skin,
   });
@@ -490,36 +563,70 @@ class _Arm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const armWidth = 12.0;
-    const armHeight = 60.0;
+    const upperArmHeight = 28.0;
+    const forearmWidth = 11.0;
+    const forearmHeight = 30.0;
+    const handSize = 10.0;
+
     return Positioned(
       left: shoulderX - armWidth / 2,
       top: shoulderY,
       child: Transform.rotate(
-        angle: angle,
+        angle: shoulderAngle,
         alignment: Alignment.topCenter,
         child: SizedBox(
           width: armWidth,
-          height: armHeight + 5,
+          height: upperArmHeight + forearmHeight + handSize,
           child: Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.topCenter,
             children: [
+              // Bras (haut)
               Container(
                 width: armWidth,
-                height: armHeight,
+                height: upperArmHeight,
                 decoration: BoxDecoration(
                   color: sleeve,
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(6),
+                    bottom: Radius.circular(3),
+                  ),
                 ),
               ),
+              // Avant-bras + main : pivote autour du coude.
               Positioned(
-                top: armHeight - 4,
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: skin,
-                    shape: BoxShape.circle,
+                top: upperArmHeight - 1,
+                child: Transform.rotate(
+                  angle: elbowBend,
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(
+                    width: forearmWidth,
+                    height: forearmHeight + handSize,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.topCenter,
+                      children: [
+                        Container(
+                          width: forearmWidth,
+                          height: forearmHeight,
+                          decoration: BoxDecoration(
+                            color: sleeve,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        Positioned(
+                          top: forearmHeight - 3,
+                          child: Container(
+                            width: handSize,
+                            height: handSize,
+                            decoration: BoxDecoration(
+                              color: skin,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
