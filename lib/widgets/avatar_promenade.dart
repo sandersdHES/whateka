@@ -361,18 +361,20 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
                               // les jambes avant, la distinction gauche/droite
                               // depend de la phase de marche).
                               _Leg(
-                                hipX: 42,
+                                // v2 : hanches recentrees (46/64 au lieu de
+                                // 42/56) pour aligner le centre des jambes
+                                // avec le centre du torse (x=55). Avant les
+                                // jambes etaient decalees a gauche.
+                                hipX: 46,
                                 hipY: 118,
-                                // Jambe "gauche" (hanche gauche).
                                 hipAngle: legSwing,
                                 kneeBend: leftKneeBend,
                                 pants: palette.pants,
                                 shoe: palette.shoe,
                               ),
                               _Leg(
-                                hipX: 56,
+                                hipX: 64,
                                 hipY: 118,
-                                // Jambe "droite" (hanche droite, phase opposee).
                                 hipAngle: -legSwing,
                                 kneeBend: rightKneeBend,
                                 pants: palette.pants,
@@ -456,9 +458,11 @@ class _Leg extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const thighWidth = 14.0;
+    // v2 : jambes plus epaisses (16/15 au lieu de 14/13) pour mieux
+    // remplir la largeur sous le bassin. Plus naturel, moins "stick figure".
+    const thighWidth = 16.0;
     const thighHeight = 38.0;
-    const shinWidth = 13.0;
+    const shinWidth = 15.0;
     const shinHeight = 40.0;
     const shoeHeight = 10.0;
     const totalHeight = thighHeight + shinHeight + shoeHeight - 4;
@@ -562,9 +566,11 @@ class _Arm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const armWidth = 12.0;
+    // v2 : bras un peu plus epais (13/12 au lieu de 12/11). Les epaules
+    // restent a x=28 et x=82 (bord du torse), donc pas besoin de bouger.
+    const armWidth = 13.0;
     const upperArmHeight = 28.0;
-    const forearmWidth = 11.0;
+    const forearmWidth = 12.0;
     const forearmHeight = 30.0;
     const handSize = 10.0;
 
