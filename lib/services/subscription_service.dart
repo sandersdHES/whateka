@@ -351,4 +351,51 @@ class SubscriptionService {
     _cached = null;
     _cachedAt = null;
   }
+
+  // ────────────────────────────────────────────────────────────
+  // Stripe (Phase 2 — web only)
+  // ────────────────────────────────────────────────────────────
+
+  /// Cree une session Stripe Checkout pour le tier choisi.
+  /// Retourne l'URL Checkout a ouvrir dans le navigateur.
+  /// Web only — sur iOS, ne pas appeler (Apple interdit Stripe).
+  Future<String?> createStripeCheckoutSession({
+    required SubscriptionTier tier,
+    String? returnUrl,
+  }) async {
+    if (tier == SubscriptionTier.free) return null;
+    try {
+      final res = await _client.functions.invoke(
+        'stripe-create-checkout',
+        body: {
+          'tier': tier.key,
+          if (returnUrl != null) 'return_url': returnUrl,
+        },
+      );
+      if (res.status >= 200 && res.status < 300 && res.data is Map) {
+        final url = (res.data as Map)['url'] as String?;
+        return url;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Cree une session Stripe Customer Portal pour gerer/annuler son abo.
+  /// Retourne l'URL du portail. Web only.
+  Future<String?> createStripePortalSession({String? returnUrl}) async {
+    try {
+      final res = await _client.functions.invoke(
+        'stripe-portal',
+        body: returnUrl != null ? {'return_url': returnUrl} : null,
+      );
+      if (res.status >= 200 && res.status < 300 && res.data is Map) {
+        return (res.data as Map)['url'] as String?;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 }
