@@ -1,7 +1,38 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
 import '../services/subscription_service.dart';
+
+/// Ouvre le Stripe Customer Portal (web only). Sur iOS, redirige vers
+/// les Settings App Store (futur — Phase 3).
+Future<void> openSubscriptionManagement(BuildContext context) async {
+  if (!kIsWeb) {
+    // Sur iOS, on devra deep-link vers itms-apps://apps.apple.com/account/subscriptions
+    // (Phase 3). Pour l'instant : message info.
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(S.current.subscriptionManageMobileSoon),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
+  }
+  final url = await SubscriptionService.instance.createStripePortalSession();
+  if (url == null) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(S.current.subscriptionPortalError),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
+  }
+  await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+}
 
 /// Helper de formatage de date sans dependance externe (intl).
 /// Format : "12 mai 2026" (FR) ou "May 12, 2026" (EN).
@@ -626,6 +657,14 @@ class _RegionalBlock extends StatelessWidget {
           icon: const Icon(Icons.upgrade, size: 18),
           label: Text(s.subscriptionGoEvasion),
         ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: () => openSubscriptionManagement(context),
+          child: Text(
+            s.subscriptionManageLink,
+            style: const TextStyle(color: AppColors.stone),
+          ),
+        ),
       ],
     );
   }
@@ -701,6 +740,14 @@ class _EvasionBlock extends StatelessWidget {
                 ?.copyWith(color: AppColors.stone),
           ),
         ],
+        const SizedBox(height: 12),
+        TextButton(
+          onPressed: () => openSubscriptionManagement(context),
+          child: Text(
+            s.subscriptionManageLink,
+            style: const TextStyle(color: AppColors.stone),
+          ),
+        ),
       ],
     );
   }

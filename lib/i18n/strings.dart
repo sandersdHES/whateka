@@ -405,6 +405,12 @@ class _Strings {
   final String promoCodeErrorAlreadyRedeemed;
   final String promoCodeErrorNotAuthenticated;
   final String promoCodeErrorGeneric;
+  // Stripe (Phase 2)
+  final String subscriptionMobileSoon;
+  final String subscriptionManageMobileSoon;
+  final String subscriptionCheckoutError;
+  final String subscriptionPortalError;
+  final String subscriptionManageLink;
 
   const _Strings({
     required this.appTagline,
@@ -738,6 +744,11 @@ class _Strings {
     required this.promoCodeErrorAlreadyRedeemed,
     required this.promoCodeErrorNotAuthenticated,
     required this.promoCodeErrorGeneric,
+    required this.subscriptionMobileSoon,
+    required this.subscriptionManageMobileSoon,
+    required this.subscriptionCheckoutError,
+    required this.subscriptionPortalError,
+    required this.subscriptionManageLink,
   });
 }
 
@@ -1073,6 +1084,11 @@ const _Strings _fr = _Strings(
   promoCodeErrorAlreadyRedeemed: "Tu as déjà utilisé ce code.",
   promoCodeErrorNotAuthenticated: "Connecte-toi d'abord.",
   promoCodeErrorGeneric: "Impossible d'activer ce code.",
+  subscriptionMobileSoon: "Le paiement sur mobile arrive bientôt. En attendant, abonne-toi depuis whateka.ch ou utilise un code promo.",
+  subscriptionManageMobileSoon: "La gestion sur mobile arrive bientôt. En attendant, va sur whateka.ch pour gérer ton abonnement.",
+  subscriptionCheckoutError: "Impossible de démarrer le paiement. Réessaie dans quelques instants.",
+  subscriptionPortalError: "Impossible d'ouvrir la gestion de l'abonnement.",
+  subscriptionManageLink: "Gérer / annuler mon abonnement →",
 );
 
 const _Strings _en = _Strings(
@@ -1407,6 +1423,11 @@ const _Strings _en = _Strings(
   promoCodeErrorAlreadyRedeemed: "You've already redeemed this code.",
   promoCodeErrorNotAuthenticated: "Sign in first.",
   promoCodeErrorGeneric: "Could not apply this code.",
+  subscriptionMobileSoon: "Mobile payment is coming soon. In the meantime, subscribe at whateka.ch or use a promo code.",
+  subscriptionManageMobileSoon: "Mobile management is coming soon. For now, go to whateka.ch to manage your subscription.",
+  subscriptionCheckoutError: "Could not start checkout. Try again in a moment.",
+  subscriptionPortalError: "Could not open subscription management.",
+  subscriptionManageLink: "Manage / cancel my subscription →",
 );
 
 /// Provider de locale (notifie les widgets quand la langue change).

@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
 import '../services/subscription_service.dart';
@@ -36,14 +38,39 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     });
   }
 
-  void _showSoonSnack() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-            'Le paiement sera disponible prochainement. Utilise un code promo en attendant.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  bool _checkoutLoading = false;
+
+  /// Lance le checkout Stripe pour un tier donne.
+  /// - Web : ouvre la session Stripe Checkout dans le meme onglet
+  /// - iOS / Android : affiche un message (paiement non disponible, Phase 3)
+  Future<void> _startCheckout(SubscriptionTier tier) async {
+    if (!kIsWeb) {
+      // Sur iOS, Apple interdit Stripe. Afficher un message.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.current.subscriptionMobileSoon),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    setState(() => _checkoutLoading = true);
+    final url = await SubscriptionService.instance
+        .createStripeCheckoutSession(tier: tier);
+    if (!mounted) return;
+    setState(() => _checkoutLoading = false);
+    if (url == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.current.subscriptionCheckoutError),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    final uri = Uri.parse(url);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   @override
@@ -120,7 +147,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             s.subscriptionRegionalFeature4,
                           ],
                           isCurrent: _state?.tier == SubscriptionTier.regional,
-                          onTap: _showSoonSnack,
+                          onTap: _checkoutLoading
+                              ? null
+                              : () => _startCheckout(SubscriptionTier.regional),
                           ctaLabel: s.subscriptionStartTrial,
                         ),
                         const SizedBox(height: 12),
@@ -135,7 +164,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             s.subscriptionEvasionFeature4,
                           ],
                           isCurrent: _state?.tier == SubscriptionTier.evasion,
-                          onTap: _showSoonSnack,
+                          onTap: _checkoutLoading
+                              ? null
+                              : () => _startCheckout(SubscriptionTier.evasion),
                           ctaLabel: s.subscriptionStartTrial,
                         ),
                         const SizedBox(height: 24),
