@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 220" width="110" height="220">
+  <ellipse cx="55" cy="212" rx="30" ry="3" fill="#000000" opacity="0.14"/>
+  <circle cx="55" cy="30" r="19" fill="#F0DCC4"/>
+  <circle cx="55" cy="30" r="19" fill="none" stroke="#D4B896" stroke-width="0.5" opacity="0.5"/>
+  <ellipse cx="55" cy="14" rx="19" ry="11" fill="#0A0A0B"/>
+  <path d="M 36 18 Q 30 40 32 70 Q 36 75 42 72 L 42 24" fill="#0A0A0B" stroke="#000000" stroke-width="0.3"/>
+  <path d="M 74 18 Q 80 40 78 70 Q 74 75 68 72 L 68 24" fill="#0A0A0B" stroke="#000000" stroke-width="0.3"/>
+  <rect x="36" y="14" width="38" height="6" rx="2" fill="#1F3A4A" stroke="#0F2030" stroke-width="0.4"/>
+  <circle cx="47" cy="29" r="1.7" fill="#0A0A0B"/>
+  <circle cx="63" cy="29" r="1.7" fill="#0A0A0B"/>
+  <circle cx="47.4" cy="28" r="0.5" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="63.4" cy="28" r="0.5" fill="#FFFFFF" opacity="0.8"/>
+  <path d="M 44 26 Q 47 24 50 26" fill="none" stroke="#0A0A0B" stroke-width="0.6" stroke-linecap="round"/>
+  <path d="M 60 26 Q 63 24 66 26" fill="none" stroke="#0A0A0B" stroke-width="0.6" stroke-linecap="round"/>
+  <path d="M 49 40 Q 55 42 61 40" stroke="#A04060" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <rect x="36" y="52" width="38" height="33" fill="#1A1A1A" stroke="#0A0A0B" stroke-width="0.4"/>
+  <path d="M 32 50 L 78 50 L 80 76 L 76 78 L 76 56 L 34 56 L 34 78 L 30 76 Z" fill="#E6F029" stroke="#A8AC1A" stroke-width="0.5"/>
+  <rect x="40" y="58" width="6" height="14" rx="1" fill="#A8AC1A" opacity="0.5"/>
+  <rect x="64" y="58" width="6" height="14" rx="1" fill="#A8AC1A" opacity="0.5"/>
+  <line x1="34" y1="65" x2="76" y2="65" stroke="#A8AC1A" stroke-width="0.3" opacity="0.5"/>
+  <path d="M 80 50 L 100 70 L 90 110 L 70 88 Z" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+  <ellipse cx="78" cy="56" rx="6" ry="3" fill="#3D7A9F" stroke="#1F3A4A" stroke-width="0.5"/>
+  <ellipse cx="100" cy="106" rx="6" ry="3" fill="#3D7A9F" stroke="#1F3A4A" stroke-width="0.5" transform="rotate(45 100 106)"/>
+  <rect x="22" y="58" width="12" height="60" rx="6" fill="#1A1A1A" stroke="#0A0A0B" stroke-width="0.4"/>
+  <rect x="76" y="58" width="12" height="60" rx="6" fill="#1A1A1A" stroke="#0A0A0B" stroke-width="0.4"/>
+  <circle cx="28" cy="123" r="4.5" fill="#F0DCC4" stroke="#D4B896" stroke-width="0.4"/>
+  <circle cx="82" cy="123" r="4.5" fill="#F0DCC4" stroke="#D4B896" stroke-width="0.4"/>
+  <rect x="38" y="85" width="34" height="22" fill="#1A1A1A" stroke="#0A0A0B" stroke-width="0.5"/>
+  <line x1="55" y1="85" x2="55" y2="107" stroke="#0A0A0B" stroke-width="0.3" opacity="0.4"/>
+  <rect x="40" y="107" width="10" height="68" fill="#F0DCC4" stroke="#D4B896" stroke-width="0.4"/>
+  <rect x="60" y="107" width="10" height="68" fill="#F0DCC4" stroke="#D4B896" stroke-width="0.4"/>
+  <ellipse cx="45" cy="180" rx="7" ry="5" fill="#6B7A8B" stroke="#3D4A5C" stroke-width="0.4"/>
+  <ellipse cx="65" cy="180" rx="7" ry="5" fill="#6B7A8B" stroke="#3D4A5C" stroke-width="0.4"/>
+</svg>

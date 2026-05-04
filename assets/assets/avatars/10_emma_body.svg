@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 220" width="110" height="220">
+  <ellipse cx="55" cy="212" rx="30" ry="3" fill="#000000" opacity="0.14"/>
+  <circle cx="55" cy="30" r="19" fill="#E8D4B8"/>
+  <circle cx="55" cy="30" r="19" fill="none" stroke="#D4B896" stroke-width="0.5" opacity="0.5"/>
+  <ellipse cx="55" cy="18" rx="16" ry="12" fill="#C45A2C"/>
+  <path d="M 38 20 Q 34 32 36 48" fill="#C45A2C" stroke="#8B3A12" stroke-width="0.3" opacity="0.7"/>
+  <path d="M 72 20 Q 76 32 74 48" fill="#C45A2C" stroke="#8B3A12" stroke-width="0.3" opacity="0.7"/>
+  <ellipse cx="80" cy="32" rx="6" ry="14" fill="#C45A2C" stroke="#8B3A12" stroke-width="0.3"/>
+  <path d="M 36 14 Q 36 6 55 6 Q 74 6 74 14 L 76 22 L 74 22 L 72 16 L 38 16 L 36 22 L 34 22 Z" fill="#1A1A1A" stroke="#000000" stroke-width="0.4"/>
+  <ellipse cx="55" cy="13" rx="14" ry="3" fill="#2A2A2A"/>
+  <circle cx="47" cy="29" r="1.7" fill="#3D2817"/>
+  <circle cx="63" cy="29" r="1.7" fill="#3D2817"/>
+  <circle cx="47.4" cy="28" r="0.5" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="63.4" cy="28" r="0.5" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="38" cy="32" r="0.8" fill="#FFFFFF" stroke="#A0A0A0" stroke-width="0.3"/>
+  <circle cx="72" cy="32" r="0.8" fill="#FFFFFF" stroke="#A0A0A0" stroke-width="0.3"/>
+  <path d="M 44 26 Q 47 24 50 26" fill="none" stroke="#3D2817" stroke-width="0.6" stroke-linecap="round"/>
+  <path d="M 60 26 Q 63 24 66 26" fill="none" stroke="#3D2817" stroke-width="0.6" stroke-linecap="round"/>
+  <path d="M 49 40 Q 55 43 61 40" stroke="#B8906C" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <rect x="36" y="52" width="38" height="33" fill="#E55A50" stroke="#A03030" stroke-width="0.5"/>
+  <path d="M 42 54 Q 55 50 68 54" fill="#A03030" opacity="0.3"/>
+  <path d="M 80 60 L 92 70 L 92 105 L 84 110 L 80 100 Z" fill="#3D5C7F" stroke="#1F3A50" stroke-width="0.4"/>
+  <ellipse cx="86" cy="85" rx="5" ry="10" fill="#1F3A50" opacity="0.4"/>
+  <path d="M 80 65 L 70 78" fill="none" stroke="#1F3A50" stroke-width="0.6"/>
+  <rect x="38" y="85" width="34" height="20" fill="#1A1A1A" stroke="#0A0A0B" stroke-width="0.5"/>
+  <line x1="55" y1="85" x2="55" y2="105" stroke="#0A0A0B" stroke-width="0.3" opacity="0.4"/>
+</svg>
