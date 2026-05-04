@@ -341,6 +341,71 @@ class _Strings {
   final String profileChangePasswordSamePwd;
   final String profileChangePasswordGenericError;
 
+  // Subscription system (Phase 1)
+  final String subscriptionTitle;
+  final String subscriptionHeadline;
+  final String subscriptionSubheadline;
+  final String subscriptionMostPopular;
+  final String subscriptionFreeTitle;
+  final String subscriptionRegionalTitle;
+  final String subscriptionEvasionTitle;
+  final String subscriptionPriceFree;
+  final String subscriptionPriceMonth;
+  final String subscriptionTrialHint;
+  final String subscriptionStartTrial;
+  final String subscriptionCurrentPlan;
+  final String subscriptionFreeFeature1;
+  final String subscriptionFreeFeature2;
+  final String subscriptionFreeFeature3;
+  final String subscriptionFreeFeature4;
+  final String subscriptionRegionalFeature1;
+  final String subscriptionRegionalFeature2;
+  final String subscriptionRegionalFeature3;
+  final String subscriptionRegionalFeature4;
+  final String subscriptionEvasionFeature1;
+  final String subscriptionEvasionFeature2;
+  final String subscriptionEvasionFeature3;
+  final String subscriptionEvasionFeature4;
+  final String subscriptionPromoCodeButton;
+  final String subscriptionDisclaimer;
+  final String subscriptionQuizUsage;
+  final String subscriptionResetOn;
+  final String subscriptionGoPremium;
+  final String subscriptionGoEvasion;
+  final String subscriptionRegionLabel;
+  final String subscriptionExpiresOn;
+  final String subscriptionStatusActive;
+  final String subscriptionChangeRegionButton;
+  final String subscriptionEvasionAllRegions;
+  final String paywallTitle;
+  final String paywallSubtitle;
+  final String paywallRegionalSubtitle;
+  final String paywallEvasionSubtitle;
+  final String paywallPromoCodeButton;
+  final String paywallResetHint;
+  final String paywallLater;
+  final String regionChangeTitle;
+  final String regionChangeWarning;
+  final String regionChangeNextOn;
+  final String regionChangeConfirm;
+  final String regionChangeSuccess;
+  final String regionChangeErrorTooSoon;
+  final String regionChangeErrorNotRegional;
+  final String regionChangeErrorGeneric;
+  final String promoCodeTitle;
+  final String promoCodeHeadline;
+  final String promoCodeSubheadline;
+  final String promoCodeLabel;
+  final String promoCodeApply;
+  final String promoCodeSuccess;
+  final String promoCodeErrorNotFound;
+  final String promoCodeErrorInactive;
+  final String promoCodeErrorExpired;
+  final String promoCodeErrorExhausted;
+  final String promoCodeErrorAlreadyRedeemed;
+  final String promoCodeErrorNotAuthenticated;
+  final String promoCodeErrorGeneric;
+
   const _Strings({
     required this.appTagline,
     required this.comingSoonTitle,
@@ -610,6 +675,69 @@ class _Strings {
     required this.profileChangePasswordCurrentInvalid,
     required this.profileChangePasswordSamePwd,
     required this.profileChangePasswordGenericError,
+    required this.subscriptionTitle,
+    required this.subscriptionHeadline,
+    required this.subscriptionSubheadline,
+    required this.subscriptionMostPopular,
+    required this.subscriptionFreeTitle,
+    required this.subscriptionRegionalTitle,
+    required this.subscriptionEvasionTitle,
+    required this.subscriptionPriceFree,
+    required this.subscriptionPriceMonth,
+    required this.subscriptionTrialHint,
+    required this.subscriptionStartTrial,
+    required this.subscriptionCurrentPlan,
+    required this.subscriptionFreeFeature1,
+    required this.subscriptionFreeFeature2,
+    required this.subscriptionFreeFeature3,
+    required this.subscriptionFreeFeature4,
+    required this.subscriptionRegionalFeature1,
+    required this.subscriptionRegionalFeature2,
+    required this.subscriptionRegionalFeature3,
+    required this.subscriptionRegionalFeature4,
+    required this.subscriptionEvasionFeature1,
+    required this.subscriptionEvasionFeature2,
+    required this.subscriptionEvasionFeature3,
+    required this.subscriptionEvasionFeature4,
+    required this.subscriptionPromoCodeButton,
+    required this.subscriptionDisclaimer,
+    required this.subscriptionQuizUsage,
+    required this.subscriptionResetOn,
+    required this.subscriptionGoPremium,
+    required this.subscriptionGoEvasion,
+    required this.subscriptionRegionLabel,
+    required this.subscriptionExpiresOn,
+    required this.subscriptionStatusActive,
+    required this.subscriptionChangeRegionButton,
+    required this.subscriptionEvasionAllRegions,
+    required this.paywallTitle,
+    required this.paywallSubtitle,
+    required this.paywallRegionalSubtitle,
+    required this.paywallEvasionSubtitle,
+    required this.paywallPromoCodeButton,
+    required this.paywallResetHint,
+    required this.paywallLater,
+    required this.regionChangeTitle,
+    required this.regionChangeWarning,
+    required this.regionChangeNextOn,
+    required this.regionChangeConfirm,
+    required this.regionChangeSuccess,
+    required this.regionChangeErrorTooSoon,
+    required this.regionChangeErrorNotRegional,
+    required this.regionChangeErrorGeneric,
+    required this.promoCodeTitle,
+    required this.promoCodeHeadline,
+    required this.promoCodeSubheadline,
+    required this.promoCodeLabel,
+    required this.promoCodeApply,
+    required this.promoCodeSuccess,
+    required this.promoCodeErrorNotFound,
+    required this.promoCodeErrorInactive,
+    required this.promoCodeErrorExpired,
+    required this.promoCodeErrorExhausted,
+    required this.promoCodeErrorAlreadyRedeemed,
+    required this.promoCodeErrorNotAuthenticated,
+    required this.promoCodeErrorGeneric,
   });
 }
 
@@ -882,6 +1010,69 @@ const _Strings _fr = _Strings(
   profileChangePasswordCurrentInvalid: "Mot de passe actuel incorrect",
   profileChangePasswordSamePwd: "Le nouveau mot de passe doit être différent de l'ancien",
   profileChangePasswordGenericError: "Impossible de changer le mot de passe",
+  subscriptionTitle: "Abonnement",
+  subscriptionHeadline: "Choisis ton plan",
+  subscriptionSubheadline: "Débloque toutes les activités de Vaud et Valais.",
+  subscriptionMostPopular: "LE PLUS POPULAIRE",
+  subscriptionFreeTitle: "Découverte",
+  subscriptionRegionalTitle: "Régional",
+  subscriptionEvasionTitle: "Évasion",
+  subscriptionPriceFree: "Gratuit",
+  subscriptionPriceMonth: "CHF / mois",
+  subscriptionTrialHint: "7 jours d'essai gratuit",
+  subscriptionStartTrial: "Démarrer l'essai",
+  subscriptionCurrentPlan: "Plan actuel",
+  subscriptionFreeFeature1: "5 quiz tous les 30 jours",
+  subscriptionFreeFeature2: "Carte complète",
+  subscriptionFreeFeature3: "Favoris illimités",
+  subscriptionFreeFeature4: "Proposer une activité",
+  subscriptionRegionalFeature1: "Quiz illimités",
+  subscriptionRegionalFeature2: "Vaud OU Valais",
+  subscriptionRegionalFeature3: "Recommandations personnalisées",
+  subscriptionRegionalFeature4: "Changement de canton 1× / 30 jours",
+  subscriptionEvasionFeature1: "Tout Régional inclus",
+  subscriptionEvasionFeature2: "Vaud ET Valais",
+  subscriptionEvasionFeature3: "Activités en avant-première",
+  subscriptionEvasionFeature4: "Badge Premium",
+  subscriptionPromoCodeButton: "J'ai un code promo",
+  subscriptionDisclaimer: "Annulable à tout moment.",
+  subscriptionQuizUsage: "{used} / {limit} quiz utilisés",
+  subscriptionResetOn: "Reset le {date}",
+  subscriptionGoPremium: "Passer Premium 🚀",
+  subscriptionGoEvasion: "Passer à Évasion (5 CHF)",
+  subscriptionRegionLabel: "Canton actuel",
+  subscriptionExpiresOn: "Renouvellement le {date}",
+  subscriptionStatusActive: "ACTIF",
+  subscriptionChangeRegionButton: "Changer de canton",
+  subscriptionEvasionAllRegions: "Toutes régions débloquées (Vaud + Valais)",
+  paywallTitle: "Tu as utilisé tes 5 quiz",
+  paywallSubtitle: "Continue à découvrir Vaud et Valais avec un abonnement.",
+  paywallRegionalSubtitle: "Quiz illimités · 1 canton",
+  paywallEvasionSubtitle: "Quiz illimités · Vaud + Valais",
+  paywallPromoCodeButton: "J'ai un code promo",
+  paywallResetHint: "Reset gratuit le {date}",
+  paywallLater: "Plus tard",
+  regionChangeTitle: "Changer de canton",
+  regionChangeWarning: "Tu pourras à nouveau changer dans 30 jours.",
+  regionChangeNextOn: "Prochain changement possible le {date}",
+  regionChangeConfirm: "Confirmer le changement",
+  regionChangeSuccess: "Canton mis à jour",
+  regionChangeErrorTooSoon: "Tu dois attendre 30 jours entre deux changements.",
+  regionChangeErrorNotRegional: "Cette option n'est disponible qu'avec l'abonnement Régional.",
+  regionChangeErrorGeneric: "Impossible de changer de canton pour le moment.",
+  promoCodeTitle: "Code promo",
+  promoCodeHeadline: "Active ton code",
+  promoCodeSubheadline: "Saisis ton code promo pour débloquer ton abonnement.",
+  promoCodeLabel: "Code",
+  promoCodeApply: "Activer",
+  promoCodeSuccess: "Code activé : {months} mois offerts !",
+  promoCodeErrorNotFound: "Code introuvable.",
+  promoCodeErrorInactive: "Ce code n'est plus actif.",
+  promoCodeErrorExpired: "Ce code a expiré.",
+  promoCodeErrorExhausted: "Ce code a atteint sa limite d'utilisations.",
+  promoCodeErrorAlreadyRedeemed: "Tu as déjà utilisé ce code.",
+  promoCodeErrorNotAuthenticated: "Connecte-toi d'abord.",
+  promoCodeErrorGeneric: "Impossible d'activer ce code.",
 );
 
 const _Strings _en = _Strings(
@@ -1153,6 +1344,69 @@ const _Strings _en = _Strings(
   profileChangePasswordCurrentInvalid: "Current password is incorrect",
   profileChangePasswordSamePwd: "The new password must be different from the current one",
   profileChangePasswordGenericError: "Could not change password",
+  subscriptionTitle: "Subscription",
+  subscriptionHeadline: "Choose your plan",
+  subscriptionSubheadline: "Unlock all activities in Vaud and Valais.",
+  subscriptionMostPopular: "MOST POPULAR",
+  subscriptionFreeTitle: "Discovery",
+  subscriptionRegionalTitle: "Regional",
+  subscriptionEvasionTitle: "Escape",
+  subscriptionPriceFree: "Free",
+  subscriptionPriceMonth: "CHF / month",
+  subscriptionTrialHint: "7-day free trial",
+  subscriptionStartTrial: "Start trial",
+  subscriptionCurrentPlan: "Current plan",
+  subscriptionFreeFeature1: "5 quizzes every 30 days",
+  subscriptionFreeFeature2: "Full map access",
+  subscriptionFreeFeature3: "Unlimited favorites",
+  subscriptionFreeFeature4: "Submit an activity",
+  subscriptionRegionalFeature1: "Unlimited quizzes",
+  subscriptionRegionalFeature2: "Vaud OR Valais",
+  subscriptionRegionalFeature3: "Personalized recommendations",
+  subscriptionRegionalFeature4: "Switch canton 1× / 30 days",
+  subscriptionEvasionFeature1: "Everything in Regional",
+  subscriptionEvasionFeature2: "Vaud AND Valais",
+  subscriptionEvasionFeature3: "Early access to new activities",
+  subscriptionEvasionFeature4: "Premium badge",
+  subscriptionPromoCodeButton: "I have a promo code",
+  subscriptionDisclaimer: "Cancel anytime.",
+  subscriptionQuizUsage: "{used} / {limit} quizzes used",
+  subscriptionResetOn: "Resets on {date}",
+  subscriptionGoPremium: "Go Premium 🚀",
+  subscriptionGoEvasion: "Upgrade to Escape (5 CHF)",
+  subscriptionRegionLabel: "Current canton",
+  subscriptionExpiresOn: "Renews on {date}",
+  subscriptionStatusActive: "ACTIVE",
+  subscriptionChangeRegionButton: "Change canton",
+  subscriptionEvasionAllRegions: "All regions unlocked (Vaud + Valais)",
+  paywallTitle: "You've used your 5 quizzes",
+  paywallSubtitle: "Keep exploring Vaud and Valais with a subscription.",
+  paywallRegionalSubtitle: "Unlimited quizzes · 1 canton",
+  paywallEvasionSubtitle: "Unlimited quizzes · Vaud + Valais",
+  paywallPromoCodeButton: "I have a promo code",
+  paywallResetHint: "Free reset on {date}",
+  paywallLater: "Later",
+  regionChangeTitle: "Change canton",
+  regionChangeWarning: "You'll be able to change again in 30 days.",
+  regionChangeNextOn: "Next change available on {date}",
+  regionChangeConfirm: "Confirm change",
+  regionChangeSuccess: "Canton updated",
+  regionChangeErrorTooSoon: "You must wait 30 days between changes.",
+  regionChangeErrorNotRegional: "This option is only available with the Regional plan.",
+  regionChangeErrorGeneric: "Could not change canton right now.",
+  promoCodeTitle: "Promo code",
+  promoCodeHeadline: "Redeem your code",
+  promoCodeSubheadline: "Enter your promo code to unlock your subscription.",
+  promoCodeLabel: "Code",
+  promoCodeApply: "Redeem",
+  promoCodeSuccess: "Code applied: {months} months free!",
+  promoCodeErrorNotFound: "Code not found.",
+  promoCodeErrorInactive: "This code is no longer active.",
+  promoCodeErrorExpired: "This code has expired.",
+  promoCodeErrorExhausted: "This code has reached its usage limit.",
+  promoCodeErrorAlreadyRedeemed: "You've already redeemed this code.",
+  promoCodeErrorNotAuthenticated: "Sign in first.",
+  promoCodeErrorGeneric: "Could not apply this code.",
 );
 
 /// Provider de locale (notifie les widgets quand la langue change).

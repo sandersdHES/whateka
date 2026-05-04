@@ -3,7 +3,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
 import '../services/context_service.dart';
+import '../services/subscription_service.dart';
 import '../widgets/responsive_center.dart';
+import '../widgets/subscription_widgets.dart';
 import '../widgets/whateka_bottom_nav.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
@@ -114,6 +116,20 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     setState(() {
       _isLoading = true;
     });
+
+    // v34 : verifie le quota avant de lancer la requete IA.
+    // Tier free : 5 quiz / 30j. Tier paye : illimite. Le RPC consume_free_quiz()
+    // increment atomiquement et retourne allowed=false si quota atteint.
+    final quota = await SubscriptionService.instance.consumeFreeQuiz();
+    if (!quota.allowed && quota.error == 'quota_exceeded') {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      await showPaywallSheet(
+        context,
+        resetAt: quota.resetAt ?? DateTime.now().add(const Duration(days: 30)),
+      );
+      return;
+    }
 
     try {
       String getSingleValue(int stepIndex) {

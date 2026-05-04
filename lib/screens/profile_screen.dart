@@ -4,9 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
+import '../services/subscription_service.dart';
 import '../widgets/avatar_promenade.dart';
 import '../widgets/language_toggle.dart';
 import '../widgets/responsive_center.dart';
+import '../widgets/subscription_widgets.dart';
 import '../widgets/whateka_bottom_nav.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -85,11 +87,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   double _lastSavedMeters = 0;
   Timer? _metersSaveTimer;
   bool _profileLoaded = false;
+  // v34 : etat d'abonnement (charge en parallele du profil).
+  SubscriptionState? _subscription;
 
   @override
   void initState() {
     super.initState();
     _loadProfile();
+    _loadSubscription();
     // Sauvegarde periodique des metres marches (toutes les 60s) pour ne pas
     // perdre les donnees en cas de crash. Sauve seulement si la valeur a
     // change d'au moins 1 metre depuis la derniere sauvegarde.
@@ -106,6 +111,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nameController.dispose();
     _emailController.dispose();
     super.dispose();
+  }
+
+  /// v34 : charge l'etat d'abonnement (cache ou DB). Affiche par la suite
+  /// la carte abonnement dans le profil.
+  Future<void> _loadSubscription() async {
+    final state = await SubscriptionService.instance.fetchCurrentState();
+    if (!mounted) return;
+    setState(() => _subscription = state);
   }
 
   Future<void> _persistMetersIfChanged() async {
@@ -327,6 +340,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               const SizedBox(height: 24),
+
+              // Section Abonnement (v34)
+              if (_subscription != null) ...[
+                Text(
+                  s.subscriptionTitle.toUpperCase(),
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+                const SizedBox(height: 10),
+                SubscriptionCard(
+                  state: _subscription!,
+                  onUpgrade: () async {
+                    await Navigator.pushNamed(context, '/subscription');
+                    _loadSubscription();
+                  },
+                  onChangeRegion: () async {
+                    await showRegionChangeSheet(
+                      context,
+                      state: _subscription!,
+                      onChanged: () {
+                        SubscriptionService.instance.invalidate();
+                        _loadSubscription();
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+              ],
 
               // Section Préférences
               Text(

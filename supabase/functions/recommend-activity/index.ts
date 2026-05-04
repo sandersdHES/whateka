@@ -1,4 +1,17 @@
-// Whateka - Edge Function recommend-activity v34
+// Whateka - Edge Function recommend-activity v35
+// CHANGEMENTS v35 (Subscription enforcement) :
+//   - Lit la subscription du user (table 'subscriptions') pour appliquer
+//     les regles de tier cote serveur :
+//       * regional : force le filtre region = selected_region (override
+//         de ce que le client a envoye)
+//       * evasion  : pas de filtre region (Vaud + Valais autorises)
+//       * free     : aucun changement (le quota est verifie via le RPC
+//         consume_free_quiz cote client)
+//   - Defense en profondeur : meme si le client est compromis, un user
+//     'regional' ne peut voir que son canton, un user 'free' n'a aucun
+//     traitement different (sa quota est appliquee par le RPC).
+//
+// CHANGEMENTS v34 (ton conversationnel des match_reason) :
 // CHANGEMENTS v34 (ton conversationnel des match_reason) :
 //   - Refonte du prompt Gemini pour generer des phrases CONVERSATIONNELLES
 //     (style "ami qui te conseille") au lieu de listes d'attributs.
@@ -867,6 +880,41 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // v35 (Subscription enforcement) : lit l'abonnement du user pour appliquer
+    // les regles de tier cote serveur (defense en profondeur).
+    //   - free     : le client a deja appele consume_free_quiz() pour verifier
+    //                le quota. Si le client est compromis, le quota n'est pas
+    //                applique mais ce n'est pas critique (le quiz reste).
+    //   - regional : on FORCE le filtre region = subscription.selected_region,
+    //                meme si le client a envoye autre chose.
+    //   - evasion  : on AUTORISE Vaud + Valais (override du filtre region).
+    let effectiveRegion: string = region;
+    if (userId) {
+      try {
+        const { data: subRow } = await supabase
+          .from("subscriptions")
+          .select("tier, selected_region, status, expires_at")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (subRow) {
+          const isPaidActive = (subRow.tier === "regional" || subRow.tier === "evasion")
+            && subRow.status === "active"
+            && (subRow.expires_at == null || new Date(subRow.expires_at as string) > new Date());
+          if (isPaidActive) {
+            if (subRow.tier === "regional" && subRow.selected_region) {
+              // Force le canton choisi par l'abo Regional.
+              effectiveRegion = subRow.selected_region as string;
+            } else if (subRow.tier === "evasion") {
+              // Evasion : pas de filtre canton (Vaud + Valais).
+              effectiveRegion = "";
+            }
+          }
+        }
+      } catch (_e) {
+        // Echec silencieux : on garde le filtre region envoye par le client.
+      }
+    }
+
     let query = supabase
       .from("activities")
       .select(
@@ -904,11 +952,11 @@ serve(async (req) => {
     // la priorite utilisateur : categories > price > environment > duration > social.
     // (la fonction scoreCandidate plus bas applique +4 si exact, +2 si adjacent)
 
-    // v22 : Filtre canton. Les activites Valais ont location_zone renseigne
-    // (loc_central/loc_upper/loc_lower) ; les activites Vaud l'ont a NULL.
-    if (region === "valais") {
+    // v22 + v35 : Filtre canton. effectiveRegion peut avoir ete force par
+    // l'abonnement (regional → selected_region, evasion → ""/no filter).
+    if (effectiveRegion === "valais") {
       query = query.not("location_zone", "is", null);
-    } else if (region === "vaud") {
+    } else if (effectiveRegion === "vaud") {
       query = query.is("location_zone", null);
     }
 
@@ -926,9 +974,9 @@ serve(async (req) => {
     const nowDate = new Date();
     candidates = candidates.filter((a) => isProposableNow(a as any, nowDate));
 
-    // v22 : si region est defini, on ignore le rayon (canton-wide).
+    // v22 + v35 : si region (effective) est definie, on ignore le rayon (canton-wide).
     if (
-      !region &&
+      !effectiveRegion &&
       radiusKm !== null &&
       radiusKm < 999 &&
       userLat !== null &&

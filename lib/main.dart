@@ -19,6 +19,8 @@ import 'screens/update_password_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/maintenance_screen.dart';
 import 'screens/submit_activity_screen.dart';
+import 'screens/subscription_screen.dart';
+import 'screens/promo_code_screen.dart';
 import 'i18n/strings.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -240,6 +242,8 @@ class _MyAppState extends State<MyApp> {
         '/activity_detail': (_) => const SingleActivityScreen(),
         '/update_password': (_) => const UpdatePasswordScreen(),
         '/submit_activity': (_) => const SubmitActivityScreen(),
+        '/subscription': (_) => const SubscriptionScreen(),
+        '/promo_code': (_) => const PromoCodeScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/ai_result') {
