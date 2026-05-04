@@ -301,28 +301,11 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
 
   @override
   Widget build(BuildContext context) {
+    // v4 (Plan B) : palette n'est plus utilisee directement (les couleurs
+    // sont dans le SVG complet), mais on garde la lecture pour validation.
+    // ignore: unused_local_variable
     final palette = _palettes[widget.avatarId] ?? _palettes[1]!;
     final bodyAsset = _bodyAsset(widget.avatarId);
-    final phase = _walkPhase;
-    // Amplitude des rotations de membres (en radians). ~28° max.
-    final armSwing = phase * 0.5;
-    final legSwing = phase * 0.4;
-    // v2 : flexion realiste du genou et du coude.
-    // Le genou plie quand la jambe est en phase de "swing" (foot off ground),
-    // c'est-a-dire quand l'angle de hanche est en train d'augmenter (cos > 0).
-    // Pour la jambe gauche : angle = +legSwing, derivee = +cos(t) → bend si cos > 0.
-    // Pour la jambe droite : angle = -legSwing, derivee = -cos(t) → bend si cos < 0.
-    // Idem pour les coudes (les bras swing en phase opposee aux jambes).
-    final cosPhase = _state == _PromenadeState.walking
-        ? math.cos(_walkTime * 5)
-        : 0.0;
-    final leftKneeBend = math.max(0.0, cosPhase) * 0.7;   // 0..40°
-    final rightKneeBend = math.max(0.0, -cosPhase) * 0.7;
-    // Coude : plus subtil que le genou (~25° max).
-    // Bras droit (avant) : angle = +armSwing → bend si cos > 0.
-    // Bras gauche (arriere) : angle = -armSwing → bend si cos < 0.
-    final rightElbowBend = math.max(0.0, cosPhase) * 0.4;
-    final leftElbowBend = math.max(0.0, -cosPhase) * 0.4;
 
     return SizedBox(
       height: widget.height,
@@ -360,53 +343,15 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
                               // Jambe arriere (dessinee avant pour etre derriere
                               // les jambes avant, la distinction gauche/droite
                               // depend de la phase de marche).
-                              _Leg(
-                                // v3 : nouveau design corps ovale.
-                                // Hanche descendue de y=118 a y=124 pour
-                                // matcher le bas de l'ovale (le corps SVG
-                                // s'etend jusqu'a y=124). Hanches a x=47/63.
-                                hipX: 47,
-                                hipY: 124,
-                                hipAngle: legSwing,
-                                kneeBend: leftKneeBend,
-                                pants: palette.pants,
-                                shoe: palette.shoe,
-                              ),
-                              _Leg(
-                                hipX: 63,
-                                hipY: 124,
-                                hipAngle: -legSwing,
-                                kneeBend: rightKneeBend,
-                                pants: palette.pants,
-                                shoe: palette.shoe,
-                              ),
-                              // Bras arriere (derriere le torse).
-                              // v3 : epaule descendue de y=58 a y=62 et
-                              // entierement DANS l'ovale du corps (qui va
-                              // de x=22 a x=88, l'epaule a x=28 est a
-                              // l'interieur).
-                              _Arm(
-                                shoulderX: 28,
-                                shoulderY: 62,
-                                shoulderAngle: -armSwing,
-                                elbowBend: leftElbowBend,
-                                sleeve: palette.sleeve,
-                                skin: palette.skin,
-                              ),
-                              // Corps stripped : torse + tete + accessoires.
+                              // v4 (Plan B) : SVG complet (head + body + arms
+                              // + legs + feet en un seul fichier). Plus de
+                              // paper-doll, plus de gap possible. La marche
+                              // est animee via translation horizontale + bob
+                              // vertical (cf. _x et _bob()).
                               SvgPicture.asset(
                                 bodyAsset,
                                 width: _svgWidth,
                                 height: _svgHeight,
-                              ),
-                              // Bras avant (devant le torse).
-                              _Arm(
-                                shoulderX: 82,
-                                shoulderY: 62,
-                                shoulderAngle: armSwing,
-                                elbowBend: rightElbowBend,
-                                sleeve: palette.sleeve,
-                                skin: palette.skin,
                               ),
                               if (_showBubble())
                                 const Positioned(
