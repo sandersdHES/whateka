@@ -18,30 +18,8 @@
   <path d="M 77 22 Q 82 38 80 56 Q 77 60 72 58 L 72 30" fill="#3D2817" stroke="#1A0F08" stroke-width="0.3"/>
   <ellipse cx="55" cy="42" rx="9" ry="6" fill="#3D2817"/>
   <path d="M 46 42 Q 55 47 64 42 Q 64 47 60 49 Q 55 50 50 49 Q 46 47 46 42 Z" fill="#3D2817"/>
-  <rect x="50" y="46" width="10" height="6" fill="#E8D4B8" stroke="#D4B896" stroke-width="0.4"/>
-  <path d="
-    M 28 54
-    Q 28 50 32 50
-    L 78 50
-    Q 82 50 82 54
-    L 80 88
-    L 78 92
-    L 78 118
-    L 32 118
-    L 32 92
-    L 30 88
-    Z
-  " fill="#1A1A1A" stroke="#0A0A0B" stroke-width="0.5"/>
-  <path d="
-    M 32 92
-    L 78 92
-    L 78 118
-    L 32 118
-    Z
-  " fill="#2C3E50" stroke="#1A2A38" stroke-width="0.5"/>
-  <path d="M 30 50 Q 36 48 42 52 L 42 92 L 36 92 Z" fill="#8B8680" stroke="#5C5852" stroke-width="0.4"/>
-  <path d="M 80 50 Q 74 48 68 52 L 68 92 L 74 92 Z" fill="#8B8680" stroke="#5C5852" stroke-width="0.4"/>
-  <path d="M 36 52 L 55 60 L 74 52 L 70 56 L 55 64 L 40 56 Z" fill="#8B0000" stroke="#5A0000" stroke-width="0.4"/>
-  <path d="M 78 60 L 90 75 L 92 95 L 86 110 L 80 95 Z" fill="#1A1A1A" stroke="#0A0A0B" stroke-width="0.5"/>
-  <ellipse cx="83" cy="85" rx="6" ry="9" fill="#0A0A0B"/>
+  <rect x="50" y="46" width="10" height="8" fill="#E8D4B8" stroke="#D4B896" stroke-width="0.4"/>
+  <path d="M 22 88 Q 22 52 55 52 Q 88 52 88 88 L 88 92 L 22 92 Z" fill="#1A1A1A" stroke="#0A0A0B" stroke-width="0.5"/>
+  <path d="M 22 92 L 88 92 L 88 96 Q 88 124 55 124 Q 22 124 22 96 Z" fill="#2C3E50" stroke="#1A2A38" stroke-width="0.5"/>
+  <path d="M 36 60 L 55 68 L 74 60 L 70 64 L 55 72 L 40 64 Z" fill="#8B0000" stroke="#5A0000" stroke-width="0.4"/>
 </svg>

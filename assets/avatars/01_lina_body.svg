@@ -14,28 +14,10 @@
   <path d="M 40 24 Q 36 35 37 50" fill="#6B5A48" stroke="#3D2817" stroke-width="0.3" opacity="0.6"/>
   <path d="M 70 24 Q 74 35 73 50" fill="#6B5A48" stroke="#3D2817" stroke-width="0.3" opacity="0.6"/>
   <path d="M 42 16 L 38 14 Q 55 10 72 14 L 68 16 Q 55 19 42 16" fill="#C4A57A" stroke="#9A7A5A" stroke-width="0.4"/>
-  <rect x="50" y="46" width="10" height="6" fill="#E8D4B8" stroke="#D4B896" stroke-width="0.4"/>
-  <path d="
-    M 28 54
-    Q 28 50 32 50
-    L 78 50
-    Q 82 50 82 54
-    L 80 88
-    L 78 92
-    L 78 118
-    L 32 118
-    L 32 92
-    L 30 88
-    Z
-  " fill="#5A7F6F" stroke="#3D5C4A" stroke-width="0.5"/>
-  <path d="
-    M 32 92
-    L 78 92
-    L 78 118
-    L 32 118
-    Z
-  " fill="#6B7A55" stroke="#4A5A38" stroke-width="0.5"/>
-  <path d="M 80 65 L 88 70 L 87 110 L 79 108 Z" fill="#4A9ACE" stroke="#2D7AAE" stroke-width="0.4"/>
-  <path d="M 80 70 L 87 72" fill="none" stroke="#2D7AAE" stroke-width="0.3" opacity="0.5"/>
-  <path d="M 80 80 L 87 82" fill="none" stroke="#2D7AAE" stroke-width="0.3" opacity="0.5"/>
+  <rect x="50" y="46" width="10" height="8" fill="#E8D4B8" stroke="#D4B896" stroke-width="0.4"/>
+  <path d="M 22 88 Q 22 52 55 52 Q 88 52 88 88 L 88 92 L 22 92 Z" fill="#5A7F6F" stroke="#3D5C4A" stroke-width="0.5"/>
+  <path d="M 22 92 L 88 92 L 88 96 Q 88 124 55 124 Q 22 124 22 96 Z" fill="#6B7A55" stroke="#4A5A38" stroke-width="0.5"/>
+  <path d="M 80 65 L 90 70 L 89 110 L 79 108 Z" fill="#4A9ACE" stroke="#2D7AAE" stroke-width="0.4"/>
+  <path d="M 80 70 L 89 72" fill="none" stroke="#2D7AAE" stroke-width="0.3" opacity="0.5"/>
+  <path d="M 80 80 L 89 82" fill="none" stroke="#2D7AAE" stroke-width="0.3" opacity="0.5"/>
 </svg>

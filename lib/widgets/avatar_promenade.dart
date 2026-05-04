@@ -361,30 +361,33 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
                               // les jambes avant, la distinction gauche/droite
                               // depend de la phase de marche).
                               _Leg(
-                                // v2 : hanches recentrees (46/64 au lieu de
-                                // 42/56) pour aligner le centre des jambes
-                                // avec le centre du torse (x=55). Avant les
-                                // jambes etaient decalees a gauche.
-                                hipX: 46,
-                                hipY: 118,
+                                // v3 : nouveau design corps ovale.
+                                // Hanche descendue de y=118 a y=124 pour
+                                // matcher le bas de l'ovale (le corps SVG
+                                // s'etend jusqu'a y=124). Hanches a x=47/63.
+                                hipX: 47,
+                                hipY: 124,
                                 hipAngle: legSwing,
                                 kneeBend: leftKneeBend,
                                 pants: palette.pants,
                                 shoe: palette.shoe,
                               ),
                               _Leg(
-                                hipX: 64,
-                                hipY: 118,
+                                hipX: 63,
+                                hipY: 124,
                                 hipAngle: -legSwing,
                                 kneeBend: rightKneeBend,
                                 pants: palette.pants,
                                 shoe: palette.shoe,
                               ),
                               // Bras arriere (derriere le torse).
+                              // v3 : epaule descendue de y=58 a y=62 et
+                              // entierement DANS l'ovale du corps (qui va
+                              // de x=22 a x=88, l'epaule a x=28 est a
+                              // l'interieur).
                               _Arm(
                                 shoulderX: 28,
-                                shoulderY: 58,
-                                // Bras gauche : phase opposee au bras droit.
+                                shoulderY: 62,
                                 shoulderAngle: -armSwing,
                                 elbowBend: leftElbowBend,
                                 sleeve: palette.sleeve,
@@ -399,7 +402,7 @@ class _AvatarPromenadeState extends State<AvatarPromenade>
                               // Bras avant (devant le torse).
                               _Arm(
                                 shoulderX: 82,
-                                shoulderY: 58,
+                                shoulderY: 62,
                                 shoulderAngle: armSwing,
                                 elbowBend: rightElbowBend,
                                 sleeve: palette.sleeve,
@@ -458,12 +461,13 @@ class _Leg extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // v2 : jambes plus epaisses (16/15 au lieu de 14/13) pour mieux
-    // remplir la largeur sous le bassin. Plus naturel, moins "stick figure".
-    const thighWidth = 16.0;
-    const thighHeight = 38.0;
-    const shinWidth = 15.0;
-    const shinHeight = 40.0;
+    // v3 : jambes calees pour le nouveau design ovale.
+    // Largeur 14 (suffisant + match avec le bas de l'ovale qui se ferme).
+    // Hauteur ajustee pour atteindre y=205 depuis hipY=124 (=> 81 px).
+    const thighWidth = 14.0;
+    const thighHeight = 35.0;
+    const shinWidth = 13.0;
+    const shinHeight = 38.0;
     const shoeHeight = 10.0;
     const totalHeight = thighHeight + shinHeight + shoeHeight - 4;
 
@@ -566,13 +570,14 @@ class _Arm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // v2 : bras un peu plus epais (13/12 au lieu de 12/11). Les epaules
-    // restent a x=28 et x=82 (bord du torse), donc pas besoin de bouger.
+    // v3 : bras emergent de l'INTERIEUR de l'ovale corps (ovale x=22-88).
+    // Largeur 13, hauteur ajustee pour ne pas depasser le bas de l'ovale.
+    // upperArm + forearm = 50 px max (epaule y=62 + 50 = y=112, dans l'ovale).
     const armWidth = 13.0;
-    const upperArmHeight = 28.0;
+    const upperArmHeight = 24.0;
     const forearmWidth = 12.0;
-    const forearmHeight = 30.0;
-    const handSize = 10.0;
+    const forearmHeight = 26.0;
+    const handSize = 9.0;
 
     return Positioned(
       left: shoulderX - armWidth / 2,
