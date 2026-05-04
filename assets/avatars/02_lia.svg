@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240">
+  <!-- Lia : fille aux cheveux longs blonds, salue -->
+  <ellipse cx="100" cy="232" rx="40" ry="4" fill="#000000" opacity="0.14"/>
+
+  <!-- Jambes -->
+  <rect x="78" y="150" width="18" height="68" rx="6" fill="#3D5C7F"/>
+  <rect x="104" y="150" width="18" height="68" rx="6" fill="#3D5C7F"/>
+  <ellipse cx="87" cy="222" rx="14" ry="6" fill="#FFFFFF" stroke="#C8C8C8" stroke-width="0.8"/>
+  <ellipse cx="113" cy="222" rx="14" ry="6" fill="#FFFFFF" stroke="#C8C8C8" stroke-width="0.8"/>
+
+  <!-- Bras gauche -->
+  <rect x="48" y="76" width="16" height="80" rx="8" fill="#F5C8B0"/>
+  <circle cx="56" cy="160" r="9" fill="#F0DCC4"/>
+
+  <!-- Bras droit LEVE -->
+  <g transform="rotate(-50 142 84)">
+    <rect x="134" y="76" width="16" height="80" rx="8" fill="#F5C8B0"/>
+    <circle cx="142" cy="160" r="11" fill="#F0DCC4"/>
+    <circle cx="138" cy="155" r="2.5" fill="#D4B896"/>
+    <circle cx="146" cy="155" r="2.5" fill="#D4B896"/>
+  </g>
+
+  <!-- Corps (top rose) -->
+  <path d="M 60 80 Q 60 70 70 70 L 130 70 Q 140 70 140 80 L 140 152 Q 140 158 134 158 L 66 158 Q 60 158 60 152 Z"
+        fill="#F5C8B0" stroke="#D4A878" stroke-width="0.8"/>
+
+  <!-- Cheveux longs (derriere la tete) -->
+  <path d="M 60 50 Q 50 80 55 130 L 70 132 Q 70 90 78 60 Z" fill="#F0C46B" stroke="#C8983C" stroke-width="0.5"/>
+  <path d="M 140 50 Q 150 80 145 130 L 130 132 Q 130 90 122 60 Z" fill="#F0C46B" stroke="#C8983C" stroke-width="0.5"/>
+
+  <!-- Tete -->
+  <circle cx="100" cy="44" r="32" fill="#F0DCC4" stroke="#D4B896" stroke-width="0.8"/>
+  <!-- Cheveux haut -->
+  <path d="M 68 36 Q 66 12 100 10 Q 134 12 132 36 L 130 28 Q 100 18 70 28 Z"
+        fill="#F0C46B" stroke="#C8983C" stroke-width="0.5"/>
+  <!-- Frange -->
+  <path d="M 76 28 Q 90 36 100 34 Q 110 36 124 28 L 124 36 Q 100 42 76 36 Z" fill="#E0B454"/>
+  <!-- Cou -->
+  <rect x="92" y="68" width="16" height="10" fill="#F0DCC4" stroke="#D4B896" stroke-width="0.5"/>
+
+  <!-- Yeux -->
+  <ellipse cx="88" cy="42" rx="3" ry="3.5" fill="#FFFFFF"/>
+  <ellipse cx="112" cy="42" rx="3" ry="3.5" fill="#FFFFFF"/>
+  <circle cx="88" cy="42" r="1.8" fill="#3D2817"/>
+  <circle cx="112" cy="42" r="1.8" fill="#3D2817"/>
+  <!-- Cils -->
+  <path d="M 84 39 L 86 41" stroke="#1A1A1A" stroke-width="1" stroke-linecap="round"/>
+  <path d="M 116 39 L 114 41" stroke="#1A1A1A" stroke-width="1" stroke-linecap="round"/>
+  <!-- Sourire -->
+  <path d="M 88 56 Q 100 64 112 56" stroke="#1A1A1A" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Joues -->
+  <ellipse cx="80" cy="52" rx="4" ry="2.5" fill="#FF8B7A" opacity="0.6"/>
+  <ellipse cx="120" cy="52" rx="4" ry="2.5" fill="#FF8B7A" opacity="0.6"/>
+</svg>
