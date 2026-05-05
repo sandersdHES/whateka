@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+// Imports retires (avatar/SVG) — personnalisation perso en stand-by.
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
 import '../services/subscription_service.dart';
-import '../widgets/avatar_promenade.dart';
+// import '../widgets/avatar_promenade.dart';  // stand-by
 import '../widgets/language_toggle.dart';
 import '../widgets/responsive_center.dart';
 import '../widgets/subscription_widgets.dart';
@@ -303,41 +303,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Avatar anime qui se promene dans une bande horizontale.
-              // On attend que le profil soit charge pour monter le widget
-              // (sinon initialMeters serait 0 alors que la valeur reelle vient
-              // de charger). Placeholder pendant le chargement.
-              _profileLoaded
-                  ? AvatarPromenade(
-                      avatarId: _avatarId,
-                      initialMeters: _metersWalked,
-                      onMetersWalked: (m) =>
-                          setState(() => _metersWalked = m),
-                    )
-                  : const SizedBox(height: 200),
-              const SizedBox(height: 16),
+              // Personnalisation du personnage en stand-by — on affiche un
+              // simple en-tete avec une icone profil generique. Les meters
+              // marches sont caches en attendant la reactivation.
+              const SizedBox(height: 24),
+              Center(
+                child: Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    color: AppColors.cyan.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.person_rounded,
+                    size: 56,
+                    color: AppColors.cyan,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
 
-              // Dashboard : recherches cumulees + metres marches cette session
-              Row(
-                children: [
-                  Expanded(
-                    child: _StatCard(
-                      icon: Icons.search,
-                      value: '$_totalSearches',
-                      label: s.profileSearches,
-                      accent: AppColors.cyan,
-                    ),
+              // Dashboard : recherches cumulees uniquement.
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 240),
+                  child: _StatCard(
+                    icon: Icons.search,
+                    value: '$_totalSearches',
+                    label: s.profileSearches,
+                    accent: AppColors.cyan,
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _StatCard(
-                      icon: Icons.directions_walk,
-                      value: _metersWalked.floor().toString(),
-                      label: s.profileMeters,
-                      accent: AppColors.orange,
-                    ),
-                  ),
-                ],
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -400,39 +397,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       keyboardType: TextInputType.emailAddress,
                     ),
-                    const SizedBox(height: 14),
-                    // Selecteur d'avatar : dropdown avec preview SVG du
-                    // personnage actuellement selectionne.
-                    DropdownButtonFormField<int>(
-                      initialValue: _avatarId,
-                      isExpanded: true,
-                      items: WhatekaAvatar.all
-                          .map((a) => DropdownMenuItem<int>(
-                                value: a.id,
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 28,
-                                      height: 40,
-                                      child: SvgPicture.asset(
-                                        'assets/avatars/${a.filename}',
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(a.name),
-                                  ],
-                                ),
-                              ))
-                          .toList(),
-                      onChanged: (v) {
-                        if (v != null) setState(() => _avatarId = v);
-                      },
-                      decoration: InputDecoration(
-                        labelText: s.profileCharacterLabel,
-                        prefixIcon: const Icon(Icons.face_outlined, size: 20),
-                      ),
-                    ),
+                    // Selecteur de personnage retire — la personnalisation
+                    // d'avatar est en stand-by (sera reactivee plus tard).
                   ],
                 ),
               ),
