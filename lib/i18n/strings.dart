@@ -411,6 +411,11 @@ class _Strings {
   final String subscriptionCheckoutError;
   final String subscriptionPortalError;
   final String subscriptionManageLink;
+  // v36 : option "Tout" + photo de profil
+  final String profileRadiusAll;
+  final String profilePhotoTapToChange;
+  final String profilePhotoUpdated;
+  final String profilePhotoError;
 
   const _Strings({
     required this.appTagline,
@@ -749,6 +754,10 @@ class _Strings {
     required this.subscriptionCheckoutError,
     required this.subscriptionPortalError,
     required this.subscriptionManageLink,
+    required this.profileRadiusAll,
+    required this.profilePhotoTapToChange,
+    required this.profilePhotoUpdated,
+    required this.profilePhotoError,
   });
 }
 
@@ -1089,6 +1098,10 @@ const _Strings _fr = _Strings(
   subscriptionCheckoutError: "Impossible de démarrer le paiement. Réessaie dans quelques instants.",
   subscriptionPortalError: "Impossible d'ouvrir la gestion de l'abonnement.",
   subscriptionManageLink: "Gérer / annuler mon abonnement →",
+  profileRadiusAll: "Tout",
+  profilePhotoTapToChange: "Tape pour changer la photo",
+  profilePhotoUpdated: "Photo de profil mise à jour",
+  profilePhotoError: "Erreur lors de l'envoi de la photo",
 );
 
 const _Strings _en = _Strings(
@@ -1428,6 +1441,10 @@ const _Strings _en = _Strings(
   subscriptionCheckoutError: "Could not start checkout. Try again in a moment.",
   subscriptionPortalError: "Could not open subscription management.",
   subscriptionManageLink: "Manage / cancel my subscription →",
+  profileRadiusAll: "All",
+  profilePhotoTapToChange: "Tap to change photo",
+  profilePhotoUpdated: "Profile photo updated",
+  profilePhotoError: "Error uploading photo",
 );
 
 /// Provider de locale (notifie les widgets quand la langue change).
