@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-// Imports retires (avatar/SVG) — personnalisation perso en stand-by.
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
 import '../services/subscription_service.dart';
-// import '../widgets/avatar_promenade.dart';  // stand-by
 import '../widgets/language_toggle.dart';
 import '../widgets/responsive_center.dart';
 import '../widgets/subscription_widgets.dart';
@@ -49,13 +48,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // dans le rendu (cf. _radiusLabel ci-dessous).
     _RadiusOption('vaud_full', 999, region: 'vaud'),
     _RadiusOption('valais_full', 999, region: 'valais'),
+    // "Tout" : aucune limite ni rayon ni canton. Sentinel : radius=999, region=''.
+    // Differe du defaut "50 km" car c'est explicitement une selection sans
+    // contrainte geographique.
+    _RadiusOption('all', 999, region: ''),
   ];
 
   /// Retourne le label affiche pour une option de rayon (traduit si region).
   String _radiusLabel(_RadiusOption opt) {
+    if (opt.label == 'all') return S.current.profileRadiusAll;
     if (opt.region == 'vaud') return S.current.profileRadiusVaud;
     if (opt.region == 'valais') return S.current.profileRadiusValais;
     return opt.label;
+  }
+
+  /// Distingue le defaut "50 km" du sentinel "all" qui ont des labels
+  /// differents mais radius identique. On utilise un flag de selection.
+  bool _isAllSelected = false;
+
+  bool _isRadiusSelected(_RadiusOption o) {
+    // Cas special "Tout" : le label est 'all', distinct des autres options.
+    if (o.label == 'all') {
+      return _isAllSelected
+          && _selectedRadiusKm == 999
+          && _selectedRegion == '';
+    }
+    if (_isAllSelected) return false; // si "Tout" actif, rien d'autre ne l'est
+    return _selectedRadiusKm == o.radiusKm && _selectedRegion == o.region;
   }
 
   // Villes pre-definies pour le mode manuel (coordonnees centre-ville).
@@ -89,6 +108,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _profileLoaded = false;
   // v34 : etat d'abonnement (charge en parallele du profil).
   SubscriptionState? _subscription;
+  // v36 : URL de la photo de profil (sauve dans user_metadata.profile_photo_url).
+  String? _profilePhotoUrl;
+  bool _photoUploading = false;
 
   @override
   void initState() {
@@ -148,6 +170,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _nameController.text = (meta['first_name'] is String ? meta['first_name'] : '') as String;
         _selectedRadiusKm = (meta['search_radius_km'] as int?) ?? 50;
         _selectedRegion = (meta['search_region'] as String?) ?? '';
+        // Flag "Tout" (search_unlimited=true) ; sinon, on detecte si valeurs
+        // par defaut (50/empty) ou autre.
+        _isAllSelected = (meta['search_unlimited'] as bool?) ?? false;
+        _profilePhotoUrl = meta['profile_photo_url'] as String?;
         _locationMode = (meta['location_mode'] as String?) ?? 'auto';
         _manualCity = (meta['manual_city'] as String?) ?? 'Lausanne';
         _avatarId = (meta['avatar_id'] as int?) ?? 1;
@@ -175,6 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'first_name': _nameController.text.trim(),
           'search_radius_km': _selectedRadiusKm,
           'search_region': _selectedRegion,
+          'search_unlimited': _isAllSelected,
           'location_mode': _locationMode,
           'manual_city': _manualCity,
           'manual_lat': city.lat,
@@ -260,6 +287,82 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// v36 : sélectionne une photo depuis l'appareil et l'upload sur Supabase
+  /// Storage (bucket 'profile-photos'). Le path est `{user_id}/avatar.{ext}`
+  /// pour respecter la policy RLS qui limite chaque user a son dossier.
+  /// Apres upload, on met a jour user_metadata.profile_photo_url.
+  Future<void> _pickAndUploadProfilePhoto() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+    if (_photoUploading) return;
+
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (picked == null) return; // annule
+
+      setState(() => _photoUploading = true);
+      final bytes = await picked.readAsBytes();
+
+      // Determine l'extension. Defaut : jpg.
+      final filename = picked.name.toLowerCase();
+      String ext = 'jpg';
+      if (filename.endsWith('.png')) ext = 'png';
+      else if (filename.endsWith('.webp')) ext = 'webp';
+      else if (filename.endsWith('.heic')) ext = 'heic';
+      final mimeType = picked.mimeType ?? 'image/jpeg';
+
+      // Path : {user_id}/avatar.{ext}. On overwrite l'existant (upsert: true).
+      final path = '${user.id}/avatar.$ext';
+      final bucket = Supabase.instance.client.storage.from('profile-photos');
+      await bucket.uploadBinary(
+        path,
+        bytes,
+        fileOptions: FileOptions(contentType: mimeType, upsert: true),
+      );
+      // URL publique (cache-buster avec timestamp pour forcer le refresh apres update)
+      final baseUrl = bucket.getPublicUrl(path);
+      final url = '$baseUrl?t=${DateTime.now().millisecondsSinceEpoch}';
+
+      // Sauve l'URL dans user_metadata.
+      final meta = user.userMetadata ?? {};
+      await Supabase.instance.client.auth.updateUser(
+        UserAttributes(data: {
+          ...meta,
+          'profile_photo_url': url,
+        }),
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _profilePhotoUrl = url;
+        _photoUploading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.current.profilePhotoUpdated),
+          backgroundColor: AppColors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _photoUploading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${S.current.profilePhotoError} : $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   /// Affiche une bottom-sheet pour changer le mot de passe.
   /// Verification : on retente une connexion avec l'ancien mot de passe avant
   /// d'accepter le changement (Supabase ne fournit pas d'API "verify password"
@@ -278,9 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  bool _isRadiusSelected(_RadiusOption o) {
-    return _selectedRadiusKm == o.radiusKm && _selectedRegion == o.region;
-  }
+  // (l'ancienne version de _isRadiusSelected est remplacee plus haut)
 
   @override
   Widget build(BuildContext context) {
@@ -303,23 +404,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Personnalisation du personnage en stand-by — on affiche un
-              // simple en-tete avec une icone profil generique. Les meters
-              // marches sont caches en attendant la reactivation.
+              // v36 : photo de profil (tap pour changer). Affiche la photo
+              // si uploadee, sinon une icone generique. Petit badge camera
+              // en bas a droite pour indiquer qu'on peut taper.
               const SizedBox(height: 24),
               Center(
-                child: Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    color: AppColors.cyan.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                child: GestureDetector(
+                  onTap: _pickAndUploadProfilePhoto,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 110,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          color: AppColors.cyan.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.cyan.withValues(alpha: 0.3),
+                            width: 2,
+                          ),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: _photoUploading
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.cyan,
+                                ),
+                              )
+                            : (_profilePhotoUrl != null && _profilePhotoUrl!.isNotEmpty)
+                                ? Image.network(
+                                    _profilePhotoUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => const Icon(
+                                      Icons.person_rounded,
+                                      size: 64,
+                                      color: AppColors.cyan,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.person_rounded,
+                                    size: 64,
+                                    color: AppColors.cyan,
+                                  ),
+                      ),
+                      // Badge camera en bas a droite
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: AppColors.cyan,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.surface, width: 2),
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt_rounded,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    size: 56,
-                    color: AppColors.cyan,
-                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: Text(
+                  s.profilePhotoTapToChange,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: AppColors.stone),
                 ),
               ),
               const SizedBox(height: 24),
@@ -491,6 +650,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onTap: () => setState(() {
                             _selectedRadiusKm = option.radiusKm;
                             _selectedRegion = option.region;
+                            // Flag pour distinguer "Tout" (all) du defaut.
+                            _isAllSelected = option.label == 'all';
                           }),
                           borderRadius: BorderRadius.circular(999),
                           child: AnimatedContainer(
