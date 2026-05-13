@@ -21,26 +21,8 @@ class AccessService {
     final user = _supabase.auth.currentUser;
     if (user == null) return false;
 
-    // Source 2 : metadata has_access (sauvegardé après validation code)
-    final hasAccess = user.userMetadata?['has_access'];
-    if (hasAccess == true) return true;
-
-    final email = user.email?.toLowerCase().trim();
-    if (email == null || email.isEmpty) return false;
-
-    // Source 1 : table app_access
-    try {
-      final res = await _supabase
-          .from('app_access')
-          .select('email')
-          .ilike('email', email)
-          .maybeSingle();
-      if (res != null) return true;
-    } catch (_) {
-      // En cas d'erreur réseau on bloque pour être conservateur
-    }
-
-    return false;
+    // Accès ouvert à tous les utilisateurs connectés.
+    return true;
   }
 
   /// Tente de valider un code d'accès. Si correct, persiste
