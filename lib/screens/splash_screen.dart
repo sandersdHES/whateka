@@ -2,14 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart';
-import '../services/access_service.dart';
-
 /// Ecran d'intro affiche apres la connexion (ou le reset du mot de passe).
 ///
 /// Sequence :
-///   - T=0s   : logo Whateka affiche, verification d'acces en parallele
+///   - T=0s   : logo Whateka affiche
 ///   - T=3s   : debut du fade-out
-///   - T=4s   : navigation -> /map (si acces) ou /maintenance (sinon)
+///   - T=4s   : navigation -> /map
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -24,7 +22,6 @@ class _SplashScreenState extends State<SplashScreen> {
   double _opacity = 1.0;
   Timer? _fadeTimer;
   Timer? _navigateTimer;
-  bool? _hasAccess;
 
   @override
   void initState() {
@@ -39,26 +36,13 @@ class _SplashScreenState extends State<SplashScreen> {
       });
       return;
     }
-    // Verification d'acces en parallele du splash (imperceptible).
-    AccessService().hasAccess().then((value) {
-      if (!mounted) return;
-      _hasAccess = value;
-    });
     _fadeTimer = Timer(_holdDuration, () {
       if (!mounted) return;
       setState(() => _opacity = 0.0);
     });
-    _navigateTimer = Timer(_holdDuration + _fadeDuration, () async {
+    _navigateTimer = Timer(_holdDuration + _fadeDuration, () {
       if (!mounted) return;
-      // Si la verification n'est pas encore terminee, on attend (max 2s).
-      var waited = 0;
-      while (_hasAccess == null && waited < 20) {
-        await Future.delayed(const Duration(milliseconds: 100));
-        waited++;
-      }
-      if (!mounted) return;
-      final route = (_hasAccess == true) ? '/map' : '/maintenance';
-      Navigator.of(context).pushNamedAndRemoveUntil(route, (r) => false);
+      Navigator.of(context).pushNamedAndRemoveUntil('/map', (r) => false);
     });
   }
 
