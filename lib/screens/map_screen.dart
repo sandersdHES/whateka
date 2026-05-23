@@ -12,6 +12,7 @@ import '../services/activity_service.dart';
 import '../widgets/whateka_bottom_nav.dart';
 import '../widgets/activity_card.dart';
 import '../widgets/whateka_map_pin.dart';
+import '../widgets/welcome_dialog.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -131,6 +132,12 @@ class _MapScreenState extends State<MapScreen> {
     }
     _setupUserLocation();
     _fetchActivities();
+    // Premiere connexion d'un nouvel utilisateur : on affiche le welcome
+    // dialog une seule fois (gating sur user_metadata.has_seen_welcome).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      WelcomeDialog.showIfNeeded(context);
+    });
   }
 
   /// Applique la logique de localisation :
