@@ -32,7 +32,7 @@ class ActivityCard extends StatelessWidget {
     'sport':       AppColors.cyan,
     'adventure':   AppColors.yellow,
     'relax':       Color(0xFFB8A1D9), // lavande douce
-    'fun':         AppColors.yellow,
+    'fun':         Color(0xFFEC4899), // rose vif (cohérent avec Icons.celebration)
     'event':       Color(0xFFDC2626), // rouge événement
     'institution': Color(0xFF475569), // gris foncé institution
   };
