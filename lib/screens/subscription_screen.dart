@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
 import '../services/subscription_service.dart';
 import '../widgets/responsive_center.dart';
+import 'thanks_for_interest_screen.dart';
 
 /// Ecran de selection / mise a niveau d'abonnement.
 /// Trois cartes empilees : Decouverte (free), Regional (3 CHF), Evasion (5 CHF).
@@ -38,39 +37,22 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     });
   }
 
-  bool _checkoutLoading = false;
-
-  /// Lance le checkout Stripe pour un tier donne.
-  /// - Web : ouvre la session Stripe Checkout dans le meme onglet
-  /// - iOS / Android : affiche un message (paiement non disponible, Phase 3)
+  /// Phase de lancement : pas de checkout réel. On redirige l'utilisateur vers
+  /// l'écran "Merci pour ton intérêt" qui lui offre le code promo WA2026
+  /// (3 mois d'Évasion gratuits). Stripe / Apple IAP seront activés une fois
+  /// l'app monétisée officiellement.
   Future<void> _startCheckout(SubscriptionTier tier) async {
-    if (!kIsWeb) {
-      // Sur iOS, Apple interdit Stripe. Afficher un message.
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.current.subscriptionMobileSoon),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-    setState(() => _checkoutLoading = true);
-    final url = await SubscriptionService.instance
-        .createStripeCheckoutSession(tier: tier);
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ThanksForInterestScreen(tier: tier),
+      ),
+    );
     if (!mounted) return;
-    setState(() => _checkoutLoading = false);
-    if (url == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.current.subscriptionCheckoutError),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
+    if (result == true) {
+      // Le code a été activé → on rafraîchit l'état de l'abonnement.
+      _load();
     }
-    final uri = Uri.parse(url);
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   @override
@@ -147,9 +129,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             s.subscriptionRegionalFeature4,
                           ],
                           isCurrent: _state?.tier == SubscriptionTier.regional,
-                          onTap: _checkoutLoading
-                              ? null
-                              : () => _startCheckout(SubscriptionTier.regional),
+                          onTap: () =>
+                              _startCheckout(SubscriptionTier.regional),
                           ctaLabel: s.subscriptionStartTrial,
                         ),
                         const SizedBox(height: 12),
@@ -164,9 +145,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             s.subscriptionEvasionFeature4,
                           ],
                           isCurrent: _state?.tier == SubscriptionTier.evasion,
-                          onTap: _checkoutLoading
-                              ? null
-                              : () => _startCheckout(SubscriptionTier.evasion),
+                          onTap: () =>
+                              _startCheckout(SubscriptionTier.evasion),
                           ctaLabel: s.subscriptionStartTrial,
                         ),
                         const SizedBox(height: 24),

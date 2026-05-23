@@ -21,6 +21,7 @@ import 'screens/maintenance_screen.dart';
 import 'screens/submit_activity_screen.dart';
 import 'screens/subscription_screen.dart';
 import 'screens/promo_code_screen.dart';
+import 'screens/thanks_for_interest_screen.dart';
 import 'i18n/strings.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -244,6 +245,7 @@ class _MyAppState extends State<MyApp> {
         '/submit_activity': (_) => const SubmitActivityScreen(),
         '/subscription': (_) => const SubscriptionScreen(),
         '/promo_code': (_) => const PromoCodeScreen(),
+        '/thanks_for_interest': (_) => const ThanksForInterestScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/ai_result') {

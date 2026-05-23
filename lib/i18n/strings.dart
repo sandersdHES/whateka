@@ -423,6 +423,23 @@ class _Strings {
   final String subscriptionCheckoutError;
   final String subscriptionPortalError;
   final String subscriptionManageLink;
+  // Thanks-for-interest screen (remplace temporairement le checkout)
+  final String thanksTitle;
+  final String thanksHeadline;
+  final String thanksIntro;
+  final String thanksGiftLabel;
+  final String thanksGiftValue;
+  final String thanksGiftCode;
+  final String thanksGiftBenefit;
+  final String thanksApplyNow;
+  final String thanksCopyCode;
+  final String thanksCodeCopied;
+  final String thanksSupportTitle;
+  final String thanksSupportIntro;
+  final String thanksSupportBullet1;
+  final String thanksSupportBullet2;
+  final String thanksSupportBullet3;
+  final String thanksClose;
   // v36 : option "Tout" + photo de profil
   final String profileRadiusAll;
   final String profilePhotoTapToChange;
@@ -773,6 +790,22 @@ class _Strings {
     required this.subscriptionCheckoutError,
     required this.subscriptionPortalError,
     required this.subscriptionManageLink,
+    required this.thanksTitle,
+    required this.thanksHeadline,
+    required this.thanksIntro,
+    required this.thanksGiftLabel,
+    required this.thanksGiftValue,
+    required this.thanksGiftCode,
+    required this.thanksGiftBenefit,
+    required this.thanksApplyNow,
+    required this.thanksCopyCode,
+    required this.thanksCodeCopied,
+    required this.thanksSupportTitle,
+    required this.thanksSupportIntro,
+    required this.thanksSupportBullet1,
+    required this.thanksSupportBullet2,
+    required this.thanksSupportBullet3,
+    required this.thanksClose,
     required this.profileRadiusAll,
     required this.profilePhotoTapToChange,
     required this.profilePhotoUpdated,
@@ -1124,6 +1157,22 @@ const _Strings _fr = _Strings(
   subscriptionCheckoutError: "Impossible de démarrer le paiement. Réessaie dans quelques instants.",
   subscriptionPortalError: "Impossible d'ouvrir la gestion de l'abonnement.",
   subscriptionManageLink: "Gérer / annuler mon abonnement →",
+  thanksTitle: "Merci de ton intérêt 💙",
+  thanksHeadline: "Whateka, c'est encore tout jeune",
+  thanksIntro: "Ton envie de soutenir l'app nous touche énormément. Pour l'instant, l'équipe Whateka ne fait pas encore payer les abonnements — on est en phase de lancement et on préfère que tu profites de tout, gratuitement.",
+  thanksGiftLabel: "Ton cadeau",
+  thanksGiftValue: "3 mois Évasion offerts",
+  thanksGiftCode: "WA2026",
+  thanksGiftBenefit: "Accès complet à Vaud + Valais, quiz illimités, avant-premières — sans rien payer.",
+  thanksApplyNow: "Activer mon accès",
+  thanksCopyCode: "Copier le code",
+  thanksCodeCopied: "Code copié dans le presse-papier",
+  thanksSupportTitle: "Comment nous aider en retour",
+  thanksSupportIntro: "Le plus grand soutien que tu peux nous apporter aujourd'hui :",
+  thanksSupportBullet1: "Recommander Whateka autour de toi (amis, famille, réseaux)",
+  thanksSupportBullet2: "Suggérer de nouvelles activités via le bouton « Proposer une activité »",
+  thanksSupportBullet3: "Continuer à utiliser l'app et nous envoyer tes feedbacks",
+  thanksClose: "Plus tard",
   profileRadiusAll: "Tout",
   profilePhotoTapToChange: "Tape pour changer la photo",
   profilePhotoUpdated: "Photo de profil mise à jour",
@@ -1474,6 +1523,22 @@ const _Strings _en = _Strings(
   subscriptionCheckoutError: "Could not start checkout. Try again in a moment.",
   subscriptionPortalError: "Could not open subscription management.",
   subscriptionManageLink: "Manage / cancel my subscription →",
+  thanksTitle: "Thanks for your interest 💙",
+  thanksHeadline: "Whateka is still young",
+  thanksIntro: "Your willingness to support the app means a lot. For now, the Whateka team isn't charging for subscriptions yet — we're in launch phase and we'd rather you enjoy everything for free.",
+  thanksGiftLabel: "Your gift",
+  thanksGiftValue: "3 months of Escape free",
+  thanksGiftCode: "WA2026",
+  thanksGiftBenefit: "Full access to Vaud + Valais, unlimited quizzes, early previews — no payment needed.",
+  thanksApplyNow: "Activate my access",
+  thanksCopyCode: "Copy code",
+  thanksCodeCopied: "Code copied to clipboard",
+  thanksSupportTitle: "How you can help us back",
+  thanksSupportIntro: "The biggest support you can offer us today:",
+  thanksSupportBullet1: "Recommend Whateka around you (friends, family, social media)",
+  thanksSupportBullet2: "Suggest new activities via the \"Submit an activity\" button",
+  thanksSupportBullet3: "Keep using the app and send us your feedback",
+  thanksClose: "Later",
   profileRadiusAll: "All",
   profilePhotoTapToChange: "Tap to change photo",
   profilePhotoUpdated: "Profile photo updated",
