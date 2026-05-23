@@ -305,6 +305,13 @@ class _Strings {
   final String feedbackRatingFully;
   final String feedbackPlsAnswer;
   final String feedbackTextHint;
+  // Titre quand le feedback n'est pas lie a une activite specifique
+  // (popup force apres 5 quiz sans feedback).
+  final String feedbackGeneralTitle;
+  // Popup "feedback force" affiche au start du quiz si compteur >= 5.
+  final String feedbackForcedDialogTitle;
+  final String feedbackForcedDialogBody;
+  final String feedbackForcedDialogClose;
   final String feedbackNoOptions;
 
   // Home menu
@@ -660,6 +667,10 @@ class _Strings {
     required this.feedbackRatingNotAtAll,
     required this.feedbackRatingFully,
     required this.feedbackPlsAnswer,
+    required this.feedbackGeneralTitle,
+    required this.feedbackForcedDialogTitle,
+    required this.feedbackForcedDialogBody,
+    required this.feedbackForcedDialogClose,
     required this.feedbackTextHint,
     required this.feedbackNoOptions,
     required this.homeMenuGreeting,
@@ -1006,6 +1017,10 @@ const _Strings _fr = _Strings(
   feedbackPlsAnswer: "Merci de répondre à",
   feedbackTextHint: "Votre réponse...",
   feedbackNoOptions: "(Aucune option configurée)",
+  feedbackGeneralTitle: "Votre avis sur Whateka",
+  feedbackForcedDialogTitle: "Votre avis nous intéresse !",
+  feedbackForcedDialogBody: "Vous avez fait plusieurs quiz sans nous donner votre avis. Pouvez-vous prendre 1 minute pour nous aider à améliorer Whateka ?",
+  feedbackForcedDialogClose: "Plus tard",
   homeMenuGreeting: "Bonjour",
   homeMenuSignOutTooltip: "Se déconnecter",
   homeMenuExploreTitle: "Commence à explorer avec WHATEKA !",
@@ -1349,6 +1364,10 @@ const _Strings _en = _Strings(
   feedbackPlsAnswer: "Please answer",
   feedbackTextHint: "Your answer...",
   feedbackNoOptions: "(No option configured)",
+  feedbackGeneralTitle: "Your opinion on Whateka",
+  feedbackForcedDialogTitle: "Your opinion matters!",
+  feedbackForcedDialogBody: "You've completed several quizzes without sharing your feedback. Could you spare a minute to help us improve Whateka?",
+  feedbackForcedDialogClose: "Later",
   homeMenuGreeting: "Hello",
   homeMenuSignOutTooltip: "Sign out",
   homeMenuExploreTitle: "Start exploring with WHATEKA!",

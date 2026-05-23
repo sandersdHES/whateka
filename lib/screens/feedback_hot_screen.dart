@@ -15,12 +15,15 @@ import '../widgets/whateka_bottom_nav.dart';
 /// L'admin peut donc les ajouter/modifier/reorganiser sans avoir a redeployer
 /// l'app mobile.
 class FeedbackHotScreen extends StatefulWidget {
-  final Activity activity;
+  /// Activite sur laquelle porte le feedback. Null = feedback "general
+  /// app" declenche par le popup force au start du quiz apres 5 quiz
+  /// sans aucun feedback.
+  final Activity? activity;
   final int searchesCount;
 
   const FeedbackHotScreen({
     super.key,
-    required this.activity,
+    this.activity,
     this.searchesCount = 1,
   });
 
@@ -91,7 +94,7 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
 
     final success = await _feedbackService.submitFeedback(
       questionnaireType: 'hot',
-      activityId: widget.activity.id,
+      activityId: widget.activity?.id,
       searchesCount: widget.searchesCount,
       answers: drafts,
     );
@@ -100,6 +103,12 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
     setState(() => _isSubmitting = false);
 
     if (success) {
+      // Reset le compteur "quiz sans feedback" : on vient d'en recevoir un.
+      // Best-effort : on ne bloque pas la suite si la RPC echoue.
+      try {
+        await _feedbackService.resetUnansweredQuizCount();
+      } catch (_) {}
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(S.current.feedbackThanks),
@@ -351,7 +360,8 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // En-tete activite
+                    // En-tete : nom de l'activite si disponible, sinon
+                    // titre generique pour le feedback "global app".
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -364,7 +374,12 @@ class _FeedbackHotScreenState extends State<FeedbackHotScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            pickLocalized(widget.activity.title, widget.activity.titleEn),
+                            widget.activity != null
+                                ? pickLocalized(
+                                    widget.activity!.title,
+                                    widget.activity!.titleEn,
+                                  )
+                                : s.feedbackGeneralTitle,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 8),

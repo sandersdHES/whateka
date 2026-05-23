@@ -32,7 +32,7 @@ class FeedbackService {
   /// puis insere les N reponses associees dans feedback_answers.
   Future<bool> submitFeedback({
     required String questionnaireType,
-    required int activityId,
+    int? activityId,
     required int searchesCount,
     required List<FeedbackAnswerDraft> answers,
   }) async {
@@ -43,6 +43,8 @@ class FeedbackService {
           .from('feedback_submissions')
           .insert({
             'user_id': userId,
+            // activity_id null = feedback "general app" (popup force au start
+            // du quiz apres 5 quiz sans feedback). Sinon = lie a une activite.
             'activity_id': activityId,
             'questionnaire_type': questionnaireType,
             'searches_count': searchesCount,
@@ -66,5 +68,13 @@ class FeedbackService {
       debugPrint('Error submitting feedback: $e');
       return false;
     }
+  }
+
+  /// Remet a 0 le compteur "quiz sans feedback" pour l'user courant.
+  /// Appele apres une soumission reussie (ou quand l'user ferme le popup
+  /// force au start du quiz, pour eviter le spam).
+  Future<void> resetUnansweredQuizCount() async {
+    if (_supabase.auth.currentUser == null) return;
+    await _supabase.rpc('reset_unanswered_quiz_count');
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../i18n/strings.dart';
 import '../services/activity_service.dart';
 import '../models/activity.dart';
@@ -39,6 +40,25 @@ class _AiResultScreenState extends State<AiResultScreen> {
       userPrefs: widget.userPrefs,
       context: widget.contextData,
     );
+    // Compteur "quiz sans feedback" : on incremente UNE FOIS quand les
+    // recos sont chargees avec succes. Si l'user atteint 5 sans feedback,
+    // un popup apparaitra au prochain quiz (gere par questionnaire_screen).
+    _aiFuture.then((_) {
+      _bumpUnansweredQuizCount();
+    }).catchError((_) {
+      // Ne rien incrementer si le quiz a echoue.
+    });
+  }
+
+  Future<void> _bumpUnansweredQuizCount() async {
+    final supa = Supabase.instance.client;
+    if (supa.auth.currentUser == null) return; // Anonymous : skip
+    try {
+      await supa.rpc('increment_unanswered_quiz_count');
+    } catch (_) {
+      // Silencieux : ce compteur est best-effort, on n'embete pas l'user
+      // si la RPC echoue (offline, etc.).
+    }
   }
 
   Future<void> _loadMoreActivities(List<Activity> currentActivities) async {

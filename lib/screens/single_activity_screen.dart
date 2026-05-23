@@ -98,6 +98,21 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
     );
   }
 
+  /// Ouvre directement le questionnaire feedback hot pour cette activite.
+  /// Appele depuis le bouton "Donner mon avis" sur la fiche, et depuis le
+  /// popup post-clic-URL.
+  void _openFeedbackScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FeedbackHotScreen(
+          activity: activity,
+          searchesCount: _searchesCount,
+        ),
+      ),
+    );
+  }
+
   void _showFeedbackDialog() {
     showDialog(
       context: context,
@@ -120,15 +135,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FeedbackHotScreen(
-                      activity: activity,
-                      searchesCount: _searchesCount,
-                    ),
-                  ),
-                );
+                _openFeedbackScreen();
               },
               child: Text(s.activityFeedbackGive),
             ),
@@ -407,6 +414,26 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                           child: ElevatedButton(
                             onPressed: _openActivityUrl,
                             child: Text('${s.activityViewOnSite} ${_siteName()}'),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // Bouton secondaire "Donner mon avis" - barre grise
+                        // pleine sous la CTA orange. Acces direct au
+                        // questionnaire feedback hot (sans passer par le popup
+                        // qui apparait 3s apres clic sur l'URL externe).
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: _openFeedbackScreen,
+                            icon: const Icon(
+                              Icons.rate_review_outlined,
+                              size: 18,
+                            ),
+                            label: Text(s.activityFeedbackGive),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.stone,
+                              foregroundColor: Colors.white,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 80),

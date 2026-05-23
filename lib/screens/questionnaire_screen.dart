@@ -7,6 +7,7 @@ import '../services/subscription_service.dart';
 import '../widgets/responsive_center.dart';
 import '../widgets/subscription_widgets.dart';
 import '../widgets/whateka_bottom_nav.dart';
+import 'feedback_hot_screen.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
   const QuestionnaireScreen({super.key});
@@ -40,6 +41,85 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   final ContextService _contextService = ContextService();
 
   final List<Set<int>> selections = [{}, {}, {}, {}, {}, {}];
+
+  // Seuil au-dela duquel on force le popup feedback au start du quiz.
+  // Ex : 5 = popup au 6e quiz si l'user a fait 5 quiz precedents sans
+  // soumettre aucun feedback (et sans avoir ferme un popup precedent).
+  static const int _forcedFeedbackThreshold = 5;
+
+  @override
+  void initState() {
+    super.initState();
+    // Verification differee apres le 1er frame pour eviter de bloquer le
+    // rendu initial. Le popup s'affiche en overlay sur le quiz.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeShowForcedFeedbackDialog();
+    });
+  }
+
+  /// Si l'user a fait >= _forcedFeedbackThreshold quiz sans aucun feedback,
+  /// affiche un popup l'invitant a en donner un. Le bouton "Plus tard"
+  /// reset le compteur a 0 (pour ne pas spammer l'user a chaque quiz).
+  Future<void> _maybeShowForcedFeedbackDialog() async {
+    final supa = Supabase.instance.client;
+    if (supa.auth.currentUser == null) return; // Anonyme : skip
+    int count;
+    try {
+      final res = await supa.rpc('get_unanswered_quiz_count');
+      count = (res as int?) ?? 0;
+    } catch (_) {
+      return; // RPC fail : on n'embete pas l'user
+    }
+    if (count < _forcedFeedbackThreshold) return;
+    if (!mounted) return;
+
+    final s = S.of(context);
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false, // l'user doit choisir explicitement
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        title: Text(s.feedbackForcedDialogTitle),
+        content: Text(s.feedbackForcedDialogBody),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              // Reset compteur : l'user repondra peut-etre apres 5 quiz de plus
+              await _resetUnansweredQuizCount();
+            },
+            child: Text(s.feedbackForcedDialogClose),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              // Reset directement : si l'user ferme le questionnaire sans
+              // soumettre, on ne le re-spammera pas immediatement.
+              await _resetUnansweredQuizCount();
+              if (!mounted) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const FeedbackHotScreen(activity: null),
+                ),
+              );
+            },
+            child: Text(s.activityFeedbackGive),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _resetUnansweredQuizCount() async {
+    try {
+      await Supabase.instance.client.rpc('reset_unanswered_quiz_count');
+    } catch (_) {
+      // best-effort
+    }
+  }
 
   /// Liste des questions construite dynamiquement à partir de la locale
   /// courante (S.current). Recalculée à chaque build pour suivre la langue.
