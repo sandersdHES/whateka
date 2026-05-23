@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
 import '../models/activity.dart';
+import 'whateka_verified_badge.dart';
 
 /// Carte d'activité réutilisable — photo edge-to-edge, chip catégorie,
 /// nom + lieu + prix en surimpression sur un dégradé sombre en bas.
@@ -143,6 +144,8 @@ class ActivityCard extends StatelessWidget {
             // Chips catégories top-left : un par catégorie sur la même ligne.
             // Wrap permet d'aller à la ligne si trop nombreuses (ex: card
             // compact sur un activite multi-categorie).
+            // Le badge "Whateka Verified" est ajoute en dernier child si
+            // l'activite est certifiee par l'equipe.
             Positioned(
               top: 12,
               left: 12,
@@ -150,26 +153,31 @@ class ActivityCard extends StatelessWidget {
               child: Wrap(
                 spacing: 6,
                 runSpacing: 6,
-                children: displayCats.map((c) {
-                  final color = categoryColors[c] ?? AppColors.stone;
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      categoryLabel(c, context).toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.6,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  ...displayCats.map((c) {
+                    final color = categoryColors[c] ?? AppColors.stone;
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(999),
                       ),
-                    ),
-                  );
-                }).toList(),
+                      child: Text(
+                        categoryLabel(c, context).toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.6,
+                        ),
+                      ),
+                    );
+                  }),
+                  if (activity.isWhatekaCertified)
+                    const WhatekaVerifiedBadge(size: 26),
+                ],
               ),
             ),
             // Info bottom-left
