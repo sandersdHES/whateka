@@ -7,6 +7,7 @@ import '../i18n/strings.dart';
 import '../main.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
+import '../widgets/activity_card.dart';
 import '../widgets/responsive_center.dart';
 import 'feedback_hot_screen.dart';
 
@@ -157,25 +158,6 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
     }
   }
 
-  /// Traduit la première catégorie (DB key -> label affiché localisé).
-  String _translateCategory(String csv) {
-    final s = S.current;
-    final cats = csv.split(',').map((c) => c.trim().toLowerCase()).where((c) => c.isNotEmpty).toList();
-    final c = cats.contains('event') ? 'event' : (cats.isNotEmpty ? cats.first : '');
-    switch (c) {
-      case 'culture':    return s.quizCatCulture;
-      case 'nature':     return s.quizCatNature;
-      case 'gastronomy': return s.quizCatGastronomy;
-      case 'sport':      return s.quizCatSport;
-      case 'adventure':  return s.quizCatAdventure;
-      case 'relax':      return s.quizCatRelax;
-      case 'fun':        return s.quizCatFun;
-      case 'event':      return s.quizCatEvent;
-      case 'institution':return s.quizCatEvent;
-      default:           return c;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -228,12 +210,48 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Catégorie (traduite)
+                        // Catégories (toutes affichées, chacune dans sa couleur,
+                        // séparées par un point milieu). Si plusieurs categories,
+                        // elles apparaissent l'une apres l'autre sur la meme ligne
+                        // (Wrap = retour ligne auto si overflow).
                         if (activity.category != null) ...[
-                          Text(
-                            _translateCategory(activity.category!).toUpperCase(),
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
+                          Builder(builder: (context) {
+                            final cats = ActivityCard.displayCategories(
+                                activity.category);
+                            if (cats.isEmpty) return const SizedBox.shrink();
+                            // Construction d'une liste alternee :
+                            // [label, dot, label, dot, label]
+                            final children = <Widget>[];
+                            for (var i = 0; i < cats.length; i++) {
+                              final c = cats[i];
+                              final color = ActivityCard.categoryColors[c] ??
+                                  AppColors.stone;
+                              children.add(Text(
+                                ActivityCard.categoryLabel(c, context)
+                                    .toUpperCase(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: color,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ));
+                              if (i < cats.length - 1) {
+                                children.add(Text(
+                                  ' · ',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(color: AppColors.stone),
+                                ));
+                              }
+                            }
+                            return Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: children,
+                            );
+                          }),
                           const SizedBox(height: 8),
                         ],
                         // Titre

@@ -81,7 +81,7 @@ class _MapScreenState extends State<MapScreen> {
       case 'sport':      return AppColors.cyan;
       case 'adventure':  return AppColors.yellow;
       case 'relax':      return const Color(0xFFB8A1D9);
-      case 'fun':        return AppColors.yellow;
+      case 'fun':        return const Color(0xFFEC4899); // rose vif (distinct du yellow adventure)
       case 'event':      return const Color(0xFFDC2626);
       default:           return AppColors.stone;
     }
@@ -696,7 +696,7 @@ class _MapScreenState extends State<MapScreen> {
       case 'sport':      return AppColors.cyan;
       case 'adventure':  return AppColors.yellow;
       case 'relax':      return const Color(0xFFB8A1D9);
-      case 'fun':        return AppColors.yellow;
+      case 'fun':        return const Color(0xFFEC4899); // rose vif (distinct du yellow adventure)
       default:           return AppColors.orange;
     }
   }
