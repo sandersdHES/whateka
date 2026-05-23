@@ -444,6 +444,16 @@ class _Strings {
   final String thanksSupportBullet2;
   final String thanksSupportBullet3;
   final String thanksClose;
+  // Welcome dialog (1ere connexion d'un nouveau compte)
+  final String welcomeTitle;
+  final String welcomeIntro;
+  final String welcomeDiscoveryTitle;
+  final String welcomeDiscoveryBullet1;
+  final String welcomeDiscoveryBullet2;
+  final String welcomeDiscoveryBullet3;
+  final String welcomePromoIntro;
+  final String welcomeHasCode;
+  final String welcomeLater;
   // v36 : option "Tout" + photo de profil
   final String profileRadiusAll;
   final String profilePhotoTapToChange;
@@ -814,6 +824,15 @@ class _Strings {
     required this.thanksSupportBullet2,
     required this.thanksSupportBullet3,
     required this.thanksClose,
+    required this.welcomeTitle,
+    required this.welcomeIntro,
+    required this.welcomeDiscoveryTitle,
+    required this.welcomeDiscoveryBullet1,
+    required this.welcomeDiscoveryBullet2,
+    required this.welcomeDiscoveryBullet3,
+    required this.welcomePromoIntro,
+    required this.welcomeHasCode,
+    required this.welcomeLater,
     required this.profileRadiusAll,
     required this.profilePhotoTapToChange,
     required this.profilePhotoUpdated,
@@ -1185,6 +1204,15 @@ const _Strings _fr = _Strings(
   thanksSupportBullet2: "Suggérer de nouvelles activités via le bouton « Proposer une activité »",
   thanksSupportBullet3: "Continuer à utiliser l'app et nous envoyer tes feedbacks",
   thanksClose: "Plus tard",
+  welcomeTitle: "Bienvenue sur Whateka 👋",
+  welcomeIntro: "Tu fais maintenant partie de l'aventure. Voici comment ça marche :",
+  welcomeDiscoveryTitle: "Tu commences en mode Découverte",
+  welcomeDiscoveryBullet1: "5 quiz tous les 30 jours pour découvrir des activités",
+  welcomeDiscoveryBullet2: "Carte complète et favoris illimités",
+  welcomeDiscoveryBullet3: "Possibilité de proposer une activité",
+  welcomePromoIntro: "Tu as un code promo ? Active-le maintenant pour 3 mois d'Évasion offerts (quiz illimités, Vaud + Valais).",
+  welcomeHasCode: "J'ai un code promo",
+  welcomeLater: "Plus tard",
   profileRadiusAll: "Tout",
   profilePhotoTapToChange: "Tape pour changer la photo",
   profilePhotoUpdated: "Photo de profil mise à jour",
@@ -1555,6 +1583,15 @@ const _Strings _en = _Strings(
   thanksSupportBullet2: "Suggest new activities via the \"Submit an activity\" button",
   thanksSupportBullet3: "Keep using the app and send us your feedback",
   thanksClose: "Later",
+  welcomeTitle: "Welcome to Whateka 👋",
+  welcomeIntro: "You're now part of the adventure. Here's how it works:",
+  welcomeDiscoveryTitle: "You're starting in Discovery mode",
+  welcomeDiscoveryBullet1: "5 quizzes every 30 days to discover activities",
+  welcomeDiscoveryBullet2: "Full map and unlimited favorites",
+  welcomeDiscoveryBullet3: "Submit your own activity ideas",
+  welcomePromoIntro: "Got a promo code? Activate it now for 3 months of Escape free (unlimited quizzes, Vaud + Valais).",
+  welcomeHasCode: "I have a promo code",
+  welcomeLater: "Later",
   profileRadiusAll: "All",
   profilePhotoTapToChange: "Tap to change photo",
   profilePhotoUpdated: "Profile photo updated",

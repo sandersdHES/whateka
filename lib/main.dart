@@ -17,7 +17,6 @@ import 'screens/single_activity_screen.dart';
 import 'screens/ai_result_screen.dart';
 import 'screens/update_password_screen.dart';
 import 'screens/splash_screen.dart';
-import 'screens/maintenance_screen.dart';
 import 'screens/submit_activity_screen.dart';
 import 'screens/subscription_screen.dart';
 import 'screens/promo_code_screen.dart';
@@ -212,8 +211,7 @@ class _MyAppState extends State<MyApp> {
 
     // Persistance de session : Supabase garde la session dans le storage
     // local (shared_preferences). Si une session existe au demarrage, on
-    // saute le HomeScreen et on va directement au splash qui verifie
-    // l'acces puis route vers /map ou /maintenance.
+    // saute le HomeScreen et on va directement au splash puis sur /map.
     // L'utilisateur ne se reconnecte donc PAS a chaque ouverture de l'app.
     final hasSession = Supabase.instance.client.auth.currentSession != null;
     final initialRoute = hasSession ? '/splash' : '/';
@@ -233,8 +231,6 @@ class _MyAppState extends State<MyApp> {
         '/dashboard': (_) => const HomeMenuScreen(),
         // Ecran d'intro avec logo (3s hold + 1s fade) avant d'arriver sur /map
         '/splash': (_) => const SplashScreen(),
-        '/maintenance': (_) => const MaintenanceScreen(),
-        '/access_success': (_) => const AccessSuccessScreen(),
         '/map': (_) => const MapScreen(),
         '/profile': (_) => const ProfileScreen(),
         '/favorites': (_) => const FavoritesScreen(),
