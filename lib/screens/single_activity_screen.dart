@@ -417,18 +417,23 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        // Bouton secondaire "Donner mon avis" - acces direct au
+                        // Bouton secondaire "Donner mon avis" - barre grise
+                        // pleine sous la CTA orange. Acces direct au
                         // questionnaire feedback hot (sans passer par le popup
                         // qui apparait 3s apres clic sur l'URL externe).
                         SizedBox(
                           width: double.infinity,
-                          child: OutlinedButton.icon(
+                          child: ElevatedButton.icon(
                             onPressed: _openFeedbackScreen,
                             icon: const Icon(
                               Icons.rate_review_outlined,
                               size: 18,
                             ),
                             label: Text(s.activityFeedbackGive),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.stone,
+                              foregroundColor: Colors.white,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 80),
