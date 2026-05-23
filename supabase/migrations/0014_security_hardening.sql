@@ -39,15 +39,30 @@ END $$;
 REVOKE EXECUTE ON FUNCTION public.list_promo_redemptions_admin() FROM PUBLIC, anon;
 
 -- RPCs business qui exigent un user authentifie (verifient auth.uid()
--- en interne et renvoient une erreur si anon). On retire anon de la
--- surface d'attaque REST publique :
-REVOKE EXECUTE ON FUNCTION public.consume_free_quiz() FROM anon;
-REVOKE EXECUTE ON FUNCTION public.ensure_subscription_row() FROM anon;
-REVOKE EXECUTE ON FUNCTION public.change_region(text) FROM anon;
-REVOKE EXECUTE ON FUNCTION public.redeem_promo_code(text) FROM anon;
-REVOKE EXECUTE ON FUNCTION public.get_unanswered_quiz_count() FROM anon;
-REVOKE EXECUTE ON FUNCTION public.increment_unanswered_quiz_count() FROM anon;
-REVOKE EXECUTE ON FUNCTION public.reset_unanswered_quiz_count() FROM anon;
+-- en interne et renvoient une erreur si anon). REVOKE FROM PUBLIC est
+-- essentiel : sans ca, anon herite implicitement et garde EXECUTE.
+-- On re-grant explicit a authenticated apres pour que le client reel
+-- (Flutter avec JWT) puisse appeler.
+REVOKE EXECUTE ON FUNCTION public.consume_free_quiz() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.consume_free_quiz() TO authenticated;
+
+REVOKE EXECUTE ON FUNCTION public.ensure_subscription_row() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.ensure_subscription_row() TO authenticated;
+
+REVOKE EXECUTE ON FUNCTION public.change_region(text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.change_region(text) TO authenticated;
+
+REVOKE EXECUTE ON FUNCTION public.redeem_promo_code(text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.redeem_promo_code(text) TO authenticated;
+
+REVOKE EXECUTE ON FUNCTION public.get_unanswered_quiz_count() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.get_unanswered_quiz_count() TO authenticated;
+
+REVOKE EXECUTE ON FUNCTION public.increment_unanswered_quiz_count() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.increment_unanswered_quiz_count() TO authenticated;
+
+REVOKE EXECUTE ON FUNCTION public.reset_unanswered_quiz_count() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.reset_unanswered_quiz_count() TO authenticated;
 
 
 -- 2. Fix policy "always true" sur feedback_hot INSERT -----------------
