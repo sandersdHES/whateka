@@ -24,7 +24,8 @@ class ActivityCard extends StatelessWidget {
     this.onTap,
   });
 
-  static const Map<String, Color> _categoryColors = {
+  /// Couleurs par catégorie (publique : réutilisée sur la fiche détail).
+  static const Map<String, Color> categoryColors = {
     'culture':     AppColors.brown,
     'nature':      AppColors.green,
     'gastronomy':  AppColors.orange,
@@ -36,7 +37,8 @@ class ActivityCard extends StatelessWidget {
     'institution': Color(0xFF475569), // gris foncé institution
   };
 
-  static String _categoryLabel(String c, BuildContext context) {
+  /// Label localisé d'une catégorie (publique : réutilisée sur la fiche détail).
+  static String categoryLabel(String c, BuildContext context) {
     final s = S.of(context);
     switch (c.toLowerCase().trim()) {
       case 'culture':    return s.quizCatCulture;
@@ -50,6 +52,27 @@ class ActivityCard extends StatelessWidget {
       case 'institution':return s.quizCatEvent;
       default:           return c;
     }
+  }
+
+  /// Decompose le CSV de categories en liste normalisee :
+  /// - 'institution' devient 'event' (cas auto-promu cote algo)
+  /// - dedoublonne en preservant l'ordre
+  /// - 'event' est promu en premier si present (priorite visuelle)
+  static List<String> displayCategories(String? csv) {
+    final raw = (csv ?? '')
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .where((s) => s.isNotEmpty);
+    final list = <String>[];
+    for (final c in raw) {
+      final normalized = (c == 'institution') ? 'event' : c;
+      if (!list.contains(normalized)) list.add(normalized);
+    }
+    if (list.contains('event')) {
+      list.remove('event');
+      list.insert(0, 'event');
+    }
+    return list;
   }
 
   @override
@@ -70,19 +93,15 @@ class ActivityCard extends StatelessWidget {
       ActivityCardSize.compact => 16.0,
     };
 
-    final allCats = (activity.category ?? '')
-        .split(',')
-        .map((s) => s.trim().toLowerCase())
-        .where((s) => s.isNotEmpty)
-        .toList();
-    // 'event' (et 'institution' qui est automatiquement event) a la priorité.
-    final cat = (allCats.contains('event') || allCats.contains('institution'))
-        ? 'event'
-        : (allCats.isNotEmpty ? allCats.first : '');
-    final chipColor = _categoryColors[cat] ?? AppColors.stone;
+    // Toutes les catégories à afficher (event en 1er si présent, dédupliquées).
+    final displayCats = displayCategories(activity.category);
+    // Couleur primaire = celle de la 1re catégorie (utilisée pour le fallback
+    // photo et la teinte dominante de la card).
+    final primaryCat = displayCats.isNotEmpty ? displayCats.first : '';
+    final primaryColor = categoryColors[primaryCat] ?? AppColors.stone;
     // Fallback coloré par catégorie (teinte foncée) quand la photo est
     // absente ou en erreur — plus cohérent visuellement que du gris.
-    final fallbackColor = Color.lerp(chipColor, Colors.black, 0.45)!;
+    final fallbackColor = Color.lerp(primaryColor, Colors.black, 0.45)!;
 
     return GestureDetector(
       onTap: onTap,
@@ -119,25 +138,36 @@ class ActivityCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Chip catégorie top-left
+            // Chips catégories top-left : un par catégorie sur la même ligne.
+            // Wrap permet d'aller à la ligne si trop nombreuses (ex: card
+            // compact sur un activite multi-categorie).
             Positioned(
               top: 12,
               left: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: chipColor,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  _categoryLabel(cat, context).toUpperCase(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.6,
-                  ),
-                ),
+              right: 12,
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: displayCats.map((c) {
+                  final color = categoryColors[c] ?? AppColors.stone;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      categoryLabel(c, context).toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
             // Info bottom-left
