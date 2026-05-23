@@ -73,15 +73,17 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  // Palette v2 (mai 2026) : couleurs sémantiques distinctes par catégorie.
+  // Doit rester synchronisée avec ActivityCard.categoryColors.
   Color _categoryColor(String key) {
     switch (key) {
-      case 'nature':     return AppColors.green;
-      case 'culture':    return AppColors.brown;
-      case 'gastronomy': return AppColors.orange;
-      case 'sport':      return AppColors.cyan;
-      case 'adventure':  return AppColors.yellow;
-      case 'relax':      return const Color(0xFFB8A1D9);
-      case 'fun':        return const Color(0xFFEC4899); // rose vif (distinct du yellow adventure)
+      case 'nature':     return const Color(0xFF16A34A);
+      case 'culture':    return const Color(0xFF92400E);
+      case 'gastronomy': return const Color(0xFFEA580C);
+      case 'sport':      return const Color(0xFF0EA5E9);
+      case 'adventure':  return const Color(0xFFCA8A04);
+      case 'relax':      return const Color(0xFFA78BFA);
+      case 'fun':        return const Color(0xFFEC4899);
       case 'event':      return const Color(0xFFDC2626);
       default:           return AppColors.stone;
     }
@@ -689,15 +691,16 @@ class _MapScreenState extends State<MapScreen> {
       return const Color(0xFFDC2626);
     }
     final c = cats.isNotEmpty ? cats.first : '';
+    // Palette v2 - doit rester synchronisée avec ActivityCard.categoryColors.
     switch (c) {
-      case 'culture':    return AppColors.brown;
-      case 'nature':     return AppColors.green;
-      case 'gastronomy': return AppColors.orange;
-      case 'sport':      return AppColors.cyan;
-      case 'adventure':  return AppColors.yellow;
-      case 'relax':      return const Color(0xFFB8A1D9);
-      case 'fun':        return const Color(0xFFEC4899); // rose vif (distinct du yellow adventure)
-      default:           return AppColors.orange;
+      case 'nature':     return const Color(0xFF16A34A);
+      case 'culture':    return const Color(0xFF92400E);
+      case 'gastronomy': return const Color(0xFFEA580C);
+      case 'sport':      return const Color(0xFF0EA5E9);
+      case 'adventure':  return const Color(0xFFCA8A04);
+      case 'relax':      return const Color(0xFFA78BFA);
+      case 'fun':        return const Color(0xFFEC4899);
+      default:           return AppColors.stone;
     }
   }
 

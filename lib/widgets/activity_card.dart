@@ -25,16 +25,18 @@ class ActivityCard extends StatelessWidget {
   });
 
   /// Couleurs par catégorie (publique : réutilisée sur la fiche détail).
+  /// Palette v2 (mai 2026) : chaque catégorie a une couleur sémantique
+  /// distincte avec bon contraste blanc pour les chips.
   static const Map<String, Color> categoryColors = {
-    'culture':     AppColors.brown,
-    'nature':      AppColors.green,
-    'gastronomy':  AppColors.orange,
-    'sport':       AppColors.cyan,
-    'adventure':   AppColors.yellow,
-    'relax':       Color(0xFFB8A1D9), // lavande douce
-    'fun':         Color(0xFFEC4899), // rose vif (cohérent avec Icons.celebration)
-    'event':       Color(0xFFDC2626), // rouge événement
-    'institution': Color(0xFF475569), // gris foncé institution
+    'nature':      Color(0xFF16A34A), // vert forêt
+    'culture':     Color(0xFF92400E), // brun terre cuite
+    'gastronomy':  Color(0xFFEA580C), // orange épices
+    'sport':       Color(0xFF0EA5E9), // bleu énergie
+    'adventure':   Color(0xFFCA8A04), // ambre soleil
+    'relax':       Color(0xFFA78BFA), // lilas pastel
+    'fun':         Color(0xFFEC4899), // rose festif
+    'event':       Color(0xFFDC2626), // rouge alerte
+    'institution': Color(0xFF475569), // gris ardoise
   };
 
   /// Label localisé d'une catégorie (publique : réutilisée sur la fiche détail).
