@@ -418,6 +418,7 @@ class _Strings {
   final String promoCodeErrorExpired;
   final String promoCodeErrorExhausted;
   final String promoCodeErrorAlreadyRedeemed;
+  final String promoCodeErrorAlreadyUsedAPromo;
   final String promoCodeErrorNotAuthenticated;
   final String promoCodeErrorGeneric;
   // Stripe (Phase 2)
@@ -789,6 +790,7 @@ class _Strings {
     required this.promoCodeErrorExpired,
     required this.promoCodeErrorExhausted,
     required this.promoCodeErrorAlreadyRedeemed,
+    required this.promoCodeErrorAlreadyUsedAPromo,
     required this.promoCodeErrorNotAuthenticated,
     required this.promoCodeErrorGeneric,
     required this.subscriptionMobileSoon,
@@ -1159,6 +1161,7 @@ const _Strings _fr = _Strings(
   promoCodeErrorExpired: "Ce code a expiré.",
   promoCodeErrorExhausted: "Ce code a atteint sa limite d'utilisations.",
   promoCodeErrorAlreadyRedeemed: "Tu as déjà utilisé ce code.",
+  promoCodeErrorAlreadyUsedAPromo: "Tu as déjà utilisé un code promo sur ce compte. Un seul code par compte est autorisé.",
   promoCodeErrorNotAuthenticated: "Connecte-toi d'abord.",
   promoCodeErrorGeneric: "Impossible d'activer ce code.",
   subscriptionMobileSoon: "Le paiement sur mobile arrive bientôt. En attendant, abonne-toi depuis whateka.ch ou utilise un code promo.",
@@ -1528,6 +1531,7 @@ const _Strings _en = _Strings(
   promoCodeErrorExpired: "This code has expired.",
   promoCodeErrorExhausted: "This code has reached its usage limit.",
   promoCodeErrorAlreadyRedeemed: "You've already redeemed this code.",
+  promoCodeErrorAlreadyUsedAPromo: "You've already redeemed a promo code on this account. Only one code per account is allowed.",
   promoCodeErrorNotAuthenticated: "Sign in first.",
   promoCodeErrorGeneric: "Could not apply this code.",
   subscriptionMobileSoon: "Mobile payment is coming soon. In the meantime, subscribe at whateka.ch or use a promo code.",

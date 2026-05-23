@@ -62,6 +62,7 @@ class _PromoCodeScreenState extends State<PromoCodeScreen> {
       'code_expired' => s.promoCodeErrorExpired,
       'code_exhausted' => s.promoCodeErrorExhausted,
       'already_redeemed' => s.promoCodeErrorAlreadyRedeemed,
+      'already_used_a_promo' => s.promoCodeErrorAlreadyUsedAPromo,
       'not_authenticated' => s.promoCodeErrorNotAuthenticated,
       _ => s.promoCodeErrorGeneric,
     };

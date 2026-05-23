@@ -50,6 +50,7 @@ class _ThanksForInterestScreenState extends State<ThanksForInterestScreen> {
 
     final msg = switch (result.error) {
       'already_redeemed' => s.promoCodeErrorAlreadyRedeemed,
+      'already_used_a_promo' => s.promoCodeErrorAlreadyUsedAPromo,
       'code_not_found' => s.promoCodeErrorNotFound,
       'code_inactive' => s.promoCodeErrorInactive,
       'code_expired' => s.promoCodeErrorExpired,

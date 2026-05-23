@@ -1298,6 +1298,8 @@ liste d'attributs.
        - Ton catalogue / fiche produit
        - Repeter le titre de l'activite
        - Mentionner explicitement la categorie (ex : "Activite nature")
+       - Le mot "gastronomie" / "gastronomique" : ON UTILISE "gourmandise" /
+         "gourmand" / "gourmande" partout dans l'app Whateka.
 
 global_comment doit etre une phrase d'accroche generale courte et chaleureuse,
 sans jargon, max 12 mots (ex : "Voici tes 3 idees pour aujourd'hui." ou
@@ -1333,10 +1335,13 @@ function parseGeminiResponse(
       .slice(0, 3)
       .map((r: { id: number; match_reason: string }) => ({
         id: r.id,
-        match_reason: r.match_reason || "",
+        match_reason: _sanitizeFrenchOutput(r.match_reason || ""),
       }));
 
-    return { recommendations, globalComment: parsed.global_comment || "" };
+    return {
+      recommendations,
+      globalComment: _sanitizeFrenchOutput(parsed.global_comment || ""),
+    };
   } catch (_e) {
     return { recommendations: [], globalComment: "" };
   }
@@ -1380,12 +1385,35 @@ function buildGlobalComment(
   return templates[Math.floor(Math.random() * templates.length)];
 }
 
+/**
+ * Nettoie la sortie FR de Gemini pour aligner le vocabulaire avec l'identite
+ * Whateka :
+ *  - "Gastronomie" / "gastronomie" -> "Gourmandise" / "gourmandise"
+ *  - On respecte la casse initiale du premier caractere pour rester fluide
+ *    en debut de phrase comme au milieu.
+ *
+ * Gemini est instruit dans le prompt d'utiliser "gourmandise" mais comme le
+ * LLM est non-deterministe, on garantit le terme cote serveur.
+ */
+function _sanitizeFrenchOutput(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/Gastronomie/g, "Gourmandise")
+    .replace(/gastronomie/g, "gourmandise")
+    // Variantes : "gastronomique"/"gastronomiques" sonne datee. On preserve
+    // l'accord et la casse du suffixe (eg. "gastronomiques" -> "gourmands").
+    .replace(/Gastronomiques/g, "Gourmandes")
+    .replace(/gastronomiques/g, "gourmandes")
+    .replace(/Gastronomique/g, "Gourmande")
+    .replace(/gastronomique/g, "gourmande");
+}
+
 /** Convertit la cle DB en mot fluide pour le ton conversationnel. */
 function _friendlyCat(cat: string): string {
   switch (cat.toLowerCase()) {
     case "nature": return "nature";
     case "culture": return "culture";
-    case "gastronomy": return "bien manger";
+    case "gastronomy": return "te faire plaisir avec de bons produits";
     case "sport": return "bouger";
     case "adventure": return "sensations";
     case "relax": return "te detendre";
