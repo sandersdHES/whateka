@@ -290,6 +290,9 @@ class _Strings {
   final String favoritesCountSingle;
   final String favoritesCountPlural;
   final String favoriteRemoveError;
+  final String favoritesViewList;
+  final String favoritesViewMap;
+  final String favoritesEmptyMap;
 
   // Feedback hot
   final String feedbackTitle;
@@ -677,6 +680,9 @@ class _Strings {
     required this.favoritesCountSingle,
     required this.favoritesCountPlural,
     required this.favoriteRemoveError,
+    required this.favoritesViewList,
+    required this.favoritesViewMap,
+    required this.favoritesEmptyMap,
     required this.feedbackTitle,
     required this.feedbackHeader,
     required this.feedbackThanks,
@@ -1044,6 +1050,9 @@ const _Strings _fr = _Strings(
   favoritesCountSingle: "activité",
   favoritesCountPlural: "activités",
   favoriteRemoveError: "Erreur lors de la suppression",
+  favoritesViewList: "Liste",
+  favoritesViewMap: "Carte",
+  favoritesEmptyMap: "Tape sur un pin pour ouvrir l'activité.",
   feedbackTitle: "Votre avis compte !",
   feedbackHeader: "Merci de prendre quelques instants pour nous donner votre avis !",
   feedbackThanks: "Merci pour votre feedback !",
@@ -1410,6 +1419,9 @@ const _Strings _en = _Strings(
   favoritesCountSingle: "activity",
   favoritesCountPlural: "activities",
   favoriteRemoveError: "Error removing favorite",
+  favoritesViewList: "List",
+  favoritesViewMap: "Map",
+  favoritesEmptyMap: "Tap a pin to open the activity.",
   feedbackTitle: "Your opinion matters!",
   feedbackHeader: "Please take a moment to share your feedback!",
   feedbackThanks: "Thanks for your feedback!",
