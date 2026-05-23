@@ -52,7 +52,7 @@ class _MapScreenState extends State<MapScreen> {
     (key: 'culture',    icon: Icons.museum),
     (key: 'gastronomy', icon: Icons.restaurant),
     (key: 'sport',      icon: Icons.directions_run),
-    (key: 'adventure',  icon: Icons.hiking),
+    (key: 'adventure',  icon: Icons.explore_off),
     (key: 'relax',      icon: Icons.spa),
     (key: 'fun',        icon: Icons.celebration),
     (key: 'event',      icon: Icons.event),
@@ -711,7 +711,7 @@ class _MapScreenState extends State<MapScreen> {
       case 'nature':     return Icons.landscape;
       case 'gastronomy': return Icons.restaurant;
       case 'sport':      return Icons.directions_run;
-      case 'adventure':  return Icons.hiking;
+      case 'adventure':  return Icons.explore_off;
       case 'relax':      return Icons.spa;
       case 'fun':        return Icons.celebration;
       default:           return Icons.place;
