@@ -29,6 +29,11 @@ class Activity {
   final List<int>? seasonalMonths;
   final List<int>? weeklyDays;
 
+  /// Activite testee et approuvee par l'equipe Whateka. Affiche un badge
+  /// "W verified" a cote des chips categories sur la card + la fiche detail.
+  /// Toggle cote admin uniquement (admin_users).
+  final bool isWhatekaCertified;
+
   // Local state only, not from DB for now
   bool isFavorite;
   String? aiReason; // AI-generated personalized explanation
@@ -57,6 +62,7 @@ class Activity {
     this.dateEnd,
     this.seasonalMonths,
     this.weeklyDays,
+    this.isWhatekaCertified = false,
     this.isFavorite = false,
     this.aiReason,
   });
@@ -189,6 +195,7 @@ class Activity {
       weeklyDays: (json['weekly_days'] as List<dynamic>?)
           ?.map((e) => e as int)
           .toList(),
+      isWhatekaCertified: json['is_whateka_certified'] as bool? ?? false,
     );
   }
 }

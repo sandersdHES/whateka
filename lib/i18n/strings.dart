@@ -314,6 +314,11 @@ class _Strings {
   final String feedbackForcedDialogClose;
   final String feedbackNoOptions;
 
+  // Badge "Whateka Verified" : tap sur le badge -> dialog explicatif.
+  final String whatekaVerifiedTitle;
+  final String whatekaVerifiedMessage;
+  final String whatekaVerifiedOk;
+
   // Home menu
   final String homeMenuGreeting; // "Bonjour {0}"
   final String homeMenuSignOutTooltip;
@@ -671,6 +676,9 @@ class _Strings {
     required this.feedbackForcedDialogTitle,
     required this.feedbackForcedDialogBody,
     required this.feedbackForcedDialogClose,
+    required this.whatekaVerifiedTitle,
+    required this.whatekaVerifiedMessage,
+    required this.whatekaVerifiedOk,
     required this.feedbackTextHint,
     required this.feedbackNoOptions,
     required this.homeMenuGreeting,
@@ -1021,6 +1029,9 @@ const _Strings _fr = _Strings(
   feedbackForcedDialogTitle: "Votre avis nous intéresse !",
   feedbackForcedDialogBody: "Vous avez fait plusieurs quiz sans nous donner votre avis. Pouvez-vous prendre 1 minute pour nous aider à améliorer Whateka ?",
   feedbackForcedDialogClose: "Plus tard",
+  whatekaVerifiedTitle: "Activité certifiée Whateka",
+  whatekaVerifiedMessage: "Cette activité a été testée et approuvée par l'équipe Whateka.",
+  whatekaVerifiedOk: "OK",
   homeMenuGreeting: "Bonjour",
   homeMenuSignOutTooltip: "Se déconnecter",
   homeMenuExploreTitle: "Commence à explorer avec WHATEKA !",
@@ -1368,6 +1379,9 @@ const _Strings _en = _Strings(
   feedbackForcedDialogTitle: "Your opinion matters!",
   feedbackForcedDialogBody: "You've completed several quizzes without sharing your feedback. Could you spare a minute to help us improve Whateka?",
   feedbackForcedDialogClose: "Later",
+  whatekaVerifiedTitle: "Whateka-certified activity",
+  whatekaVerifiedMessage: "This activity has been tested and approved by the Whateka team.",
+  whatekaVerifiedOk: "OK",
   homeMenuGreeting: "Hello",
   homeMenuSignOutTooltip: "Sign out",
   homeMenuExploreTitle: "Start exploring with WHATEKA!",

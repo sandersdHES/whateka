@@ -9,6 +9,7 @@ import '../models/activity.dart';
 import '../services/activity_service.dart';
 import '../widgets/activity_card.dart';
 import '../widgets/responsive_center.dart';
+import '../widgets/whateka_verified_badge.dart';
 import 'feedback_hot_screen.dart';
 
 class SingleActivityScreen extends StatefulWidget {
@@ -214,13 +215,17 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                         // séparées par un point milieu). Si plusieurs categories,
                         // elles apparaissent l'une apres l'autre sur la meme ligne
                         // (Wrap = retour ligne auto si overflow).
+                        // Le badge "Whateka Verified" est ajoute apres les
+                        // categories si l'activite est certifiee par l'equipe.
                         if (activity.category != null) ...[
                           Builder(builder: (context) {
                             final cats = ActivityCard.displayCategories(
                                 activity.category);
-                            if (cats.isEmpty) return const SizedBox.shrink();
+                            if (cats.isEmpty && !activity.isWhatekaCertified) {
+                              return const SizedBox.shrink();
+                            }
                             // Construction d'une liste alternee :
-                            // [label, dot, label, dot, label]
+                            // [label, dot, label, dot, label, badge?]
                             final children = <Widget>[];
                             for (var i = 0; i < cats.length; i++) {
                               final c = cats[i];
@@ -247,7 +252,17 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                                 ));
                               }
                             }
+                            if (activity.isWhatekaCertified) {
+                              if (cats.isNotEmpty) {
+                                children.add(const SizedBox(width: 8));
+                              }
+                              children.add(
+                                const WhatekaVerifiedBadge(size: 22),
+                              );
+                            }
                             return Wrap(
+                              spacing: 0,
+                              runSpacing: 4,
                               crossAxisAlignment: WrapCrossAlignment.center,
                               children: children,
                             );
