@@ -24,6 +24,7 @@ import 'screens/thanks_for_interest_screen.dart';
 import 'i18n/strings.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -33,18 +34,42 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  await Supabase.initialize(
-    url: const String.fromEnvironment(
-      'SUPABASE_URL',
-      defaultValue: 'https://pqywriedvxsdngypplpg.supabase.co',
-    ),
-    anonKey: const String.fromEnvironment(
-      'SUPABASE_ANON_KEY',
-      defaultValue: 'sb_publishable_KzcTKvqLTbWoECaUkD--xw_xJ8A35K6',
-    ),
-  );
+  // SUPABASE_URL et SUPABASE_ANON_KEY doivent etre passes via
+  //   flutter build/run --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+  // ou via le workflow GitHub Actions (Secrets).
+  // On NE met PLUS de defaultValue en clair dans le code source : meme une
+  // anon key permet d'enumerer le schema et de probe les RLS — autant ne
+  // pas la versionner. Cf. audit 2026-05.
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+    throw StateError(
+      'SUPABASE_URL et SUPABASE_ANON_KEY doivent etre fournis via --dart-define. '
+      'Voir BUILD.md et .github/workflows/deploy-web.yml.',
+    );
+  }
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
-  runApp(const MyApp());
+  // Observabilite : init Sentry si SENTRY_DSN est defini. Sans DSN, no-op
+  // total (pas de network, pas de wrap d'erreurs). Voir BUILD.md.
+  const sentryDsn = String.fromEnvironment('SENTRY_DSN');
+  if (sentryDsn.isNotEmpty) {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = sentryDsn;
+        options.tracesSampleRate = 0.1;
+        // PII off par defaut : on veut pas capturer les emails users.
+        options.sendDefaultPii = false;
+        options.environment = const String.fromEnvironment(
+          'SENTRY_ENV',
+          defaultValue: 'production',
+        );
+      },
+      appRunner: () => runApp(const MyApp()),
+    );
+  } else {
+    runApp(const MyApp());
+  }
 }
 
 class AppColors {

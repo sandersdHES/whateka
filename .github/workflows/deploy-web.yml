@@ -29,10 +29,21 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter Web
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::SUPABASE_URL and SUPABASE_ANON_KEY repository secrets must be set."
+            exit 1
+          fi
           flutter build web \
             --release \
-            --base-href "/"
+            --base-href "/" \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+            --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"
 
       # Mettre à jour la date du sitemap à chaque déploiement
       - name: Update sitemap date
