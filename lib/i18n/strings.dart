@@ -244,8 +244,9 @@ class _Strings {
   final String activityNoUrl;
   final String activityCannotOpenUrl;
   final String activityOpenError;
-  final String activityViewOnSite;
-  final String activitySite;
+  final String activityViewOnSite; // deprecated — kept for compat
+  final String activitySite;       // deprecated — kept for compat
+  final String activityViewSite;   // nouveau label CTA generique
 
   // Submit activity
   final String submitGeolocating;
@@ -651,6 +652,7 @@ class _Strings {
     required this.activityOpenError,
     required this.activityViewOnSite,
     required this.activitySite,
+    required this.activityViewSite,
     required this.submitGeolocating,
     required this.submitGeolocateError,
     required this.submitNoPlaceFound,
@@ -1031,6 +1033,7 @@ const _Strings _fr = _Strings(
   activityOpenError: "Erreur lors de l'ouverture du lien",
   activityViewOnSite: "Voir sur",
   activitySite: "le site",
+  activityViewSite: "Voir le site",
   submitGeolocating: "Localisation...",
   submitGeolocateError: "Erreur géolocalisation",
   submitNoPlaceFound: "Aucun lieu trouvé",
@@ -1410,6 +1413,7 @@ const _Strings _en = _Strings(
   activityOpenError: "Error opening link",
   activityViewOnSite: "View on",
   activitySite: "the site",
+  activityViewSite: "View site",
   submitGeolocating: "Locating...",
   submitGeolocateError: "Geolocation error",
   submitNoPlaceFound: "No place found",

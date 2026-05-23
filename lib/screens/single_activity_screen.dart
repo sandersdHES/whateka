@@ -147,17 +147,8 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
     );
   }
 
-  String _siteName() {
-    if (activity.activityUrl == null || activity.activityUrl!.isEmpty) {
-      return S.current.activitySite;
-    }
-    try {
-      final host = Uri.parse(activity.activityUrl!).host;
-      return host.replaceFirst('www.', '');
-    } catch (_) {
-      return S.current.activitySite;
-    }
-  }
+  // _siteName retirée : on ne montre plus le nom de domaine de l'URL dans
+  // le bouton CTA. Label desormais generique via S.current.activityViewSite.
 
   @override
   Widget build(BuildContext context) {
@@ -446,7 +437,7 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: _openActivityUrl,
-                            child: Text('${s.activityViewOnSite} ${_siteName()}'),
+                            child: Text(s.activityViewSite),
                           ),
                         ),
                         const SizedBox(height: 12),
