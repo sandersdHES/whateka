@@ -35,8 +35,9 @@ class ContactSection extends StatelessWidget {
           child: Column(
             children: [
               _ContactRow(
-                icon: Icons.photo_camera_outlined,
-                iconBg: const Color(0xFFE1306C),
+                customIcon: const _InstagramLogoIcon(size: 40),
+                icon: Icons.camera_alt_outlined, // fallback ignore quand customIcon
+                iconBg: Colors.transparent,
                 title: s.contactInstagramButton,
                 subtitle: s.contactInstagramSubtitle,
                 onTap: () => _openInstagram(context),
@@ -104,6 +105,9 @@ class _ContactRow extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  /// Si fourni, remplace le carré icone + iconBg par ce widget personnalise
+  /// (ex: _InstagramLogoIcon pour le logo Insta avec gradient officiel).
+  final Widget? customIcon;
 
   const _ContactRow({
     required this.icon,
@@ -111,6 +115,7 @@ class _ContactRow extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.customIcon,
   });
 
   @override
@@ -123,15 +128,16 @@ class _ContactRow extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: iconBg,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: Colors.white, size: 22),
-              ),
+              customIcon ??
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: iconBg,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: Colors.white, size: 22),
+                  ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -332,6 +338,76 @@ class _ContactMessageSheetState extends State<_ContactMessageSheet> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Logo Instagram stylise : carre arrondi avec gradient officiel
+/// (jaune -> orange -> magenta -> violet -> bleu) + boitier carre blanc
+/// outline + objectif circulaire blanc + point flash en haut a droite.
+class _InstagramLogoIcon extends StatelessWidget {
+  final double size;
+  const _InstagramLogoIcon({this.size = 40});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFEDA75), // jaune chaud
+            Color(0xFFFA7E1E), // orange
+            Color(0xFFD62976), // magenta / rose
+            Color(0xFF962FBF), // violet
+            Color(0xFF4F5BD5), // bleu
+          ],
+          stops: [0.0, 0.25, 0.5, 0.75, 1.0],
+        ),
+        borderRadius: BorderRadius.circular(size * 0.28),
+      ),
+      child: Stack(
+        children: [
+          // Boitier carre outline + objectif rond outline, centres.
+          Center(
+            child: Container(
+              width: size * 0.55,
+              height: size * 0.55,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white, width: size * 0.055),
+                borderRadius: BorderRadius.circular(size * 0.17),
+              ),
+              child: Center(
+                child: Container(
+                  width: size * 0.30,
+                  height: size * 0.30,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border:
+                        Border.all(color: Colors.white, width: size * 0.05),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Petit point flash en haut a droite.
+          Positioned(
+            top: size * 0.16,
+            right: size * 0.16,
+            child: Container(
+              width: size * 0.07,
+              height: size * 0.07,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
