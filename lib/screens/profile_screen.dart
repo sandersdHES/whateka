@@ -521,6 +521,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   },
                 ),
+                const SizedBox(height: 10),
+                // Apercu des 3 tiers pour que l'utilisateur sache qu'il y a
+                // 3 formules disponibles. Tap = /subscription (cartes detaillees).
+                SubscriptionTiersPreview(
+                  currentTier: _subscription!.tier,
+                  onTap: () async {
+                    await Navigator.pushNamed(context, '/subscription');
+                    _loadSubscription();
+                  },
+                ),
                 const SizedBox(height: 24),
               ],
 
