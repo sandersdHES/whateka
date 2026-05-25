@@ -71,15 +71,18 @@ class _AiResultScreenState extends State<AiResultScreen> {
         ..._extraActivities.map((a) => a.id),
       };
 
-      // Use excludeIds (côté serveur) pour avoir TOUJOURS 3 nouvelles
-      // activités non encore vues, peu importe leur position.
-      // proposableOnly=true : exclut les saisonnieres hors-saison, les
-      // one_off hors-fenetre, les events sans dates. Sinon "Plus d'idees"
-      // pouvait remonter une foire d'octobre en mai (bug audit 2026-05).
-      final more = await _activityService.getActivities(
-        limit: 3,
+      // "Plus d'idees" doit proposer des activites coherentes avec les
+      // reponses du quiz initial (memes categories, budget, environnement,
+      // duree, social, region). On appelle directement la RPC score_activities
+      // qui applique :
+      //   - le scoring identique au quiz initial (recommend-activity edge)
+      //   - le filtre temporel strict (is_activity_proposable_now)
+      //   - les exclusions d'ids deja vus + recent_recommendations
+      final more = await _activityService.getMoreScoredActivities(
+        userPrefs: widget.userPrefs,
+        contextData: widget.contextData,
         excludeIds: _shownIds.toList(),
-        proposableOnly: true,
+        limit: 3,
       );
 
       if (mounted) {
