@@ -6,23 +6,48 @@ import '../models/ai_response.dart';
 class ActivityService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  Future<List<Activity>> getActivities({int? limit, int offset = 0, List<int> excludeIds = const []}) async {
+  Future<List<Activity>> getActivities({
+    int? limit,
+    int offset = 0,
+    List<int> excludeIds = const [],
+    /// Si true, applique le filtre temporel isProposableAt(now) cote client
+    /// (pour le bouton "Plus d'idees" qui sinon proposait des foires d'octobre
+    /// en mai et du ski en juillet). On sur-fetche 4x le limit demande pour
+    /// compenser les activites filtrees, puis on tronque.
+    bool proposableOnly = false,
+  }) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
 
       // 1. Fetch activities (exclut les ids deja affiches cote serveur pour
       //    eviter d'avoir un offset cassé et des doublons en pagination).
-      var filter = _supabase.from('activities').select();
+      var filter = _supabase
+          .from('activities')
+          .select()
+          // v37 : toujours exclure les activites archivees (etait un trou,
+          // "Plus d'idees" pouvait remonter des fiches retirees).
+          .eq('archived', false);
       if (excludeIds.isNotEmpty) {
         filter = filter.not('id', 'in', '(${excludeIds.join(',')})');
       }
       var query = filter.order('created_at', ascending: false);
 
-      if (limit != null) {
-        query = query.range(offset, offset + limit - 1);
+      // Sur-fetch quand proposableOnly pour compenser le filtre client.
+      // Heuristique : x4 + 5 pour avoir une marge meme si 75% sont filtrees.
+      final fetchLimit = limit != null && proposableOnly ? (limit * 4) + 5 : limit;
+      if (fetchLimit != null) {
+        query = query.range(offset, offset + fetchLimit - 1);
       }
       final List<dynamic> data = await query;
-      final activities = data.map((json) => Activity.fromJson(json)).toList();
+      var activities = data.map((json) => Activity.fromJson(json)).toList();
+
+      if (proposableOnly) {
+        final now = DateTime.now();
+        activities = activities.where((a) => a.isProposableAt(now)).toList();
+        if (limit != null && activities.length > limit) {
+          activities = activities.sublist(0, limit);
+        }
+      }
 
       // 2. Fetch user favorites if logged in
       if (userId != null) {
