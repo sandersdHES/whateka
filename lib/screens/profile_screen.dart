@@ -8,6 +8,7 @@ import '../services/subscription_service.dart';
 import '../widgets/language_toggle.dart';
 import '../widgets/responsive_center.dart';
 import '../widgets/subscription_widgets.dart';
+import '../widgets/contact_section.dart';
 import '../widgets/whateka_bottom_nav.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -533,6 +534,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 24),
               ],
+
+              // Section "Contactez-nous" : Instagram + formulaire interne
+              const ContactSection(),
+              const SizedBox(height: 24),
 
               // Section Préférences
               Text(
