@@ -73,6 +73,70 @@ class ActivityService {
     }
   }
 
+  /// Recupere N activites supplementaires APRES un quiz, en utilisant les
+  /// memes preferences (categories, budget, environnement, duree, social,
+  /// region, rayon) + meteo que le quiz initial. Appelle la RPC SQL
+  /// `score_activities` qui :
+  ///   - filtre temporellement (is_activity_proposable_now)
+  ///   - filtre par categorie / budget / region / environnement
+  ///   - score selon les memes regles que le quiz (pertinence + qualite +
+  ///     meteo + recence + profil de gout)
+  ///   - retourne triees par score DESC
+  ///
+  /// Utilise par le bouton "Plus d'idees" sur AiResultScreen pour proposer
+  /// des activites coherentes avec ce que l'user vient de demander.
+  Future<List<Activity>> getMoreScoredActivities({
+    required Map<String, dynamic> userPrefs,
+    required Map<String, dynamic> contextData,
+    required List<int> excludeIds,
+    int limit = 3,
+  }) async {
+    final userId = _supabase.auth.currentUser?.id;
+    final location = contextData['location'];
+    final weather = contextData['weather'];
+    final lat = (location is Map) ? location['latitude'] : null;
+    final lng = (location is Map) ? location['longitude'] : null;
+
+    final List<dynamic> recentIdsRaw = (userPrefs['recent_recommendations']
+            as List<dynamic>?) ??
+        const [];
+
+    // On demande plus pour avoir une marge apres filtre des excludeIds.
+    final fetchLimit = limit + excludeIds.length + 10;
+
+    final response = await _supabase.rpc('score_activities', params: {
+      'p_categories':
+          (userPrefs['categories'] as List<dynamic>?)?.cast<String>() ?? [],
+      'p_price_levels':
+          (userPrefs['price_levels'] as List<dynamic>?)?.cast<int>() ?? [],
+      'p_price_max': userPrefs['price_max'] ?? 5,
+      'p_environment': (userPrefs['environment'] as String?) ?? '',
+      'p_region': (userPrefs['region'] as String?) ?? '',
+      'p_duration': (userPrefs['duration'] as String?) ?? '',
+      'p_social': (userPrefs['social'] as String?) ?? '',
+      'p_radius_km': userPrefs['radius_km'],
+      'p_user_lat': lat,
+      'p_user_lng': lng,
+      'p_user_id': userId,
+      'p_recent_ids': recentIdsRaw.cast<int>(),
+      'p_weather_code': (weather is Map) ? weather['weather_code'] : null,
+      'p_weather_temp': (weather is Map) ? weather['temperature'] : null,
+      'p_limit': fetchLimit,
+    });
+
+    if (response is! List) return [];
+    final excludeSet = excludeIds.toSet();
+    final picked = <Activity>[];
+    for (final row in response) {
+      if (row is! Map) continue;
+      final id = row['id'];
+      if (id is int && excludeSet.contains(id)) continue;
+      picked.add(Activity.fromJson(Map<String, dynamic>.from(row)));
+      if (picked.length >= limit) break;
+    }
+    return picked;
+  }
+
   Future<List<Activity>> getFavoriteActivities() async {
     try {
       final userId = _supabase.auth.currentUser?.id;
