@@ -461,6 +461,17 @@ class _Strings {
   final String contactDialogCancel;
   final String contactSendSuccess;
   final String contactSendError;
+  final String contactMyMessagesButton;
+  final String contactMyMessagesSubtitle;
+  final String contactMyMessagesEmpty;
+  final String contactMyMessagesEmptyHint;
+  final String contactConversationsTitle;
+  final String contactThreadTitle;
+  final String contactThreadReplyPlaceholder;
+  final String contactThreadSend;
+  final String contactThreadReplySuccess;
+  final String contactThreadReplyError;
+  final String contactThreadTeamLabel;
   // Welcome dialog (1ere connexion d'un nouveau compte)
   final String welcomeTitle;
   final String welcomeIntro;
@@ -857,6 +868,17 @@ class _Strings {
     required this.contactDialogCancel,
     required this.contactSendSuccess,
     required this.contactSendError,
+    required this.contactMyMessagesButton,
+    required this.contactMyMessagesSubtitle,
+    required this.contactMyMessagesEmpty,
+    required this.contactMyMessagesEmptyHint,
+    required this.contactConversationsTitle,
+    required this.contactThreadTitle,
+    required this.contactThreadReplyPlaceholder,
+    required this.contactThreadSend,
+    required this.contactThreadReplySuccess,
+    required this.contactThreadReplyError,
+    required this.contactThreadTeamLabel,
     required this.welcomeTitle,
     required this.welcomeIntro,
     required this.welcomeDiscoveryTitle,
@@ -1253,6 +1275,17 @@ const _Strings _fr = _Strings(
   contactDialogCancel: "Annuler",
   contactSendSuccess: "Message envoyé ! L'équipe Whateka revient vers toi rapidement.",
   contactSendError: "Impossible d'envoyer le message. Réessaie dans un instant.",
+  contactMyMessagesButton: "Mes messages",
+  contactMyMessagesSubtitle: "Tes conversations avec l'équipe",
+  contactMyMessagesEmpty: "Aucune conversation pour l'instant",
+  contactMyMessagesEmptyHint: "Quand tu nous envoies un message, il apparaîtra ici avec nos réponses.",
+  contactConversationsTitle: "Mes messages",
+  contactThreadTitle: "Conversation",
+  contactThreadReplyPlaceholder: "Écris ta réponse…",
+  contactThreadSend: "Envoyer",
+  contactThreadReplySuccess: "Message envoyé",
+  contactThreadReplyError: "Impossible d'envoyer pour le moment",
+  contactThreadTeamLabel: "Équipe Whateka",
   welcomeTitle: "Bienvenue sur Whateka 👋",
   welcomeIntro: "Tu fais maintenant partie de l'aventure. Voici comment ça marche :",
   welcomeDiscoveryTitle: "Tu commences en mode Découverte",
@@ -1648,6 +1681,17 @@ const _Strings _en = _Strings(
   contactDialogCancel: "Cancel",
   contactSendSuccess: "Message sent! The Whateka team will get back to you soon.",
   contactSendError: "Couldn't send your message. Try again in a moment.",
+  contactMyMessagesButton: "My messages",
+  contactMyMessagesSubtitle: "Your conversations with the team",
+  contactMyMessagesEmpty: "No conversations yet",
+  contactMyMessagesEmptyHint: "When you send us a message, it will appear here with our replies.",
+  contactConversationsTitle: "My messages",
+  contactThreadTitle: "Conversation",
+  contactThreadReplyPlaceholder: "Write your reply…",
+  contactThreadSend: "Send",
+  contactThreadReplySuccess: "Message sent",
+  contactThreadReplyError: "Couldn't send right now",
+  contactThreadTeamLabel: "Whateka team",
   welcomeTitle: "Welcome to Whateka 👋",
   welcomeIntro: "You're now part of the adventure. Here's how it works:",
   welcomeDiscoveryTitle: "You're starting in Discovery mode",

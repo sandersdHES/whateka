@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
+import '../screens/my_conversations_screen.dart';
 
 /// Section "Contactez-nous" affichee dans le profil. Deux options :
 ///   1. Bouton Instagram -> launch externe @whateka.ch
@@ -48,10 +49,25 @@ class ContactSection extends StatelessWidget {
                 subtitle: s.contactMessageSubtitle,
                 onTap: () => _showMessageSheet(context),
               ),
+              const Divider(height: 1, color: AppColors.line),
+              _ContactRow(
+                icon: Icons.forum_outlined,
+                iconBg: AppColors.orange,
+                title: s.contactMyMessagesButton,
+                subtitle: s.contactMyMessagesSubtitle,
+                onTap: () => _openMyConversations(context),
+              ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  void _openMyConversations(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MyConversationsScreen()),
     );
   }
 
