@@ -393,6 +393,9 @@ class _Strings {
   final String subscriptionStatusActive;
   final String subscriptionChangeRegionButton;
   final String subscriptionEvasionAllRegions;
+  final String subscriptionThreeTiersTitle;   // ex: "3 formules disponibles"
+  final String subscriptionCompareTiers;      // ex: "Comparer les abonnements"
+  final String subscriptionYourTier;          // ex: "Votre abonnement"
   final String paywallTitle;
   final String paywallSubtitle;
   final String paywallRegionalSubtitle;
@@ -776,6 +779,9 @@ class _Strings {
     required this.subscriptionStatusActive,
     required this.subscriptionChangeRegionButton,
     required this.subscriptionEvasionAllRegions,
+    required this.subscriptionThreeTiersTitle,
+    required this.subscriptionCompareTiers,
+    required this.subscriptionYourTier,
     required this.paywallTitle,
     required this.paywallSubtitle,
     required this.paywallRegionalSubtitle,
@@ -1157,6 +1163,9 @@ const _Strings _fr = _Strings(
   subscriptionStatusActive: "ACTIF",
   subscriptionChangeRegionButton: "Changer de canton",
   subscriptionEvasionAllRegions: "Toutes régions débloquées (Vaud + Valais)",
+  subscriptionThreeTiersTitle: "3 formules d'abonnement",
+  subscriptionCompareTiers: "Comparer les abonnements",
+  subscriptionYourTier: "Votre formule actuelle",
   paywallTitle: "Tu as utilisé tes 5 quiz",
   paywallSubtitle: "Continue à découvrir Vaud et Valais avec un abonnement.",
   paywallRegionalSubtitle: "Quiz illimités · 1 canton",
@@ -1537,6 +1546,9 @@ const _Strings _en = _Strings(
   subscriptionStatusActive: "ACTIVE",
   subscriptionChangeRegionButton: "Change canton",
   subscriptionEvasionAllRegions: "All regions unlocked (Vaud + Valais)",
+  subscriptionThreeTiersTitle: "3 subscription plans",
+  subscriptionCompareTiers: "Compare plans",
+  subscriptionYourTier: "Your current plan",
   paywallTitle: "You've used your 5 quizzes",
   paywallSubtitle: "Keep exploring Vaud and Valais with a subscription.",
   paywallRegionalSubtitle: "Unlimited quizzes · 1 canton",

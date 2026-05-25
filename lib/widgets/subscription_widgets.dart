@@ -752,3 +752,187 @@ class _EvasionBlock extends StatelessWidget {
     );
   }
 }
+
+/// Mini apercu des 3 tiers d'abonnement, affiche sous la SubscriptionCard
+/// du profil. Indique a l'utilisateur qu'il y a 3 formules disponibles +
+/// surligne celle qu'il a actuellement. Tap sur n'importe quelle carte →
+/// /subscription (qui montre les cartes detaillees).
+///
+/// Cf. profile_screen.dart, section Abonnement.
+class SubscriptionTiersPreview extends StatelessWidget {
+  final SubscriptionTier currentTier;
+  final VoidCallback onTap;
+
+  const SubscriptionTiersPreview({
+    super.key,
+    required this.currentTier,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.line, width: 0.5),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.view_carousel_outlined,
+                      size: 18, color: AppColors.cyan),
+                  const SizedBox(width: 8),
+                  Text(
+                    s.subscriptionThreeTiersTitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _TierMiniCard(
+                      tier: SubscriptionTier.free,
+                      current: currentTier == SubscriptionTier.free,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _TierMiniCard(
+                      tier: SubscriptionTier.regional,
+                      current: currentTier == SubscriptionTier.regional,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _TierMiniCard(
+                      tier: SubscriptionTier.evasion,
+                      current: currentTier == SubscriptionTier.evasion,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    s.subscriptionCompareTiers,
+                    style: const TextStyle(
+                      color: AppColors.cyan,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_forward_ios,
+                      size: 12, color: AppColors.cyan),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TierMiniCard extends StatelessWidget {
+  final SubscriptionTier tier;
+  final bool current;
+  const _TierMiniCard({required this.tier, required this.current});
+
+  String _emoji() => switch (tier) {
+        SubscriptionTier.free => '🌱',
+        SubscriptionTier.regional => '🗺️',
+        SubscriptionTier.evasion => '🌍',
+      };
+
+  String _title(BuildContext context) {
+    final s = S.of(context);
+    return switch (tier) {
+      SubscriptionTier.free => s.subscriptionFreeTitle,
+      SubscriptionTier.regional => s.subscriptionRegionalTitle,
+      SubscriptionTier.evasion => s.subscriptionEvasionTitle,
+    };
+  }
+
+  String _price(BuildContext context) {
+    final s = S.of(context);
+    if (tier == SubscriptionTier.free) return s.subscriptionPriceFree;
+    return '${tier.priceChf.toStringAsFixed(0)} ${s.subscriptionPriceMonth}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      decoration: BoxDecoration(
+        color: current ? AppColors.cyan.withValues(alpha: 0.1) : AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: current ? AppColors.cyan : AppColors.line,
+          width: current ? 1.5 : 0.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(_emoji(), style: const TextStyle(fontSize: 20)),
+          const SizedBox(height: 4),
+          Text(
+            _title(context),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: current ? AppColors.cyan : AppColors.ink,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            _price(context),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.stone,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          if (current) ...[
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+              decoration: BoxDecoration(
+                color: AppColors.cyan,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                S.of(context).subscriptionStatusActive,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
