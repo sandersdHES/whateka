@@ -448,6 +448,19 @@ class _Strings {
   final String thanksSupportBullet2;
   final String thanksSupportBullet3;
   final String thanksClose;
+  // Section "Contactez-nous" dans profil
+  final String contactSectionTitle;
+  final String contactInstagramButton;
+  final String contactInstagramSubtitle;
+  final String contactMessageButton;
+  final String contactMessageSubtitle;
+  final String contactDialogTitle;
+  final String contactDialogSubject;
+  final String contactDialogMessage;
+  final String contactDialogSend;
+  final String contactDialogCancel;
+  final String contactSendSuccess;
+  final String contactSendError;
   // Welcome dialog (1ere connexion d'un nouveau compte)
   final String welcomeTitle;
   final String welcomeIntro;
@@ -832,6 +845,18 @@ class _Strings {
     required this.thanksSupportBullet2,
     required this.thanksSupportBullet3,
     required this.thanksClose,
+    required this.contactSectionTitle,
+    required this.contactInstagramButton,
+    required this.contactInstagramSubtitle,
+    required this.contactMessageButton,
+    required this.contactMessageSubtitle,
+    required this.contactDialogTitle,
+    required this.contactDialogSubject,
+    required this.contactDialogMessage,
+    required this.contactDialogSend,
+    required this.contactDialogCancel,
+    required this.contactSendSuccess,
+    required this.contactSendError,
     required this.welcomeTitle,
     required this.welcomeIntro,
     required this.welcomeDiscoveryTitle,
@@ -1216,6 +1241,18 @@ const _Strings _fr = _Strings(
   thanksSupportBullet2: "Suggérer de nouvelles activités via le bouton « Proposer une activité »",
   thanksSupportBullet3: "Continuer à utiliser l'app et nous envoyer tes feedbacks",
   thanksClose: "Plus tard",
+  contactSectionTitle: "Contactez-nous",
+  contactInstagramButton: "Suivez-nous sur Instagram",
+  contactInstagramSubtitle: "@whateka.ch",
+  contactMessageButton: "Nous envoyer un message",
+  contactMessageSubtitle: "Question, suggestion, bug…",
+  contactDialogTitle: "Nouveau message",
+  contactDialogSubject: "Sujet",
+  contactDialogMessage: "Votre message",
+  contactDialogSend: "Envoyer",
+  contactDialogCancel: "Annuler",
+  contactSendSuccess: "Message envoyé ! L'équipe Whateka revient vers toi rapidement.",
+  contactSendError: "Impossible d'envoyer le message. Réessaie dans un instant.",
   welcomeTitle: "Bienvenue sur Whateka 👋",
   welcomeIntro: "Tu fais maintenant partie de l'aventure. Voici comment ça marche :",
   welcomeDiscoveryTitle: "Tu commences en mode Découverte",
@@ -1599,6 +1636,18 @@ const _Strings _en = _Strings(
   thanksSupportBullet2: "Suggest new activities via the \"Submit an activity\" button",
   thanksSupportBullet3: "Keep using the app and send us your feedback",
   thanksClose: "Later",
+  contactSectionTitle: "Contact us",
+  contactInstagramButton: "Follow us on Instagram",
+  contactInstagramSubtitle: "@whateka.ch",
+  contactMessageButton: "Send us a message",
+  contactMessageSubtitle: "Question, feedback, bug…",
+  contactDialogTitle: "New message",
+  contactDialogSubject: "Subject",
+  contactDialogMessage: "Your message",
+  contactDialogSend: "Send",
+  contactDialogCancel: "Cancel",
+  contactSendSuccess: "Message sent! The Whateka team will get back to you soon.",
+  contactSendError: "Couldn't send your message. Try again in a moment.",
   welcomeTitle: "Welcome to Whateka 👋",
   welcomeIntro: "You're now part of the adventure. Here's how it works:",
   welcomeDiscoveryTitle: "You're starting in Discovery mode",
