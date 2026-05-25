@@ -73,9 +73,13 @@ class _AiResultScreenState extends State<AiResultScreen> {
 
       // Use excludeIds (côté serveur) pour avoir TOUJOURS 3 nouvelles
       // activités non encore vues, peu importe leur position.
+      // proposableOnly=true : exclut les saisonnieres hors-saison, les
+      // one_off hors-fenetre, les events sans dates. Sinon "Plus d'idees"
+      // pouvait remonter une foire d'octobre en mai (bug audit 2026-05).
       final more = await _activityService.getActivities(
         limit: 3,
         excludeIds: _shownIds.toList(),
+        proposableOnly: true,
       );
 
       if (mounted) {
