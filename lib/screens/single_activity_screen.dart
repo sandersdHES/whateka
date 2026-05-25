@@ -202,10 +202,9 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Catégories (toutes affichées, chacune dans sa couleur,
-                        // séparées par un point milieu). Si plusieurs categories,
-                        // elles apparaissent l'une apres l'autre sur la meme ligne
-                        // (Wrap = retour ligne auto si overflow).
+                        // Catégories en pastilles pleines colorees (meme style
+                        // que les cards activity_card.dart, pour coherence
+                        // visuelle entre la liste et la fiche detail).
                         // Le badge "Whateka Verified" est ajoute apres les
                         // categories si l'activite est certifiee par l'equipe.
                         if (activity.category != null) ...[
@@ -215,50 +214,40 @@ class _SingleActivityScreenState extends State<SingleActivityScreen> {
                             if (cats.isEmpty && !activity.isWhatekaCertified) {
                               return const SizedBox.shrink();
                             }
-                            // Construction d'une liste alternee :
-                            // [label, dot, label, dot, label, badge?]
-                            final children = <Widget>[];
-                            for (var i = 0; i < cats.length; i++) {
-                              final c = cats[i];
-                              final color = ActivityCard.categoryColors[c] ??
-                                  AppColors.stone;
-                              children.add(Text(
-                                ActivityCard.categoryLabel(c, context)
-                                    .toUpperCase(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.copyWith(
-                                      color: color,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                              ));
-                              if (i < cats.length - 1) {
-                                children.add(Text(
-                                  ' · ',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelSmall
-                                      ?.copyWith(color: AppColors.stone),
-                                ));
-                              }
-                            }
-                            if (activity.isWhatekaCertified) {
-                              if (cats.isNotEmpty) {
-                                children.add(const SizedBox(width: 8));
-                              }
-                              children.add(
-                                const WhatekaVerifiedBadge(size: 22),
-                              );
-                            }
                             return Wrap(
-                              spacing: 0,
-                              runSpacing: 4,
+                              spacing: 6,
+                              runSpacing: 6,
                               crossAxisAlignment: WrapCrossAlignment.center,
-                              children: children,
+                              children: [
+                                ...cats.map((c) {
+                                  final color =
+                                      ActivityCard.categoryColors[c] ??
+                                          AppColors.stone;
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: color,
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: Text(
+                                      ActivityCard.categoryLabel(c, context)
+                                          .toUpperCase(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.6,
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                if (activity.isWhatekaCertified)
+                                  const WhatekaVerifiedBadge(size: 26),
+                              ],
                             );
                           }),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                         ],
                         // Titre
                         Text(
