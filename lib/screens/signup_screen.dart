@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/auth_redirects.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
 import '../widgets/responsive_center.dart';
@@ -41,7 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
         data: {'first_name': _firstnameController.text.trim()},
-        emailRedirectTo: kIsWeb ? null : 'io.supabase.whateka://login-callback',
+        emailRedirectTo: authRedirectUrl(),
       );
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/verification');

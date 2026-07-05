@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/auth_redirects.dart';
 import '../i18n/strings.dart';
 import '../main.dart';
 
@@ -29,7 +29,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     try {
       await Supabase.instance.client.auth.resetPasswordForEmail(
         _emailController.text.trim(),
-        redirectTo: kIsWeb ? null : 'io.supabase.whateka://login-callback',
+        redirectTo: authRedirectUrl(),
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
