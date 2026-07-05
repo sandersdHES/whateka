@@ -38,12 +38,6 @@ class _PhotoItem {
 }
 
 class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
-  // Liste des catégories (clés FR fixes pour la DB, labels traduits via getter).
-  static const _categoryKeys = [
-    'nature', 'culture', 'gastronomy', 'sport',
-    'adventure', 'relax', 'fun', 'event',
-  ];
-
   /// Retourne la liste des catégories avec labels traduits.
   List<(String, String)> get _categories {
     final s = S.current;

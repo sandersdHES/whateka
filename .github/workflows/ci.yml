@@ -1,0 +1,33 @@
+name: CI (analyze + tests)
+
+# Tourne sur chaque pull request et sur les push de branches (hors main, qui
+# est deja couvert par le job `test` du workflow de deploiement).
+on:
+  pull_request:
+  push:
+    branches-ignore: [ main ]
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.5'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # --no-fatal-infos : bloque sur warnings/erreurs, tolere les lints "info"
+      # pre-existants. A durcir (retirer le flag) une fois la dette resorbee.
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test

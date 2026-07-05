@@ -106,7 +106,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   double _metersWalked = 0;
   double _lastSavedMeters = 0;
   Timer? _metersSaveTimer;
-  bool _profileLoaded = false;
   // v34 : etat d'abonnement (charge en parallele du profil).
   SubscriptionState? _subscription;
   // v36 : URL de la photo de profil (sauve dans user_metadata.profile_photo_url).
@@ -181,10 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _totalSearches = (meta['total_searches'] as int?) ?? 0;
         _metersWalked = (meta['total_meters'] as num?)?.toDouble() ?? 0;
         _lastSavedMeters = _metersWalked;
-        _profileLoaded = true;
       });
-    } else {
-      setState(() => _profileLoaded = true);
     }
   }
 
