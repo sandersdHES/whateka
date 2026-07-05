@@ -1,0 +1,17 @@
+# Config Supabase versionnée (auparavant : uniquement dans le dashboard).
+# Réf. format : https://supabase.com/docs/guides/cli/config
+project_id = "pqywriedvxsdngypplpg"
+
+[auth]
+# URL de base de l'app (prod). Sert de redirect par défaut des e-mails d'auth.
+site_url = "https://whateka.ch"
+# Allow-list des redirections (reset mot de passe #1, confirmation e-mail #2).
+# Doit rester synchronisé avec lib/config/auth_redirects.dart.
+additional_redirect_urls = [
+  "https://whateka.ch/**",
+  "io.supabase.whateka://login-callback",
+  "http://localhost:*/**"
+]
+
+# Note : la protection "leaked password" (HaveIBeenPwned) est réservée au plan
+# Pro — non activée sur le plan gratuit actuel.

@@ -1,0 +1,3 @@
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS archived BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE activity_submissions ADD COLUMN IF NOT EXISTS archived BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE INDEX IF NOT EXISTS idx_activities_archived ON activities(archived) WHERE archived = TRUE;
