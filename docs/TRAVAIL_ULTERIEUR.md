@@ -41,8 +41,8 @@
 - **Décision requise** : quel provider ? (reco : **Claude/Anthropic**).
 - **1ʳᵉ action** : introduire une couche `generate(prompt) → text` dans `supabase/functions/recommend-activity/`, garder `parseGeminiResponse` + sanitisation. Tests Deno (prompt/parse/fallback).
 
-### 4. #11 — Traduction allemande *(Moyenne)*
-- **1ʳᵉ action** : étendre `enum AppLocale` (`de`), créer `const _Strings _de`, brancher `S`/`LocaleProvider` + puce 🇩🇪. Le test de parité i18n (déjà en place) fera échouer toute clé allemande manquante.
+### 4. #11 — Traduction allemande — ✅ FAIT (déployé le 5 juil.)
+- 403 chaînes DE (orthographe suisse, tutoiement, Waadt/Wallis), `AppLocale.de`, puce 🇩🇪, `pickLocalized` (DE → EN puis FR). Vérifié visuellement (accueil/login/signup) + tests de parité. Live sur whateka.ch.
 
 ### 5. #8 / #9 — Commentaires & soumissions user *(Moyenne)*
 - Réutiliser les patterns RLS/trigger existants (`contact_messages`). Bucket `user-uploads` pour #9.
@@ -52,6 +52,22 @@
 
 ### 7. #10 · #13 · #14 *(Basse / au fil de l'eau)*
 - #10 API Business (conception : auth par clé, `ingest-activity`). #13 logo Aventure (attend maquette Louisa). #14 messagerie = déjà clarifié (support user↔admin) → ajouter le realtime + index manquant `contact_message_replies.author_user_id`.
+
+### 8. #15 — Site vitrine (landing marketing) *(Moyenne)*
+- **But** : présenter Whateka publiquement (acquisition + SEO) — expliquer l'app, montrer l'équipe, et centraliser les liens de téléchargement/suivi.
+- **Contenu / sections** :
+  - **Hero** : logo + tagline « L'activité te trouvera ! » + CTA vers l'app web.
+  - **Comment ça marche** : captures d'écran (« prints ») du parcours — quiz → reco IA, carte Vaud/Valais, favoris, fiche activité.
+  - **Fonctionnalités clés** : quiz personnalisé, carte, favoris, multilingue FR/EN/DE, activités certifiées.
+  - **L'équipe** : photos + noms + rôles.
+  - **Liens** : app web (whateka.ch), **App Store** (iOS), **Google Play** (#12, à venir), **Instagram** ([@whateka.ch](https://instagram.com/whateka.ch)).
+- **Décision d'archi** (cf. décisions ouvertes) : `whateka.ch` sert aujourd'hui l'app Flutter. Options :
+  - (a) vitrine à la racine `whateka.ch`, app déplacée sous `/app` — **recommandé** (meilleur SEO, 1ʳᵉ impression marketing) ;
+  - (b) vitrine sur sous-domaine (`www.`/`hello.whateka.ch`), app à la racine ;
+  - (c) page statique séparée liée depuis l'app.
+- **Techno** : site **statique léger** (HTML/CSS/JS, ou générateur type Astro/11ty) pour SEO + perf, déployé sur GitHub Pages à côté de l'app ; Open Graph (partage social), responsive, i18n FR/EN/DE cohérente avec l'app.
+- **1ʳᵉ action** : trancher l'archi (a/b/c) ; rassembler les assets (captures à jour, photos + bios équipe, **lien App Store réel** si l'app iOS est publiée — sinon « Bientôt sur l'App Store ») ; puis maquette + intégration.
+- **Prérequis / à préciser** : l'app iOS est-elle déjà en ligne sur l'App Store (lien direct) ? Play Store = #12.
 
 ---
 
@@ -70,3 +86,4 @@
 2. **#5** : région d'hébergement Supabase (CH/UE) + org GitHub cible.
 3. **#7** : activer le paiement réel maintenant ou après Apple IAP ?
 4. **#3/#4/base64** : re-héberger toutes les images externes dans le bucket (durabilité) ?
+5. **#15 (site vitrine)** : architecture du domaine (vitrine à la racine + app sous `/app`, vs sous-domaine) ? + assets équipe/captures + lien App Store réel dispo ?

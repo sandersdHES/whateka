@@ -2,6 +2,7 @@
 
 > Établi le 5 juillet 2026 · basé sur un audit du code (`lib/`, `supabase/`), de la config de build/déploiement et du projet Supabase `pqywriedvxsdngypplpg`.
 > Source : [BUGS_ET_AMELIORATIONS.md](../BUGS_ET_AMELIORATIONS.md).
+> Suivi d'exécution & nouveaux items (dont **#15 site vitrine**) : [TRAVAIL_ULTERIEUR.md](TRAVAIL_ULTERIEUR.md).
 
 Chaque item suit le même schéma demandé : **1) test de la situation actuelle → 2) correction → 3) tests pour contrôler que la correction tient**.
 
