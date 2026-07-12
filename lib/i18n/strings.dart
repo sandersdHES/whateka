@@ -7,7 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// La langue est lue depuis user_metadata.locale (Supabase) à la connexion,
 /// ou depuis SharedPreferences en fallback. Persistante cross-device.
 
-enum AppLocale { fr, en }
+enum AppLocale { fr, en, de }
 
 class _Strings {
   // Marketing / branding
@@ -1707,6 +1707,437 @@ const _Strings _en = _Strings(
   profilePhotoError: "Error uploading photo",
 );
 
+// Allemand (orthographe suisse : "ss" au lieu de "ß" ; tutoiement "du" ;
+// exonymes Waadt/Wallis pour Vaud/Valais). Item #11.
+const _Strings _de = _Strings(
+  appTagline: "Die Aktivität findet dich!",
+  comingSoonTitle: "Whateka kommt bald",
+  comingSoonDescription: "Unsere App wird gerade fertiggestellt. Folge uns, um vom Launch zu erfahren.",
+  maintenanceFollowOn: "Folgen",
+  maintenanceCodeLabel: "Hast du einen Zugangscode?",
+  maintenanceCodePlaceholder: "••••••",
+  maintenanceValidate: "Bestätigen",
+  maintenanceLogout: "Abmelden",
+  successWelcome: "Willkommen!",
+  successDescription: "Zugang gewährt. Auf ins Abenteuer!",
+  btnLogin: "Anmelden",
+  btnSignup: "Konto erstellen",
+  btnContinue: "Weiter",
+  btnSubmit: "Bestätigen",
+  btnCancel: "Abbrechen",
+  btnSave: "Speichern",
+  btnUpdate: "Aktualisieren",
+  btnFinish: "Fertig",
+  loginTitle: "Schön, dich wiederzusehen",
+  loginEmailPlaceholder: "E-Mail-Adresse",
+  loginPasswordPlaceholder: "Passwort",
+  loginForgotPassword: "Passwort vergessen?",
+  loginNoAccount: "Noch kein Konto?",
+  signupTitle: "Konto erstellen",
+  signupNamePlaceholder: "Vorname",
+  signupConfirmPasswordPlaceholder: "Passwort bestätigen",
+  signupHasAccount: "Schon ein Konto?",
+  forgotPasswordTitle: "Passwort vergessen",
+  forgotPasswordSendLink: "Link senden",
+  quizQ1: "Mit wem gehst du?",
+  quizQ2: "Worauf hast du gerade Lust?",
+  quizQ3: "Lieber draussen oder drinnen?",
+  quizQ4: "Welches Budget?",
+  quizQ5: "Wie viel Zeit hast du?",
+  quizMaxPicks: "Bis zu 3 Auswahlen",
+  quizSolo: "Solo",
+  quizCouple: "Zu zweit",
+  quizFamily: "Mit der Familie",
+  quizFriends: "Mit Freunden",
+  quizCatNature: "Natur",
+  quizCatCulture: "Kultur",
+  quizCatRelax: "Entspannung",
+  quizCatSport: "Sport",
+  quizCatGastronomy: "Genuss",
+  quizCatAdventure: "Abenteuer",
+  quizCatFun: "Spass",
+  quizCatEvent: "Event",
+  quizOutdoor: "Outdoor",
+  quizIndoor: "Indoor",
+  quizAny: "Egal",
+  quizPriceFree: "Gratis",
+  quizPriceLow: "1–20 CHF",
+  quizPriceMid: "20–50 CHF",
+  quizPriceHigh: "50–100 CHF",
+  quizPriceVeryHigh: "100+ CHF",
+  quizDurationShort: "Ein paar Std.",
+  quizDurationMid: "Halber Tag",
+  quizDurationLong: "Ganzer Tag",
+  quizLoading: "Wird geladen...",
+  mapSearchPlaceholder: "Aktivität suchen",
+  mapToggleAll: "Alle",
+  mapToggleLive: "Live",
+  mapRecenter: "Zentrieren",
+  mapSubmitTooltip: "Aktivität vorschlagen",
+  resultTitle: "Hier sind unsere Vorschläge",
+  resultSubtitle: "Für dich ausgewählte Aktivitäten",
+  resultViewMap: "Auf der Karte ansehen",
+  resultRetry: "Nochmal",
+  activityDuration: "Dauer",
+  activityPrice: "Preis",
+  activityCategory: "Kategorie",
+  activityDescription: "Beschreibung",
+  activityViewMap: "Auf der Karte ansehen",
+  activityWebsite: "Website",
+  activityFavorite: "Favorit",
+  navMap: "Karte",
+  navQuiz: "Quiz",
+  navFavorites: "Favoriten",
+  navProfile: "Profil",
+  profileTitle: "Profil",
+  profileSearches: "Suchen",
+  profileMeters: "Zurückgelegte Meter",
+  profileLocation: "Standort",
+  profileLocationAuto: "Automatisch",
+  profileLocationManual: "Manuell",
+  profileLocationRadius: "Radius",
+  profileLanguage: "Sprache",
+  profileSignOut: "Abmelden",
+  profileDeleteAccount: "Konto löschen",
+  profileDeleteAccountDialogTitle: "Konto löschen",
+  profileDeleteAccountDialogBody: "Diese Aktion ist unwiderruflich. Alle deine Daten werden endgültig gelöscht.",
+  profileDeleteAccountConfirm: "Endgültig löschen",
+  profileDeleteAccountSuccess: "Dein Konto wurde gelöscht.",
+  profileDeleteAccountError: "Fehler beim Löschen des Kontos.",
+  submitTitle: "Aktivität vorschlagen",
+  submitName: "Name der Aktivität",
+  submitLocation: "Ort",
+  submitDescription: "Beschreibung",
+  submitCategories: "Kategorien",
+  submitDuration: "Dauer",
+  submitPrice: "Preis",
+  submitFeatures: "Nützliche Infos",
+  submitPhoto: "Foto",
+  submitGeolocate: "Automatisch lokalisieren",
+  submitConfirm: "Einreichen",
+  submitSuccess: "Danke! Deine Aktivität wurde eingereicht.",
+  yes: "Ja",
+  no: "Nein",
+  loading: "Wird geladen...",
+  error: "Ein Fehler ist aufgetreten",
+  retry: "Erneut versuchen",
+  close: "Schliessen",
+  search: "Suchen",
+  save: "Speichern",
+  featureReservation: "Reservation erforderlich",
+  featureParking: "Parkplatz",
+  featureRestrictedHours: "Eingeschränkte Öffnungszeiten",
+  featureMinParticipants: "Mindestteilnehmerzahl",
+  profileLocationGps: "GPS",
+  profileLocationChooseCity: "Stadt wählen",
+  profileLocationChooseCityLabel: "Wähle deine Stadt",
+  profileRadius: "Suchradius",
+  profileRadiusInfo: "Der Fragebogen beschränkt die Aktivitäten auf dieses Gebiet.",
+  profileRadiusVaud: "Ganze Waadt",
+  profileRadiusValais: "Ganzes Wallis",
+  profileSaveBtn: "Speichern",
+  profileLocationModeAuto: "Automatisch",
+  profileLocationModeManual: "Manuell",
+  submitNamePlaceholder: "z. B. Thermalbad Saillon",
+  submitLocationPlaceholder: "z. B. Saillon",
+  submitDescriptionPlaceholder: "Beschreibe die Aktivität in ein paar Sätzen...",
+  submitActivityUrlLabel: "URL der Aktivität",
+  submitAddPhotos: "Fotos hinzufügen",
+  submitTakePhoto: "Foto aufnehmen",
+  submitOrAddUrl: "Oder eine Bild-URL einfügen",
+  submitImageUrlPlaceholder: "https://beispiel.ch/foto.jpg",
+  submitAdd: "Hinzufügen",
+  resultSuggestionsLabel: "Vorschläge",
+  resultPeriodMorning: "heute Morgen",
+  resultPeriodAfternoon: "heute Nachmittag",
+  resultPeriodEvening: "heute Abend",
+  resultPeriodNight: "heute Nacht",
+  resultRetake: "Quiz wiederholen",
+  emptyNoActivities: "Keine Aktivität gefunden",
+  emptyNoActivitiesHint: "Versuche, deine Suchkriterien anzupassen",
+  emptyNoFavorites: "Noch keine Favoriten",
+  emptyNoFavoritesHint: "Tippe auf das Herz einer Aktivität, um sie hier wiederzufinden.",
+  errorOverloadTitle: "Hoher Andrang",
+  errorGeneric: "Ein Fehler ist aufgetreten",
+  errorRemovingFavorite: "Fehler beim Entfernen",
+  errorWithDetails: "Fehler",
+  moreActivitiesBtn: "Mehr Aktivitäten",
+  moreIdeasBtn: "Mehr Ideen",
+  validationRequired: "Erforderlich",
+  validationEmailInvalid: "Ungültige E-Mail",
+  validationMinChars: "Mind. 6 Zeichen",
+  validationPasswordsMismatch: "Die Passwörter stimmen nicht überein",
+  forgotPasswordPrompt: "Gib deine E-Mail ein, um einen Link zum Zurücksetzen zu erhalten.",
+  forgotPasswordEmailSent: "E-Mail zum Zurücksetzen gesendet",
+  forgotPasswordTooManyAttempts: "Zu viele Versuche. Bitte warte einen Moment.",
+  forgotPasswordUnexpectedError: "Unerwarteter Fehler",
+  updatePasswordTitle: "Neues Passwort",
+  updatePasswordSubtitle: "Lege dein neues Passwort fest",
+  updatePasswordNewLabel: "Neues Passwort",
+  updatePasswordConfirmLabel: "Passwort bestätigen",
+  updatePasswordSuccess: "Passwort erfolgreich aktualisiert",
+  updatePasswordCta: "Aktualisieren",
+  verificationTitle: "Bestätigung",
+  verificationHeading: "Überprüfe deine E-Mail",
+  verificationDescription: "Ein Bestätigungslink wurde an deine E-Mail-Adresse gesendet. Bitte klicke darauf, um dein Konto zu aktivieren.",
+  verificationBackToLogin: "Zurück zur Anmeldung",
+  profileSection: "Einstellungen",
+  profileFirstNameLabel: "Vorname",
+  profileEmailLabel: "E-Mail",
+  profileCharacterLabel: "Figur",
+  profileEmailChangeNotice: "Für die Adressänderung wurde eine Bestätigungs-E-Mail gesendet.",
+  profileUpdated: "Profil aktualisiert",
+  profileLocationAutoHint: "Die App nutzt automatisch deinen GPS-Standort.",
+  quizMaxChoicesError: "Maximal {0} Auswahl(en) möglich",
+  quizContextError: "Fehler beim Abrufen des Kontexts",
+  quizBudgetCascadeHint: "Niedrigere Budgets sind automatisch inbegriffen (abwählbar).",
+  activityFeedbackPromptTitle: "Deine Meinung zählt",
+  activityFeedbackPromptBody: "Möchtest du deine Erfahrung mit dieser Aktivität teilen?",
+  activityFeedbackLater: "Später",
+  activityFeedbackGive: "Bewerten",
+  activityNoUrl: "Für diese Aktivität ist keine URL verfügbar",
+  activityCannotOpenUrl: "URL kann nicht geöffnet werden",
+  activityOpenError: "Fehler beim Öffnen des Links",
+  activityViewOnSite: "Ansehen auf",
+  activitySite: "der Website",
+  activityViewSite: "Website ansehen",
+  submitGeolocating: "Wird lokalisiert...",
+  submitGeolocateError: "Fehler bei der Standortbestimmung",
+  submitNoPlaceFound: "Kein Ort gefunden",
+  submitGeolocatePrompt: "Fülle mindestens Titel und Ort aus für die automatische Lokalisierung.",
+  submitMapPreviewLabel: "Kartenvorschau (tippen zum Anpassen)",
+  submitLatitudeLabel: "Breitengrad",
+  submitLongitudeLabel: "Längengrad",
+  submitSeasonsLabel: "Jahreszeiten",
+  submitSocialTagsLabel: "Soziale Tags",
+  submitTypeLabel: "Typ (Indoor / Outdoor — mindestens eins)",
+  submitSeasonSpring: "Frühling",
+  submitSeasonSummer: "Sommer",
+  submitSeasonAutumn: "Herbst",
+  submitSeasonWinter: "Winter",
+  submitSocialFamily: "Familie",
+  submitSocialCouple: "Paar",
+  submitSocialFriends: "Freunde",
+  submitSocialSolo: "Solo",
+  submitIndoor: "Indoor",
+  submitOutdoor: "Outdoor",
+  submitPriceFree: "Gratis",
+  submitTitleRequired: "Der Titel ist erforderlich.",
+  submitLocationRequired: "Der Ort ist erforderlich.",
+  submitCategoryRequired: "Wähle mindestens eine Kategorie.",
+  submitDescriptionRequired: "Die Beschreibung ist erforderlich.",
+  submitLatitudeInvalid: "Ungültiger Breitengrad (-90 bis 90).",
+  submitLongitudeInvalid: "Ungültiger Längengrad (-180 bis 180).",
+  submitDurationInvalid: "Ungültige Dauer.",
+  submitSeasonRequired: "Wähle mindestens eine Jahreszeit.",
+  submitSocialRequired: "Wähle mindestens einen sozialen Tag.",
+  submitIndoorOutdoorRequired: "Indoor oder Outdoor muss angekreuzt sein.",
+  submitPhotoReadError: "Fotos können nicht gelesen werden",
+  submitUrlMustStartWithHttp: "Die URL muss mit http(s):// beginnen",
+  submitSubmitError: "Fehler beim Einreichen",
+  submitDurationHint: "z. B. 2.5",
+  submitAdminReviewNotice: "Dein Vorschlag wird vor der Veröffentlichung von einem Administrator geprüft.",
+  submitAddMorePhotos: "Weitere Fotos hinzufügen",
+  favoritesCountSingle: "Aktivität",
+  favoritesCountPlural: "Aktivitäten",
+  favoriteRemoveError: "Fehler beim Entfernen",
+  favoritesViewList: "Liste",
+  favoritesViewMap: "Karte",
+  favoritesEmptyMap: "Tippe auf einen Pin, um die Aktivität zu öffnen.",
+  feedbackTitle: "Deine Meinung zählt!",
+  feedbackHeader: "Danke, dass du dir einen Moment Zeit nimmst für dein Feedback!",
+  feedbackThanks: "Danke für dein Feedback!",
+  feedbackSendError: "Fehler beim Senden des Feedbacks",
+  feedbackNoQuestionsActive: "Momentan ist keine Feedback-Frage aktiv. Danke!",
+  feedbackQuestionnaireLoadError: "Der Fragebogen konnte nicht geladen werden.",
+  feedbackRetry: "Erneut versuchen",
+  feedbackSkip: "Überspringen",
+  feedbackSubmit: "Senden",
+  feedbackRatingNotAtAll: "Überhaupt nicht",
+  feedbackRatingFully: "Voll und ganz",
+  feedbackPlsAnswer: "Bitte beantworte",
+  feedbackTextHint: "Deine Antwort...",
+  feedbackNoOptions: "(Keine Option konfiguriert)",
+  feedbackGeneralTitle: "Deine Meinung zu Whateka",
+  feedbackForcedDialogTitle: "Deine Meinung interessiert uns!",
+  feedbackForcedDialogBody: "Du hast mehrere Quiz gemacht, ohne uns dein Feedback zu geben. Nimmst du dir 1 Minute Zeit, um Whateka zu verbessern?",
+  feedbackForcedDialogClose: "Später",
+  whatekaVerifiedTitle: "Whateka-zertifizierte Aktivität",
+  whatekaVerifiedMessage: "Diese Aktivität wurde vom Whateka-Team getestet und freigegeben.",
+  whatekaVerifiedOk: "OK",
+  homeMenuGreeting: "Hallo",
+  homeMenuSignOutTooltip: "Abmelden",
+  homeMenuExploreTitle: "Starte deine Entdeckungsreise mit WHATEKA!",
+  homeMenuFindActivity: "Finde meine Aktivität des Tages!",
+  homeMenuMap: "Karte",
+  homeMenuFavorites: "Gelikte Aktivitäten",
+  homeMenuDefaultUserName: "Entdecker",
+  loadingFunMessage: "Wir stellen deine Auswahl zusammen...",
+  aiNoSuggestionsFound: "Keine Vorschläge für diese Kriterien gefunden.",
+  aiServerOverloaded: "Der KI-Server ist momentan überlastet. Bitte versuche es in einem Moment erneut.",
+  aiUnknownError: "Unbekannter Fehler",
+  aiErrorPrefix: "KI-Fehler",
+  aiFetchError: "Fehler beim Abrufen der KI-Empfehlungen",
+  maintenanceCodeIncorrect: "Falscher Code",
+  maintenanceOrSeparator: "oder",
+  passwordShow: "Passwort anzeigen",
+  passwordHide: "Passwort verbergen",
+  profileChangePassword: "Passwort ändern",
+  profileChangePasswordTitle: "Passwort ändern",
+  profileChangePasswordCurrent: "Aktuelles Passwort",
+  profileChangePasswordSuccess: "Passwort erfolgreich geändert",
+  profileChangePasswordCurrentInvalid: "Aktuelles Passwort falsch",
+  profileChangePasswordSamePwd: "Das neue Passwort muss sich vom alten unterscheiden",
+  profileChangePasswordGenericError: "Passwort konnte nicht geändert werden",
+  subscriptionTitle: "Abonnement",
+  subscriptionHeadline: "Wähle deinen Plan",
+  subscriptionSubheadline: "Schalte alle Aktivitäten in Waadt und Wallis frei.",
+  subscriptionMostPopular: "AM BELIEBTESTEN",
+  subscriptionFreeTitle: "Entdeckung",
+  subscriptionRegionalTitle: "Regional",
+  subscriptionEvasionTitle: "Evasion",
+  subscriptionPriceFree: "Gratis",
+  subscriptionPriceMonth: "CHF / Monat",
+  subscriptionTrialHint: "7 Tage gratis testen",
+  subscriptionStartTrial: "Test starten",
+  subscriptionCurrentPlan: "Aktueller Plan",
+  subscriptionFreeFeature1: "5 Quiz alle 30 Tage",
+  subscriptionFreeFeature2: "Vollständige Karte",
+  subscriptionFreeFeature3: "Unbegrenzte Favoriten",
+  subscriptionFreeFeature4: "Aktivität vorschlagen",
+  subscriptionRegionalFeature1: "Unbegrenzte Quiz",
+  subscriptionRegionalFeature2: "Waadt ODER Wallis",
+  subscriptionRegionalFeature3: "Personalisierte Empfehlungen",
+  subscriptionRegionalFeature4: "Kantonswechsel 1× / 30 Tage",
+  subscriptionEvasionFeature1: "Alles aus Regional inklusive",
+  subscriptionEvasionFeature2: "Waadt UND Wallis",
+  subscriptionEvasionFeature3: "Aktivitäten in der Vorpremiere",
+  subscriptionEvasionFeature4: "Premium-Badge",
+  subscriptionPromoCodeButton: "Ich habe einen Promo-Code",
+  subscriptionDisclaimer: "Jederzeit kündbar.",
+  subscriptionQuizUsage: "{used} / {limit} Quiz genutzt",
+  subscriptionResetOn: "Zurücksetzung am {date}",
+  subscriptionGoPremium: "Premium werden 🚀",
+  subscriptionGoEvasion: "Auf Evasion wechseln (5 CHF)",
+  subscriptionRegionLabel: "Aktueller Kanton",
+  subscriptionExpiresOn: "Verlängerung am {date}",
+  subscriptionStatusActive: "AKTIV",
+  subscriptionChangeRegionButton: "Kanton wechseln",
+  subscriptionEvasionAllRegions: "Alle Regionen freigeschaltet (Waadt + Wallis)",
+  subscriptionThreeTiersTitle: "3 Abo-Varianten",
+  subscriptionCompareTiers: "Abos vergleichen",
+  subscriptionYourTier: "Dein aktuelles Abo",
+  paywallTitle: "Du hast deine 5 Quiz aufgebraucht",
+  paywallSubtitle: "Entdecke Waadt und Wallis weiter mit einem Abo.",
+  paywallRegionalSubtitle: "Unbegrenzte Quiz · 1 Kanton",
+  paywallEvasionSubtitle: "Unbegrenzte Quiz · Waadt + Wallis",
+  paywallPromoCodeButton: "Ich habe einen Promo-Code",
+  paywallResetHint: "Gratis-Zurücksetzung am {date}",
+  paywallLater: "Später",
+  regionChangeTitle: "Kanton wechseln",
+  regionChangeWarning: "Du kannst in 30 Tagen wieder wechseln.",
+  regionChangeNextOn: "Nächster Wechsel möglich am {date}",
+  regionChangeConfirm: "Wechsel bestätigen",
+  regionChangeSuccess: "Kanton aktualisiert",
+  regionChangeErrorTooSoon: "Zwischen zwei Wechseln musst du 30 Tage warten.",
+  regionChangeErrorNotRegional: "Diese Option ist nur mit dem Regional-Abo verfügbar.",
+  regionChangeErrorGeneric: "Kanton kann momentan nicht gewechselt werden.",
+  promoCodeTitle: "Promo-Code",
+  promoCodeHeadline: "Aktiviere deinen Code",
+  promoCodeSubheadline: "Gib deinen Promo-Code ein, um dein Abo freizuschalten.",
+  promoCodeLabel: "Code",
+  promoCodeApply: "Aktivieren",
+  promoCodeSuccess: "Code aktiviert: {months} Monate geschenkt!",
+  promoCodeErrorNotFound: "Code nicht gefunden.",
+  promoCodeErrorInactive: "Dieser Code ist nicht mehr aktiv.",
+  promoCodeErrorExpired: "Dieser Code ist abgelaufen.",
+  promoCodeErrorExhausted: "Dieser Code hat sein Nutzungslimit erreicht.",
+  promoCodeErrorAlreadyRedeemed: "Du hast diesen Code bereits verwendet.",
+  promoCodeErrorAlreadyUsedAPromo: "Du hast bereits einen Promo-Code auf diesem Konto verwendet. Nur ein Code pro Konto ist erlaubt.",
+  promoCodeErrorNotAuthenticated: "Melde dich zuerst an.",
+  promoCodeErrorGeneric: "Dieser Code konnte nicht aktiviert werden.",
+  subscriptionMobileSoon: "Die Zahlung auf dem Handy kommt bald. Abonniere in der Zwischenzeit über whateka.ch oder nutze einen Promo-Code.",
+  subscriptionManageMobileSoon: "Die Verwaltung auf dem Handy kommt bald. Gehe in der Zwischenzeit auf whateka.ch, um dein Abo zu verwalten.",
+  subscriptionCheckoutError: "Zahlung konnte nicht gestartet werden. Versuche es in einem Moment erneut.",
+  subscriptionPortalError: "Die Abo-Verwaltung konnte nicht geöffnet werden.",
+  subscriptionManageLink: "Abo verwalten / kündigen →",
+  thanksTitle: "Danke für dein Interesse 💙",
+  thanksHeadline: "Whateka ist noch ganz jung",
+  thanksIntro: "Dass du die App unterstützen möchtest, berührt uns sehr. Momentan verlangt das Whateka-Team noch nichts für die Abos — wir sind in der Startphase und möchten, dass du alles gratis geniessen kannst.",
+  thanksGiftLabel: "Dein Geschenk",
+  thanksGiftValue: "3 Monate Evasion geschenkt",
+  thanksGiftCode: "WA2026",
+  thanksGiftBenefit: "Voller Zugang zu Waadt + Wallis, unbegrenzte Quiz, Vorpremieren — ohne etwas zu bezahlen.",
+  thanksApplyNow: "Zugang aktivieren",
+  thanksCopyCode: "Code kopieren",
+  thanksCodeCopied: "Code in die Zwischenablage kopiert",
+  thanksSupportTitle: "Wie du uns im Gegenzug helfen kannst",
+  thanksSupportIntro: "Die grösste Unterstützung, die du uns heute geben kannst:",
+  thanksSupportBullet1: "Whateka weiterempfehlen (Freunde, Familie, Netzwerke)",
+  thanksSupportBullet2: "Neue Aktivitäten über den Button «Aktivität vorschlagen» einreichen",
+  thanksSupportBullet3: "Die App weiter nutzen und uns dein Feedback schicken",
+  thanksClose: "Später",
+  contactSectionTitle: "Kontaktiere uns",
+  contactInstagramButton: "Folge uns auf Instagram",
+  contactInstagramSubtitle: "@whateka.ch",
+  contactMessageButton: "Uns eine Nachricht senden",
+  contactMessageSubtitle: "Frage, Vorschlag, Bug…",
+  contactDialogTitle: "Neue Nachricht",
+  contactDialogSubject: "Betreff",
+  contactDialogMessage: "Deine Nachricht",
+  contactDialogSend: "Senden",
+  contactDialogCancel: "Abbrechen",
+  contactSendSuccess: "Nachricht gesendet! Das Whateka-Team meldet sich bald bei dir.",
+  contactSendError: "Nachricht konnte nicht gesendet werden. Versuche es gleich erneut.",
+  contactMyMessagesButton: "Meine Nachrichten",
+  contactMyMessagesSubtitle: "Deine Gespräche mit dem Team",
+  contactMyMessagesEmpty: "Noch keine Gespräche",
+  contactMyMessagesEmptyHint: "Wenn du uns eine Nachricht schickst, erscheint sie hier zusammen mit unseren Antworten.",
+  contactConversationsTitle: "Meine Nachrichten",
+  contactThreadTitle: "Gespräch",
+  contactThreadReplyPlaceholder: "Schreib deine Antwort…",
+  contactThreadSend: "Senden",
+  contactThreadReplySuccess: "Nachricht gesendet",
+  contactThreadReplyError: "Senden momentan nicht möglich",
+  contactThreadTeamLabel: "Whateka-Team",
+  welcomeTitle: "Willkommen bei Whateka 👋",
+  welcomeIntro: "Du bist jetzt Teil des Abenteuers. So funktioniert's:",
+  welcomeDiscoveryTitle: "Du startest im Entdeckungsmodus",
+  welcomeDiscoveryBullet1: "5 Quiz alle 30 Tage, um Aktivitäten zu entdecken",
+  welcomeDiscoveryBullet2: "Vollständige Karte und unbegrenzte Favoriten",
+  welcomeDiscoveryBullet3: "Möglichkeit, eine Aktivität vorzuschlagen",
+  welcomePromoIntro: "Hast du einen Promo-Code? Aktiviere ihn jetzt für 3 Monate Evasion geschenkt (unbegrenzte Quiz, Waadt + Wallis).",
+  welcomeHasCode: "Ich habe einen Promo-Code",
+  welcomeLater: "Später",
+  profileRadiusAll: "Alles",
+  profilePhotoTapToChange: "Tippen, um das Foto zu ändern",
+  profilePhotoUpdated: "Profilfoto aktualisiert",
+  profilePhotoError: "Fehler beim Hochladen des Fotos",
+);
+
+/// Mappe AppLocale <-> code stocké dans user_metadata.locale.
+String _localeCode(AppLocale l) {
+  switch (l) {
+    case AppLocale.en:
+      return 'en';
+    case AppLocale.de:
+      return 'de';
+    case AppLocale.fr:
+      return 'fr';
+  }
+}
+
+AppLocale _localeFromCode(String? code) {
+  switch (code) {
+    case 'en':
+      return AppLocale.en;
+    case 'de':
+      return AppLocale.de;
+    default:
+      return AppLocale.fr;
+  }
+}
+
 /// Provider de locale (notifie les widgets quand la langue change).
 class LocaleProvider extends ChangeNotifier {
   static final LocaleProvider instance = LocaleProvider._internal();
@@ -1721,12 +2152,7 @@ class LocaleProvider extends ChangeNotifier {
   Future<void> init() async {
     final user = Supabase.instance.client.auth.currentUser;
     final meta = user?.userMetadata ?? {};
-    final loc = meta['locale']?.toString();
-    if (loc == 'en') {
-      _current = AppLocale.en;
-    } else {
-      _current = AppLocale.fr;
-    }
+    _current = _localeFromCode(meta['locale']?.toString());
     notifyListeners();
   }
 
@@ -1737,9 +2163,9 @@ class LocaleProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await Supabase.instance.client.auth.updateUser(
-        UserAttributes(data: {'locale': loc == AppLocale.en ? 'en' : 'fr'}),
+        UserAttributes(data: {'locale': _localeCode(loc)}),
       );
-    } catch (_e) {
+    } catch (_) {
       // Pas connecté : la locale reste en mémoire pour la session
     }
   }
@@ -1747,19 +2173,33 @@ class LocaleProvider extends ChangeNotifier {
 
 /// Helper d'accès aux strings traduits.
 class S {
-  /// Retourne les strings dans la locale courante.
-  static _Strings of(BuildContext context) {
-    return LocaleProvider.instance.isEn ? _en : _fr;
+  static _Strings _forLocale(AppLocale l) {
+    switch (l) {
+      case AppLocale.en:
+        return _en;
+      case AppLocale.de:
+        return _de;
+      case AppLocale.fr:
+        return _fr;
+    }
   }
 
+  /// Retourne les strings dans la locale courante.
+  static _Strings of(BuildContext context) =>
+      _forLocale(LocaleProvider.instance.current);
+
   /// Variante sans context (utile dans services).
-  static _Strings get current => LocaleProvider.instance.isEn ? _en : _fr;
+  static _Strings get current => _forLocale(LocaleProvider.instance.current);
 }
 
-/// Choisit la version FR ou EN d'un champ d'activité selon la locale.
-/// Si la version EN est null/vide, fallback sur FR.
+/// Choisit la bonne version d'un champ d'activité selon la locale.
+/// Le contenu des activités n'existe qu'en FR/EN : en allemand on privilégie
+/// l'anglais (plus universel), puis on retombe sur le français.
 String pickLocalized(String? fr, String? en) {
-  if (LocaleProvider.instance.isEn && en != null && en.trim().isNotEmpty) {
+  final l = LocaleProvider.instance.current;
+  if ((l == AppLocale.en || l == AppLocale.de) &&
+      en != null &&
+      en.trim().isNotEmpty) {
     return en;
   }
   return fr ?? '';

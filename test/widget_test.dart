@@ -22,8 +22,9 @@ void main() {
       ),
     );
 
-    // Le toggle doit exposer les deux libelles de langue.
+    // Le toggle doit exposer les trois langues (FR / EN / DE — #11).
     expect(find.text('FR'), findsOneWidget);
     expect(find.text('EN'), findsOneWidget);
+    expect(find.text('DE'), findsOneWidget);
   });
 }

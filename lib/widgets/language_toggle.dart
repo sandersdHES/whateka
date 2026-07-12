@@ -13,7 +13,7 @@ class LanguageToggle extends StatelessWidget {
     return AnimatedBuilder(
       animation: LocaleProvider.instance,
       builder: (context, _) {
-        final isEn = LocaleProvider.instance.isEn;
+        final current = LocaleProvider.instance.current;
         return Container(
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
@@ -27,15 +27,22 @@ class LanguageToggle extends StatelessWidget {
               _chip(
                 emoji: '🇫🇷',
                 label: compact ? 'FR' : 'Français',
-                active: !isEn,
+                active: current == AppLocale.fr,
                 onTap: () => LocaleProvider.instance.setLocale(AppLocale.fr),
               ),
               const SizedBox(width: 4),
               _chip(
                 emoji: '🇬🇧',
                 label: compact ? 'EN' : 'English',
-                active: isEn,
+                active: current == AppLocale.en,
                 onTap: () => LocaleProvider.instance.setLocale(AppLocale.en),
+              ),
+              const SizedBox(width: 4),
+              _chip(
+                emoji: '🇩🇪',
+                label: compact ? 'DE' : 'Deutsch',
+                active: current == AppLocale.de,
+                onTap: () => LocaleProvider.instance.setLocale(AppLocale.de),
               ),
             ],
           ),
