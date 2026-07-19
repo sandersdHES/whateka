@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240">
+  <!-- Sam : style cartoon, salue de la main droite -->
+  <ellipse cx="100" cy="232" rx="40" ry="4" fill="#000000" opacity="0.14"/>
+
+  <!-- Jambes (rectangulaires arrondies) -->
+  <rect x="78" y="150" width="18" height="68" rx="6" fill="#1F3A4A"/>
+  <rect x="104" y="150" width="18" height="68" rx="6" fill="#1F3A4A"/>
+  <!-- Chaussures -->
+  <ellipse cx="87" cy="222" rx="14" ry="6" fill="#FFFFFF" stroke="#C8C8C8" stroke-width="0.8"/>
+  <ellipse cx="113" cy="222" rx="14" ry="6" fill="#FFFFFF" stroke="#C8C8C8" stroke-width="0.8"/>
+
+  <!-- Bras gauche (le long du corps) -->
+  <rect x="48" y="76" width="16" height="80" rx="8" fill="#00B8D9"/>
+  <circle cx="56" cy="160" r="9" fill="#E8D4B8"/>
+
+  <!-- Bras droit (LEVE pour saluer) - pivote a partir de l'epaule -->
+  <g transform="rotate(-50 142 84)">
+    <rect x="134" y="76" width="16" height="80" rx="8" fill="#00B8D9"/>
+    <circle cx="142" cy="160" r="11" fill="#E8D4B8"/>
+    <!-- Doigts (petite indication de main ouverte) -->
+    <circle cx="138" cy="155" r="2.5" fill="#D4B896"/>
+    <circle cx="146" cy="155" r="2.5" fill="#D4B896"/>
+  </g>
+
+  <!-- Corps (par-dessus pour cacher les jonctions) -->
+  <path d="M 60 80 Q 60 70 70 70 L 130 70 Q 140 70 140 80 L 140 152 Q 140 158 134 158 L 66 158 Q 60 158 60 152 Z"
+        fill="#00B8D9" stroke="#0099B3" stroke-width="0.8"/>
+
+  <!-- Tete -->
+  <circle cx="100" cy="44" r="32" fill="#E8D4B8" stroke="#D4B896" stroke-width="0.8"/>
+  <!-- Cheveux -->
+  <path d="M 70 38 Q 68 14 100 12 Q 132 14 130 38 L 128 30 Q 100 22 72 30 Z"
+        fill="#5C4A3A" stroke="#3D2817" stroke-width="0.5"/>
+  <!-- Cou -->
+  <rect x="92" y="68" width="16" height="10" fill="#E8D4B8" stroke="#D4B896" stroke-width="0.5"/>
+
+  <!-- Yeux -->
+  <ellipse cx="88" cy="42" rx="3" ry="3.5" fill="#FFFFFF"/>
+  <ellipse cx="112" cy="42" rx="3" ry="3.5" fill="#FFFFFF"/>
+  <circle cx="88" cy="42" r="1.8" fill="#1A1A1A"/>
+  <circle cx="112" cy="42" r="1.8" fill="#1A1A1A"/>
+  <!-- Sourire -->
+  <path d="M 88 56 Q 100 64 112 56" stroke="#1A1A1A" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Joues roses (cartoon) -->
+  <ellipse cx="80" cy="52" rx="4" ry="2.5" fill="#FF8B7A" opacity="0.5"/>
+  <ellipse cx="120" cy="52" rx="4" ry="2.5" fill="#FF8B7A" opacity="0.5"/>
+</svg>
