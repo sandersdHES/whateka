@@ -101,7 +101,7 @@
     header.scrolled { border-bottom-color: var(--line); box-shadow: var(--shadow-sm); }
     .nav { display: flex; align-items: center; justify-content: space-between; height: 72px; }
     .brand { display: flex; align-items: center; gap: 10px; }
-    .brand-mark { width: 30px; height: 30px; }
+    .brand-mark { width: 30px; height: 30px; border-radius: 7px; object-fit: contain; }
     .brand-name { font-family: var(--font-display); font-size: 25px; color: var(--ink); letter-spacing: .3px; }
     .nav-links { display: flex; align-items: center; gap: 30px; }
     .nav-links a { font-weight: 600; font-size: 15px; color: var(--ink); opacity: .8; transition: opacity .15s; }
@@ -253,10 +253,7 @@
   <header id="site-header">
     <div class="wrap nav">
       <a class="brand" href="#top" aria-label="Whateka">
-        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <path d="M16 2c-6.1 0-11 4.7-11 10.6C5 21 16 30 16 30s11-9 11-17.4C27 6.7 22.1 2 16 2z" fill="#FF6F61"/>
-          <circle cx="16" cy="12.4" r="4.4" fill="#fff"/>
-        </svg>
+        <img class="brand-mark" src="assets/logo.png" alt="" aria-hidden="true" />
         <span class="brand-name">whateka</span>
       </a>
 
@@ -529,7 +526,7 @@
       <div class="foot-grid">
         <div class="foot-brand">
           <div class="brand">
-            <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2c-6.1 0-11 4.7-11 10.6C5 21 16 30 16 30s11-9 11-17.4C27 6.7 22.1 2 16 2z" fill="#FF6F61"/><circle cx="16" cy="12.4" r="4.4" fill="#fff"/></svg>
+            <img class="brand-mark" src="assets/logo.png" alt="" aria-hidden="true" />
             <span class="brand-name">whateka</span>
           </div>
           <p data-i18n="foot.tagline">L'activité te trouvera. Découvre les meilleures sorties du Valais et du canton de Vaud.</p>
