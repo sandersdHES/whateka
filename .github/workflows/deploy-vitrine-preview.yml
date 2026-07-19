@@ -1,0 +1,43 @@
+name: Deploy Vitrine Preview
+
+# Déploie le site vitrine (dossier site/) en PRÉVERSION sur
+# https://whateka.ch/vitrine-preview/ SANS toucher à l'app servie à la racine.
+#   - dossier séparé (destination_dir) + keep_files: true -> l'app reste intacte
+#   - en préversion, l'app n'est pas encore sous /app : on réécrit les liens
+#     "Démarrer l'aventure" (/app) vers l'app live actuelle (racine whateka.ch).
+# La bascule définitive (vitrine à la racine + app sous /app) suit le plan
+# docs/PLAN_APP_SOUS_SLASH_APP.md et se fera dans une PR dédiée.
+
+on:
+  push:
+    branches: [ feat/site-vitrine ]
+    paths:
+      - 'site/**'
+      - '.github/workflows/deploy-vitrine-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Préparer la préversion (CTA -> app live à la racine)
+        run: |
+          rm -rf _preview
+          cp -R site _preview
+          # En préversion, /app n'existe pas encore -> pointer vers l'app live.
+          grep -rl 'href="/app"' _preview | xargs -r sed -i 's#href="/app"#href="https://whateka.ch/"#g'
+
+      - name: Déployer sur gh-pages/vitrine-preview
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_preview
+          destination_dir: vitrine-preview
+          keep_files: true
+          commit_message: "Deploy vitrine preview: ${{ github.event.head_commit.message }}"
