@@ -44,6 +44,13 @@ class LanguageToggle extends StatelessWidget {
                 active: current == AppLocale.de,
                 onTap: () => LocaleProvider.instance.setLocale(AppLocale.de),
               ),
+              const SizedBox(width: 4),
+              _chip(
+                emoji: '🇮🇹',
+                label: compact ? 'IT' : 'Italiano',
+                active: current == AppLocale.it,
+                onTap: () => LocaleProvider.instance.setLocale(AppLocale.it),
+              ),
             ],
           ),
         );
