@@ -7,11 +7,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// La langue est lue depuis user_metadata.locale (Supabase) à la connexion,
 /// ou depuis SharedPreferences en fallback. Persistante cross-device.
 
-enum AppLocale { fr, en, de }
+enum AppLocale { fr, en, de, it }
 
 class _Strings {
   // Marketing / branding
   final String appTagline;
+  final String homeShowcaseTitle;
+  final String homeCommunityMessage;
   final String comingSoonTitle;
   final String comingSoonDescription;
   final String maintenanceFollowOn;
@@ -126,10 +128,16 @@ class _Strings {
   final String submitLocation;
   final String submitDescription;
   final String submitCategories;
+  final String submitCategoriesHelper;
   final String submitDuration;
+  final String submitDurationHelper;
   final String submitPrice;
+  final String submitPriceHelper;
   final String submitFeatures;
+  final String submitFeaturesHelper;
   final String submitPhoto;
+  final String submitPhotoHelper;
+  final String submitCoordinatesHelper;
   final String submitGeolocate;
   final String submitConfirm;
   final String submitSuccess;
@@ -167,6 +175,7 @@ class _Strings {
   final String submitLocationPlaceholder;
   final String submitDescriptionPlaceholder;
   final String submitActivityUrlLabel;
+  final String submitActivityUrlHelper;
   final String submitAddPhotos;
   final String submitTakePhoto;
   final String submitOrAddUrl;
@@ -257,7 +266,9 @@ class _Strings {
   final String submitLatitudeLabel;
   final String submitLongitudeLabel;
   final String submitSeasonsLabel;
+  final String submitSeasonsHelper;
   final String submitSocialTagsLabel;
+  final String submitSocialTagsHelper;
   final String submitTypeLabel;
   final String submitSeasonSpring;
   final String submitSeasonSummer;
@@ -490,6 +501,8 @@ class _Strings {
 
   const _Strings({
     required this.appTagline,
+    required this.homeShowcaseTitle,
+    required this.homeCommunityMessage,
     required this.comingSoonTitle,
     required this.comingSoonDescription,
     required this.maintenanceFollowOn,
@@ -588,10 +601,16 @@ class _Strings {
     required this.submitLocation,
     required this.submitDescription,
     required this.submitCategories,
+    required this.submitCategoriesHelper,
     required this.submitDuration,
+    required this.submitDurationHelper,
     required this.submitPrice,
+    required this.submitPriceHelper,
     required this.submitFeatures,
+    required this.submitFeaturesHelper,
     required this.submitPhoto,
+    required this.submitPhotoHelper,
+    required this.submitCoordinatesHelper,
     required this.submitGeolocate,
     required this.submitConfirm,
     required this.submitSuccess,
@@ -621,6 +640,7 @@ class _Strings {
     required this.submitLocationPlaceholder,
     required this.submitDescriptionPlaceholder,
     required this.submitActivityUrlLabel,
+    required this.submitActivityUrlHelper,
     required this.submitAddPhotos,
     required this.submitTakePhoto,
     required this.submitOrAddUrl,
@@ -688,7 +708,9 @@ class _Strings {
     required this.submitLatitudeLabel,
     required this.submitLongitudeLabel,
     required this.submitSeasonsLabel,
+    required this.submitSeasonsHelper,
     required this.submitSocialTagsLabel,
+    required this.submitSocialTagsHelper,
     required this.submitTypeLabel,
     required this.submitSeasonSpring,
     required this.submitSeasonSummer,
@@ -897,6 +919,8 @@ class _Strings {
 
 const _Strings _fr = _Strings(
   appTagline: "L'activité te trouvera !",
+  homeShowcaseTitle: "Quelques activités à découvrir",
+  homeCommunityMessage: "Tu peux aussi proposer tes propres activités et rejoindre la communauté Whateka !",
   comingSoonTitle: "Whateka arrive bientôt",
   comingSoonDescription: "Notre app est en cours de finalisation. Suis-nous pour être informé du lancement.",
   maintenanceFollowOn: "Suivre",
@@ -995,10 +1019,16 @@ const _Strings _fr = _Strings(
   submitLocation: "Lieu",
   submitDescription: "Description",
   submitCategories: "Catégories",
+  submitCategoriesHelper: "Sélectionne une ou plusieurs catégories qui décrivent le mieux l'activité.",
   submitDuration: "Durée",
+  submitDurationHelper: "Durée moyenne de l'activité, en heures (ex : 2.5 pour 2h30).",
   submitPrice: "Prix",
+  submitPriceHelper: "Fourchette de prix indicative, par personne.",
   submitFeatures: "Informations utiles",
+  submitFeaturesHelper: "Coche les informations pratiques qui s'appliquent. Facultatif.",
   submitPhoto: "Photo",
+  submitPhotoHelper: "Ajoute au moins une photo représentative, depuis ton appareil ou via une URL.",
+  submitCoordinatesHelper: "Remplies automatiquement par le bouton de géolocalisation ci-dessus, ou en tapant sur la carte ci-dessous.",
   submitGeolocate: "Localiser automatiquement",
   submitConfirm: "Soumettre",
   submitSuccess: "Merci ! Ton activité a été soumise.",
@@ -1028,6 +1058,7 @@ const _Strings _fr = _Strings(
   submitLocationPlaceholder: "Ex : Saillon",
   submitDescriptionPlaceholder: "Décrivez l'activité en quelques phrases...",
   submitActivityUrlLabel: "URL de l'activité",
+  submitActivityUrlHelper: "Lien vers le site officiel (réservation, infos pratiques). Facultatif.",
   submitAddPhotos: "Ajouter des photos",
   submitTakePhoto: "Prendre une photo",
   submitOrAddUrl: "Ou coller une URL d'image",
@@ -1095,7 +1126,9 @@ const _Strings _fr = _Strings(
   submitLatitudeLabel: "Latitude",
   submitLongitudeLabel: "Longitude",
   submitSeasonsLabel: "Saisons",
+  submitSeasonsHelper: "Périodes de l'année où l'activité est recommandée.",
   submitSocialTagsLabel: "Tags sociaux",
+  submitSocialTagsHelper: "Pour qui cette activité est-elle la mieux adaptée ?",
   submitTypeLabel: "Type (Indoor / Outdoor — au moins un)",
   submitSeasonSpring: "Printemps",
   submitSeasonSummer: "Été",
@@ -1303,6 +1336,8 @@ const _Strings _fr = _Strings(
 
 const _Strings _en = _Strings(
   appTagline: "Activities will find you!",
+  homeShowcaseTitle: "A few activities to discover",
+  homeCommunityMessage: "You can also suggest your own activities and join the Whateka community!",
   comingSoonTitle: "Whateka is coming soon",
   comingSoonDescription: "Our app is being finalized. Follow us to know when it launches.",
   maintenanceFollowOn: "Follow",
@@ -1401,10 +1436,16 @@ const _Strings _en = _Strings(
   submitLocation: "Location",
   submitDescription: "Description",
   submitCategories: "Categories",
+  submitCategoriesHelper: "Select one or more categories that best describe the activity.",
   submitDuration: "Duration",
+  submitDurationHelper: "Average duration of the activity, in hours (e.g. 2.5 for 2h30).",
   submitPrice: "Price",
+  submitPriceHelper: "Indicative price range, per person.",
   submitFeatures: "Useful info",
+  submitFeaturesHelper: "Tick the practical details that apply. Optional.",
   submitPhoto: "Photo",
+  submitPhotoHelper: "Add at least one representative photo, from your device or a URL.",
+  submitCoordinatesHelper: "Filled in automatically by the geolocation button above, or by tapping the map below.",
   submitGeolocate: "Locate automatically",
   submitConfirm: "Submit",
   submitSuccess: "Thanks! Your activity has been submitted.",
@@ -1434,6 +1475,7 @@ const _Strings _en = _Strings(
   submitLocationPlaceholder: "e.g. Saillon",
   submitDescriptionPlaceholder: "Describe the activity in a few sentences...",
   submitActivityUrlLabel: "Activity URL",
+  submitActivityUrlHelper: "Link to the official website (booking, practical info). Optional.",
   submitAddPhotos: "Add photos",
   submitTakePhoto: "Take a photo",
   submitOrAddUrl: "Or paste an image URL",
@@ -1501,7 +1543,9 @@ const _Strings _en = _Strings(
   submitLatitudeLabel: "Latitude",
   submitLongitudeLabel: "Longitude",
   submitSeasonsLabel: "Seasons",
+  submitSeasonsHelper: "Times of year when the activity is recommended.",
   submitSocialTagsLabel: "Social tags",
+  submitSocialTagsHelper: "Who is this activity best suited for?",
   submitTypeLabel: "Type (Indoor / Outdoor — at least one)",
   submitSeasonSpring: "Spring",
   submitSeasonSummer: "Summer",
@@ -1711,6 +1755,8 @@ const _Strings _en = _Strings(
 // exonymes Waadt/Wallis pour Vaud/Valais). Item #11.
 const _Strings _de = _Strings(
   appTagline: "Die Aktivität findet dich!",
+  homeShowcaseTitle: "Ein paar Aktivitäten zum Entdecken",
+  homeCommunityMessage: "Du kannst auch eigene Aktivitäten vorschlagen und der Whateka-Community beitreten!",
   comingSoonTitle: "Whateka kommt bald",
   comingSoonDescription: "Unsere App wird gerade fertiggestellt. Folge uns, um vom Launch zu erfahren.",
   maintenanceFollowOn: "Folgen",
@@ -1809,10 +1855,16 @@ const _Strings _de = _Strings(
   submitLocation: "Ort",
   submitDescription: "Beschreibung",
   submitCategories: "Kategorien",
+  submitCategoriesHelper: "Wähle eine oder mehrere Kategorien, die die Aktivität am besten beschreiben.",
   submitDuration: "Dauer",
+  submitDurationHelper: "Durchschnittliche Dauer der Aktivität, in Stunden (z. B. 2.5 für 2h30).",
   submitPrice: "Preis",
+  submitPriceHelper: "Ungefähre Preisspanne, pro Person.",
   submitFeatures: "Nützliche Infos",
+  submitFeaturesHelper: "Kreuze die zutreffenden praktischen Infos an. Optional.",
   submitPhoto: "Foto",
+  submitPhotoHelper: "Füge mindestens ein aussagekräftiges Foto hinzu, von deinem Gerät oder per URL.",
+  submitCoordinatesHelper: "Wird automatisch durch den Geolokalisierungs-Button oben ausgefüllt, oder durch Tippen auf die Karte unten.",
   submitGeolocate: "Automatisch lokalisieren",
   submitConfirm: "Einreichen",
   submitSuccess: "Danke! Deine Aktivität wurde eingereicht.",
@@ -1842,6 +1894,7 @@ const _Strings _de = _Strings(
   submitLocationPlaceholder: "z. B. Saillon",
   submitDescriptionPlaceholder: "Beschreibe die Aktivität in ein paar Sätzen...",
   submitActivityUrlLabel: "URL der Aktivität",
+  submitActivityUrlHelper: "Link zur offiziellen Website (Reservation, praktische Infos). Optional.",
   submitAddPhotos: "Fotos hinzufügen",
   submitTakePhoto: "Foto aufnehmen",
   submitOrAddUrl: "Oder eine Bild-URL einfügen",
@@ -1909,7 +1962,9 @@ const _Strings _de = _Strings(
   submitLatitudeLabel: "Breitengrad",
   submitLongitudeLabel: "Längengrad",
   submitSeasonsLabel: "Jahreszeiten",
+  submitSeasonsHelper: "Jahreszeiten, in denen die Aktivität empfohlen wird.",
   submitSocialTagsLabel: "Soziale Tags",
+  submitSocialTagsHelper: "Für wen eignet sich diese Aktivität am besten?",
   submitTypeLabel: "Typ (Indoor / Outdoor — mindestens eins)",
   submitSeasonSpring: "Frühling",
   submitSeasonSummer: "Sommer",

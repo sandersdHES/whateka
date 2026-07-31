@@ -183,7 +183,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
     });
 
     // Construit la requete : titre + lieu, plus precis quand les deux sont
-    // donnes. L'edge function appelle Google Places API (New).
+    // donnes. L'edge function ('geocode-place') interroge Nominatim (OSM).
     final query = [title, loc].where((s) => s.isNotEmpty).join(', ');
 
     try {
@@ -483,6 +483,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 ),
                 _Section(
                   label: '${s.submitCategories} *',
+                  helper: s.submitCategoriesHelper,
                   child: _ChipSelector(
                     options: _categories.map((c) => c.$2).toList(),
                     values: _categories.map((c) => c.$1).toList(),
@@ -506,6 +507,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 ),
                 _Section(
                   label: s.submitActivityUrlLabel,
+                  helper: s.submitActivityUrlHelper,
                   child: TextFormField(
                     controller: _activityUrlCtrl,
                     keyboardType: TextInputType.url,
@@ -568,6 +570,16 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                     ),
                   ),
 
+                Padding(
+                  padding: const EdgeInsets.only(left: 2, bottom: 8),
+                  child: Text(
+                    s.submitCoordinatesHelper,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: AppColors.stone),
+                  ),
+                ),
                 Row(
                   children: [
                     Expanded(
@@ -673,6 +685,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 ),
                 _Section(
                   label: '${s.submitDuration} *',
+                  helper: s.submitDurationHelper,
                   child: TextFormField(
                     controller: _durationHoursCtrl,
                     keyboardType:
@@ -682,6 +695,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 ),
                 _Section(
                   label: '${s.submitPrice} *',
+                  helper: s.submitPriceHelper,
                   child: Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -725,6 +739,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 ),
                 _Section(
                   label: s.submitFeatures,
+                  helper: s.submitFeaturesHelper,
                   child: _ChipSelector(
                     options: _featuresLabels,
                     values: _featuresValues,
@@ -738,6 +753,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 ),
                 _Section(
                   label: '${s.submitSeasonsLabel} *',
+                  helper: s.submitSeasonsHelper,
                   child: _ChipSelector(
                     options: _seasonsLabels,
                     values: _seasonsKeys,
@@ -751,6 +767,7 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
                 ),
                 _Section(
                   label: '${s.submitSocialTagsLabel} *',
+                  helper: s.submitSocialTagsHelper,
                   child: _ChipSelector(
                     options: _socialTagsLabels,
                     values: _socialTagsKeys,
@@ -823,7 +840,10 @@ class _SubmitActivityScreenState extends State<SubmitActivityScreen> {
 class _Section extends StatelessWidget {
   final String label;
   final Widget child;
-  const _Section({required this.label, required this.child});
+  /// Texte d'aide facultatif affiché sous le label, pour clarifier ce qui
+  /// est attendu dans le champ (uniformité de remplissage entre soumissions).
+  final String? helper;
+  const _Section({required this.label, required this.child, this.helper});
 
   @override
   Widget build(BuildContext context) {
@@ -833,12 +853,25 @@ class _Section extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 2, bottom: 8),
+            padding: const EdgeInsets.only(left: 2, bottom: 4),
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelLarge,
             ),
           ),
+          if (helper != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 2, bottom: 8),
+              child: Text(
+                helper!,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: AppColors.stone),
+              ),
+            )
+          else
+            const SizedBox(height: 8),
           child,
         ],
       ),
@@ -969,6 +1002,7 @@ class _PhotoPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return _Section(
       label: S.of(context).submitPhoto,
+      helper: S.of(context).submitPhotoHelper,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
