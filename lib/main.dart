@@ -30,9 +30,20 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Firebase n'est configure que pour Android (cf. firebase_options.dart) et
+  // n'est de toute facon utilise nulle part ailleurs dans l'app (auth =
+  // Supabase). Sur web / iOS / desktop, DefaultFirebaseOptions.currentPlatform
+  // leve une UnsupportedError : appelee sans garde, cette exception remonte
+  // dans main() AVANT runApp(), l'app ne se monte jamais -> page blanche (web)
+  // et crash au lancement (iOS, d'ou le rejet App Store). On garde donc l'init
+  // derriere un try/catch pour ne JAMAIS bloquer le demarrage.
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase init ignoree (non configuree pour cette plateforme): $e');
+  }
 
   // SUPABASE_URL et SUPABASE_ANON_KEY doivent etre passes via
   //   flutter build/run --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
